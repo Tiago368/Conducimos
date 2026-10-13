@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Escuela Moderna - Gestión de Alumnos y Clases v0.10</title>
+    <title>Escuela Moderna - Gestión de Alumnos y Clases v0.11</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -204,7 +204,7 @@
             <!-- Marca de agua de la versión -->
             <div class="text-center pt-2">
                 <span class="text-[10px] font-mono font-medium text-slate-600 uppercase tracking-widest select-none">
-                    APP SG • v0.10
+                    APP SG • v0.11
                 </span>
             </div>
         </section>
@@ -320,10 +320,13 @@
                     <i class="fa-solid fa-file-pdf text-rose-400"></i> Descargar Informe
                 </button>
                 <button onclick="App.exportSingleStudentJSON()" class="py-2 px-3 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-amber-400 rounded-xl text-xs font-bold transition flex items-center gap-1.5" title="Exportar Ficha JSON">
-                    <i class="fa-solid fa-share-nodes"></i> Compartir Ficha
+                    <i class="fa-solid fa-share-nodes"></i>
                 </button>
-                <button onclick="App.editCurrentStudent()" class="px-4 py-2 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-white rounded-xl text-xs font-bold transition">
-                    <i class="fa-solid fa-pen"></i> Editar
+                <button onclick="App.editCurrentStudent()" class="px-3 py-2 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-white rounded-xl text-xs font-bold transition" title="Editar Ficha">
+                    <i class="fa-solid fa-pen"></i>
+                </button>
+                <button onclick="App.deleteCurrentStudent()" class="px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 rounded-xl text-xs font-bold transition" title="Eliminar Alumno">
+                    <i class="fa-solid fa-trash-can"></i>
                 </button>
             </div>
 
@@ -500,7 +503,6 @@
                 const micBtn = document.getElementById('mic-btn');
                 if (!micBtn) return;
 
-                // Eventos de puntero para mantener presionado (funciona en móvil y PC)
                 micBtn.addEventListener('pointerdown', (e) => {
                     e.preventDefault();
                     this.startDictation('class-notes');
@@ -543,7 +545,6 @@
                 const micIcon = document.getElementById('mic-icon');
                 const micText = document.getElementById('mic-text');
 
-                // Estado visual activo (Grabando / Escuchando)
                 micBtn.classList.remove('bg-slate-800', 'border-slate-700', 'text-amber-400');
                 micBtn.classList.add('bg-rose-500/20', 'border-rose-500', 'text-rose-400', 'animate-pulse');
                 micText.innerText = 'Escuchando...';
@@ -666,6 +667,16 @@
                 });
             }
 
+            async deleteRecord(storeName, id) {
+                return new Promise((resolve, reject) => {
+                    const tx = this.db.transaction(storeName, 'readwrite');
+                    const store = tx.objectStore(storeName);
+                    const req = store.delete(id);
+                    req.onsuccess = () => resolve(true);
+                    req.onerror = () => reject(req.error);
+                });
+            }
+
             async refreshData() {
                 const students = await this.getAll('students');
                 const classes = await this.getAll('classes');
@@ -768,7 +779,6 @@
                 document.getElementById('student-nickname').value = student ? (student.nickname || '') : '';
                 document.getElementById('student-experience').value = student ? student.experience : 'Sin experiencia';
                 
-                // Marcar categorías
                 const studentCats = student ? (Array.isArray(student.categories) ? student.categories : [student.category || 'B1']) : ['B1'];
                 document.querySelectorAll('input[name="student-cat"]').forEach(cb => {
                     cb.checked = studentCats.includes(cb.value);
@@ -788,7 +798,6 @@
                 const name = document.getElementById('student-name').value.trim();
                 const nickname = document.getElementById('student-nickname').value.trim();
 
-                // Recoger categorías seleccionadas
                 const selectedCats = [];
                 document.querySelectorAll('input[name="student-cat"]:checked').forEach(cb => selectedCats.push(cb.value));
 
@@ -839,7 +848,6 @@
                 document.getElementById('profile-modal-name').innerText = student.name + nick;
                 document.getElementById('profile-modal-meta').innerText = `Cat: ${cats} • ${student.experience}`;
 
-                // Cálculo de Horas Redondas (90 min = 2h, 45 min = 1h)
                 const totalHours = classes.reduce((acc, c) => {
                     const dur = Number(c.duration);
                     if (dur === 90) return acc + 2;
@@ -849,14 +857,11 @@
                 document.getElementById('profile-hours-done').innerText = `${totalHours} h`;
                 document.getElementById('profile-classes-count').innerText = classes.length;
 
-                // Nivel Promedio en escala de 1 a 5
                 this.updateAvgSkillDisplay(student.skills);
 
-                // Ocultar sección de habilidades por defecto al abrir la ficha
                 document.getElementById('profile-skills-container').classList.add('hidden');
                 document.getElementById('skills-toggle-icon').classList.remove('rotate-180');
 
-                // Render skills con 5 Opciones Claras
                 const skillsContainer = document.getElementById('profile-skills-container');
                 skillsContainer.innerHTML = SKILLS_LIST.map(skill => {
                     const level = (student.skills && student.skills[skill]) || 1;
@@ -874,7 +879,6 @@
                     `;
                 }).join('');
 
-                // Render Clases Vistas del Alumno
                 const classesContainer = document.getElementById('profile-classes-list');
                 if (classes.length === 0) {
                     classesContainer.innerHTML = `<p class="text-slate-500 text-xs italic">Sin clases registradas para este alumno.</p>`;
@@ -930,8 +934,6 @@
                 if (!student.skills) student.skills = {};
                 student.skills[skillName] = Number(level);
                 await this.saveRecord('students', student);
-                
-                // Actualizar el promedio visualmente sin volver a abrir/renderizar el modal completo
                 this.updateAvgSkillDisplay(student.skills);
             }
 
@@ -940,6 +942,31 @@
                     this.closeProfileModal();
                     this.openStudentModal(student);
                 });
+            }
+
+            async deleteCurrentStudent() {
+                if (!this.selectedStudentIdForProfile) return;
+                const student = await this.getStudentById(this.selectedStudentIdForProfile);
+                if (!student) return;
+
+                if (confirm(`¿Está seguro de eliminar el registro del alumno "${student.name}"? Esta acción borrará su ficha y su historial de clases asociado de forma permanente.`)) {
+                    // Eliminar al alumno
+                    await this.deleteRecord('students', this.selectedStudentIdForProfile);
+
+                    // Eliminar las clases asociadas a este alumno para mantener la base de datos limpia
+                    const classes = await this.getAll('classes');
+                    const tx = this.db.transaction('classes', 'readwrite');
+                    const store = tx.objectStore('classes');
+                    for (const c of classes) {
+                        if (c.studentId === this.selectedStudentIdForProfile) {
+                            store.delete(c.id);
+                        }
+                    }
+
+                    this.closeProfileModal();
+                    await this.refreshData();
+                    alert('El alumno y su historial de clases fueron eliminados correctamente.');
+                }
             }
 
             async saveClass(event) {
