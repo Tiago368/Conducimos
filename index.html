@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Conducimos - Gestión de Alumnos y Clases v0.06</title>
+    <title>Conducimos - Gestión de Alumnos y Clases v0.07</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -104,7 +104,7 @@
             <div class="flex items-center justify-between gap-2">
                 <div class="relative flex-1">
                     <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
-                    <input type="text" id="student-search" placeholder="Buscar por nombre..." oninput="App.filterStudents()" class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-amber-500">
+                    <input type="text" id="student-search" placeholder="Buscar por nombre o apodo..." oninput="App.filterStudents()" class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-amber-500">
                 </div>
                 <button onclick="App.openStudentModal()" class="px-4 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm rounded-xl transition flex items-center gap-2 shrink-0 shadow-lg shadow-amber-500/20">
                     <i class="fa-solid fa-plus"></i> Alumno
@@ -256,38 +256,33 @@
                         <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Nombre Completo *</label>
                         <input type="text" id="student-name" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
                     </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Teléfono / Contacto</label>
-                            <input type="tel" id="student-phone" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Categoría Licencia *</label>
-                            <select id="student-category" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                                <option value="A1">A1 (Motos hasta 125 c.c.)</option>
-                                <option value="A2">A2 (Motos más de 125 c.c.)</option>
-                                <option value="B1">B1 (Automóviles particulares)</option>
-                                <option value="B2">B2 (Camiones particulares)</option>
-                                <option value="B3">B3 (Vehículos articulados part.)</option>
-                                <option value="C1">C1 (Automóviles públicos)</option>
-                                <option value="C2">C2 (Camiones públicos)</option>
-                                <option value="C3">C3 (Vehículos articulados públ.)</option>
-                            </select>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Apodo o Seña Distintiva (Opcional)</label>
+                        <input type="text" id="student-nickname" placeholder="Ej. Carlos (Joven) o Carlos (Empresa)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1.5">Categoría(s) de Licencia * (Puede marcar varias)</label>
+                        <div id="student-categories-checkboxes" class="grid grid-cols-4 gap-2 bg-slate-800/50 border border-slate-700/50 rounded-xl p-3">
+                            <label class="flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer"><input type="checkbox" name="student-cat" value="A1" class="rounded bg-slate-700 text-amber-500"> A1</label>
+                            <label class="flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer"><input type="checkbox" name="student-cat" value="A2" class="rounded bg-slate-700 text-amber-500"> A2</label>
+                            <label class="flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer"><input type="checkbox" name="student-cat" value="B1" class="rounded bg-slate-700 text-amber-500"> B1</label>
+                            <label class="flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer"><input type="checkbox" name="student-cat" value="B2" class="rounded bg-slate-700 text-amber-500"> B2</label>
+                            <label class="flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer"><input type="checkbox" name="student-cat" value="B3" class="rounded bg-slate-700 text-amber-500"> B3</label>
+                            <label class="flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer"><input type="checkbox" name="student-cat" value="C1" class="rounded bg-slate-700 text-amber-500"> C1</label>
+                            <label class="flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer"><input type="checkbox" name="student-cat" value="C2" class="rounded bg-slate-700 text-amber-500"> C2</label>
+                            <label class="flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer"><input type="checkbox" name="student-cat" value="C3" class="rounded bg-slate-700 text-amber-500"> C3</label>
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Experiencia Previa *</label>
-                            <select id="student-experience" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                                <option value="Sin experiencia">Sin experiencia</option>
-                                <option value="Con experiencia previa">Con experiencia previa</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Horas Previas (Horas)</label>
-                            <input type="number" id="student-prev-hours" value="0" min="0" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                        </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Experiencia Previa *</label>
+                        <select id="student-experience" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                            <option value="Sin experiencia">Sin experiencia</option>
+                            <option value="Con experiencia previa">Con experiencia previa</option>
+                        </select>
                     </div>
+
                     <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition shadow-lg shadow-amber-500/20">
                         Guardar Alumno
                     </button>
@@ -570,22 +565,30 @@
                 if (students.length === 0) {
                     homeList.innerHTML = `<p class="text-slate-500 text-sm italic text-center py-6">No hay alumnos registrados todavía.</p>`;
                 } else {
-                    homeList.innerHTML = students.slice(-4).reverse().map(s => `
-                        <div onclick="App.openProfile(${s.id})" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between cursor-pointer hover:border-slate-700 transition">
-                            <div>
-                                <h4 class="font-bold text-white text-sm">${s.name}</h4>
-                                <p class="text-xs text-slate-400 mt-0.5">Cat: ${s.category} • Exp: ${s.experience}</p>
+                    homeList.innerHTML = students.slice(-4).reverse().map(s => {
+                        const cats = Array.isArray(s.categories) ? s.categories.join(', ') : (s.category || 'B1');
+                        const nick = s.nickname ? ` (${s.nickname})` : '';
+                        return `
+                            <div onclick="App.openProfile(${s.id})" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between cursor-pointer hover:border-slate-700 transition">
+                                <div>
+                                    <h4 class="font-bold text-white text-sm">${s.name}${nick}</h4>
+                                    <p class="text-xs text-slate-400 mt-0.5">Cat: ${cats} • Exp: ${s.experience}</p>
+                                </div>
+                                <i class="fa-solid fa-chevron-right text-slate-600 text-xs"></i>
                             </div>
-                            <i class="fa-solid fa-chevron-right text-slate-600 text-xs"></i>
-                        </div>
-                    `).join('');
+                        `;
+                    }).join('');
                 }
 
                 // Select de alumnos para el formulario
                 const classSelect = document.getElementById('class-student-id');
-                classSelect.innerHTML = `<option value="">Seleccione un alumno...</option>` + students.map(s => `<option value="${s.id}">${s.name} (${s.category})</option>`).join('');
+                classSelect.innerHTML = `<option value="">Seleccione un alumno...</option>` + students.map(s => {
+                    const cats = Array.isArray(s.categories) ? s.categories.join(', ') : (s.category || 'B1');
+                    const nick = s.nickname ? ` (${s.nickname})` : '';
+                    return `<option value="${s.id}">${s.name}${nick} [Cat: ${cats}]</option>`;
+                }).join('');
 
-                // Render Historial Reciente de Mis Clases (EXCLUSIVO DEL PROFESOR ACTUAL)
+                // Render Historial Reciente de Mis Clases
                 const recentClassesList = document.getElementById('recent-classes-list');
                 const myClasses = classes.filter(c => c.instructor === this.instructorName);
 
@@ -596,10 +599,11 @@
                         const student = students.find(s => s.id === c.studentId);
                         const skillsBadges = (c.skills || []).map(s => `<span class="bg-slate-800 text-amber-300 border border-slate-700 text-[10px] px-2 py-0.5 rounded-md font-medium">${s}</span>`).join(' ');
                         const hoursLabel = c.duration === 90 ? 'Clase 2h (90 min)' : 'Clase 1h (45 min)';
+                        const nick = student && student.nickname ? ` (${student.nickname})` : '';
                         return `
                             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2">
                                 <div class="flex items-center justify-between">
-                                    <span class="font-bold text-white text-sm">${student ? student.name : 'Alumno eliminado'}</span>
+                                    <span class="font-bold text-white text-sm">${student ? student.name + nick : 'Alumno eliminado'}</span>
                                     <span class="text-xs font-semibold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-500/20">${hoursLabel}</span>
                                 </div>
                                 <div class="flex flex-wrap gap-1 my-1">
@@ -622,22 +626,26 @@
                 const container = document.getElementById('students-container');
                 const search = document.getElementById('student-search').value.toLowerCase();
 
-                let filtered = students.filter(s => s.name.toLowerCase().includes(search));
+                let filtered = students.filter(s => s.name.toLowerCase().includes(search) || (s.nickname && s.nickname.toLowerCase().includes(search)));
 
                 if (filtered.length === 0) {
                     container.innerHTML = `<p class="text-slate-500 text-sm italic text-center py-10">No se encontraron alumnos.</p>`;
                     return;
                 }
 
-                container.innerHTML = filtered.map(s => `
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between cursor-pointer hover:border-slate-700 transition" onclick="App.openProfile(${s.id})">
-                        <div class="space-y-1">
-                            <h4 class="font-bold text-white text-sm">${s.name}</h4>
-                            <p class="text-xs text-slate-400">Tel: ${s.phone || 'Sin número'} • Cat: ${s.category} • Exp: ${s.experience}</p>
+                container.innerHTML = filtered.map(s => {
+                    const cats = Array.isArray(s.categories) ? s.categories.join(', ') : (s.category || 'B1');
+                    const nick = s.nickname ? ` <span class="text-amber-400">(${s.nickname})</span>` : '';
+                    return `
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between cursor-pointer hover:border-slate-700 transition" onclick="App.openProfile(${s.id})">
+                            <div class="space-y-1">
+                                <h4 class="font-bold text-white text-sm">${s.name}${nick}</h4>
+                                <p class="text-xs text-slate-400">Cat: ${cats} • Exp: ${s.experience}</p>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-slate-600 text-xs"></i>
                         </div>
-                        <i class="fa-solid fa-chevron-right text-slate-600 text-xs"></i>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
             }
 
             filterStudents() {
@@ -647,10 +655,15 @@
             openStudentModal(student = null) {
                 document.getElementById('student-id').value = student ? student.id : '';
                 document.getElementById('student-name').value = student ? student.name : '';
-                document.getElementById('student-phone').value = student ? student.phone : '';
-                document.getElementById('student-category').value = student ? student.category : 'B1';
+                document.getElementById('student-nickname').value = student ? (student.nickname || '') : '';
                 document.getElementById('student-experience').value = student ? student.experience : 'Sin experiencia';
-                document.getElementById('student-prev-hours').value = student ? (student.prevHours || 0) : 0;
+                
+                // Marcar categorías
+                const studentCats = student ? (Array.isArray(student.categories) ? student.categories : [student.category || 'B1']) : ['B1'];
+                document.querySelectorAll('input[name="student-cat"]').forEach(cb => {
+                    cb.checked = studentCats.includes(cb.value);
+                });
+
                 document.getElementById('student-modal-title').innerText = student ? 'Editar Alumno' : 'Registrar Nuevo Alumno';
                 document.getElementById('student-modal').classList.remove('hidden');
             }
@@ -662,13 +675,24 @@
             async saveStudent(event) {
                 event.preventDefault();
                 const idVal = document.getElementById('student-id').value;
+                const name = document.getElementById('student-name').value.trim();
+                const nickname = document.getElementById('student-nickname').value.trim();
+
+                // Recoger categorías seleccionadas
+                const selectedCats = [];
+                document.querySelectorAll('input[name="student-cat"]:checked').forEach(cb => selectedCats.push(cb.value));
+
+                if (selectedCats.length === 0) {
+                    alert('Debe seleccionar al menos una categoría de licencia.');
+                    return;
+                }
+
                 const studentData = {
                     id: idVal ? Number(idVal) : Date.now(),
-                    name: document.getElementById('student-name').value,
-                    phone: document.getElementById('student-phone').value,
-                    category: document.getElementById('student-category').value,
+                    name: name,
+                    nickname: nickname,
+                    categories: selectedCats,
                     experience: document.getElementById('student-experience').value,
-                    prevHours: Number(document.getElementById('student-prev-hours').value),
                     createdAt: idVal ? undefined : new Date().toISOString()
                 };
 
@@ -699,11 +723,14 @@
 
                 const classes = (await this.getAll('classes')).filter(c => c.studentId === id);
 
-                document.getElementById('profile-modal-name').innerText = student.name;
-                document.getElementById('profile-modal-meta').innerText = `Cat ${student.category} • ${student.experience}`;
+                const cats = Array.isArray(student.categories) ? student.categories.join(', ') : (student.category || 'B1');
+                const nick = student.nickname ? ` (${student.nickname})` : '';
 
-                // Cálculo de Horas
-                const totalMinutes = classes.reduce((acc, c) => acc + Number(c.duration), 0) + (student.prevHours * 60);
+                document.getElementById('profile-modal-name').innerText = student.name + nick;
+                document.getElementById('profile-modal-meta').innerText = `Cat: ${cats} • ${student.experience}`;
+
+                // Cálculo de Horas (Asumiendo 0 horas previas ya que se eliminó ese campo)
+                const totalMinutes = classes.reduce((acc, c) => acc + Number(c.duration), 0);
                 const totalHours = (totalMinutes / 60).toFixed(1);
                 document.getElementById('profile-hours-done').innerText = `${totalHours} h`;
                 document.getElementById('profile-classes-count').innerText = classes.length;
@@ -734,7 +761,7 @@
                     `;
                 }).join('');
 
-                // Render Clases Vistas del Alumno (Incluye importadas de otros profesores para consulta)
+                // Render Clases Vistas del Alumno
                 const classesContainer = document.getElementById('profile-classes-list');
                 if (classes.length === 0) {
                     classesContainer.innerHTML = `<p class="text-slate-500 text-xs italic">Sin clases registradas para este alumno.</p>`;
@@ -798,7 +825,7 @@
                 event.preventDefault();
 
                 if (!this.instructorName) {
-                    alert('Por favor registre su nombre de Instructor en Configuración (icono de engranaje arriba a la derecha) antes de registrar la clase.');
+                    alert('Por favor registre su nombre de Instructor en Configuración antes de registrar la clase.');
                     this.openSettings();
                     return;
                 }
@@ -857,7 +884,7 @@
 
             exportJSON() {
                 Promise.all([this.getAll('students'), this.getAll('classes'), this.getAll('settings')]).then(([students, classes, settings]) => {
-                    const backup = { schemaVersion: 5, exportedAt: new Date().toISOString(), students, classes, settings };
+                    const backup = { schemaVersion: 7, exportedAt: new Date().toISOString(), students, classes, settings };
                     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
@@ -875,7 +902,7 @@
                 
                 const exportData = {
                     type: 'single_student_export',
-                    schemaVersion: 5,
+                    schemaVersion: 7,
                     exportedAt: new Date().toISOString(),
                     student,
                     classes
@@ -890,7 +917,8 @@
                 URL.revokeObjectURL(url);
             }
 
-            importSingleStudentJSON(event) {
+            // IMPORTACIÓN INTELIGENTE SIN DUPLICADOS POR NOMBRE + APODO
+            async importSingleStudentJSON(event) {
                 const file = event.target.files[0];
                 if (!file) return;
                 const reader = new FileReader();
@@ -898,18 +926,46 @@
                     try {
                         const data = JSON.parse(e.target.result);
                         if (data.type === 'single_student_export' && data.student) {
-                            await this.saveRecord('students', data.student);
-                            if (data.classes) {
-                                for (const c of data.classes) await this.saveRecord('classes', c);
+                            const importedStudent = data.student;
+                            const allStudents = await this.getAll('students');
+                            
+                            // Buscar si ya existe por coincidencia exacta de nombre y apodo
+                            let existingStudent = allStudents.find(s => 
+                                s.name.toLowerCase() === importedStudent.name.toLowerCase() && 
+                                (s.nickname || '').toLowerCase() === (importedStudent.nickname || '').toLowerCase()
+                            );
+
+                            let targetStudentId;
+
+                            if (existingStudent) {
+                                targetStudentId = existingStudent.id;
+                                importedStudent.id = targetStudentId;
+                                await this.saveRecord('students', importedStudent);
+                            } else {
+                                targetStudentId = importedStudent.id || Date.now();
+                                importedStudent.id = targetStudentId;
+                                await this.saveRecord('students', importedStudent);
                             }
+
+                            if (data.classes && Array.isArray(data.classes)) {
+                                const existingClasses = await this.getAll('classes');
+                                for (const c of data.classes) {
+                                    c.studentId = targetStudentId;
+                                    const classExists = existingClasses.some(ec => ec.id === c.id);
+                                    if (!classExists) {
+                                        await this.saveRecord('classes', c);
+                                    }
+                                }
+                            }
+
                             this.closeStudentModal();
                             await this.refreshData();
-                            alert(`Ficha del alumno "${data.student.name}" importada correctamente.`);
+                            alert(`Ficha del alumno "${importedStudent.name}" importada y actualizada exitosamente.`);
                         } else {
                             alert('El archivo no corresponde a una ficha de alumno válida.');
                         }
                     } catch (err) {
-                        alert('Error al leer la ficha del alumno.');
+                        alert('Error al leer el archivo de la ficha.');
                     }
                 };
                 reader.readAsText(file);
@@ -977,6 +1033,9 @@
                 const student = await this.getStudentById(this.selectedStudentIdForProfile);
                 const classes = (await this.getAll('classes')).filter(c => c.studentId === student.id);
 
+                const cats = Array.isArray(student.categories) ? student.categories.join(', ') : (student.category || 'B1');
+                const nick = student.nickname ? ` (${student.nickname})` : '';
+
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
 
@@ -988,9 +1047,9 @@
 
                 doc.setTextColor(50, 50, 50);
                 doc.setFontSize(13);
-                doc.text(`Alumno: ${student.name}`, 14, 52);
+                doc.text(`Alumno: ${student.name}${nick}`, 14, 52);
                 doc.setFontSize(10);
-                doc.text(`Categoría: ${student.category} | Teléfono: ${student.phone || 'N/A'} | Exp: ${student.experience}`, 14, 60);
+                doc.text(`Categoría(s): ${cats} | Exp: ${student.experience}`, 14, 60);
 
                 doc.text("Historial Detallado de Clases Vistas:", 14, 75);
                 let y = 83;
