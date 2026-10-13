@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Escuela Moderna - Gestión de Alumnos y Clases v0.08</title>
+    <title>Escuela Moderna - Gestión de Alumnos y Clases v0.09</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -202,7 +202,7 @@
             <!-- Marca de agua de la versión -->
             <div class="text-center pt-2">
                 <span class="text-[10px] font-mono font-medium text-slate-600 uppercase tracking-widest select-none">
-                    CLASES INSTRUCTORES • v0.08
+                    APP SG • v0.09
                 </span>
             </div>
         </section>
@@ -600,7 +600,7 @@
                     recentClassesList.innerHTML = myClasses.slice(-5).reverse().map(c => {
                         const student = students.find(s => s.id === c.studentId);
                         const skillsBadges = (c.skills || []).map(s => `<span class="bg-slate-800 text-amber-300 border border-slate-700 text-[10px] px-2 py-0.5 rounded-md font-medium">${s}</span>`).join(' ');
-                        const hoursLabel = c.duration === 90 ? 'Clase 2h (90 min)' : 'Clase 1h (45 min)';
+                        const hoursLabel = c.duration === 90 ? 'Clase 2h' : 'Clase 1h';
                         const nick = student && student.nickname ? ` (${student.nickname})` : '';
                         return `
                             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2">
@@ -731,20 +731,24 @@
                 document.getElementById('profile-modal-name').innerText = student.name + nick;
                 document.getElementById('profile-modal-meta').innerText = `Cat: ${cats} • ${student.experience}`;
 
-                // Cálculo de Horas
-                const totalMinutes = classes.reduce((acc, c) => acc + Number(c.duration), 0);
-                const totalHours = (totalMinutes / 60).toFixed(1);
+                // Cálculo de Horas Redondas (90 min = 2h, 45 min = 1h)
+                const totalHours = classes.reduce((acc, c) => {
+                    const dur = Number(c.duration);
+                    if (dur === 90) return acc + 2;
+                    if (dur === 45) return acc + 1;
+                    return acc + Math.round(dur / 60);
+                }, 0);
                 document.getElementById('profile-hours-done').innerText = `${totalHours} h`;
                 document.getElementById('profile-classes-count').innerText = classes.length;
 
-                // Nivel Promedio en escala de 1 a 4
+                // Nivel Promedio en escala de 1 a 5
                 this.updateAvgSkillDisplay(student.skills);
 
                 // Ocultar sección de habilidades por defecto al abrir la ficha
                 document.getElementById('profile-skills-container').classList.add('hidden');
                 document.getElementById('skills-toggle-icon').classList.remove('rotate-180');
 
-                // Render skills con 4 Opciones Claras
+                // Render skills con 5 Opciones Claras
                 const skillsContainer = document.getElementById('profile-skills-container');
                 skillsContainer.innerHTML = SKILLS_LIST.map(skill => {
                     const level = (student.skills && student.skills[skill]) || 1;
@@ -756,6 +760,7 @@
                                 <option value="2" ${level==2?'selected':''}>2. No domina</option>
                                 <option value="3" ${level==3?'selected':''}>3. En progreso</option>
                                 <option value="4" ${level==4?'selected':''}>4. Dominada</option>
+                                <option value="5" ${level==5?'selected':''}>5. Excelente</option>
                             </select>
                         </div>
                     `;
@@ -768,7 +773,7 @@
                 } else {
                     classesContainer.innerHTML = classes.reverse().map(c => {
                         const skillsBadges = (c.skills || []).map(s => `<span class="bg-slate-800 text-amber-300 border border-slate-700 text-[10px] px-2 py-0.5 rounded-md font-medium">${s}</span>`).join(' ');
-                        const hoursLabel = c.duration === 90 ? 'Clase 2h (90 min)' : 'Clase 1h (45 min)';
+                        const hoursLabel = c.duration === 90 ? 'Clase 2h' : 'Clase 1h';
                         return `
                             <div class="bg-slate-800/40 border border-slate-700/50 rounded-xl p-3.5 space-y-2">
                                 <div class="flex items-center justify-between text-xs font-bold text-white">
@@ -791,7 +796,7 @@
             updateAvgSkillDisplay(skills) {
                 const skillsValues = Object.values(skills || {});
                 const avgSkill = skillsValues.length > 0 ? (skillsValues.reduce((a,b)=>a+b,0) / skillsValues.length).toFixed(1) : '1.0';
-                document.getElementById('profile-avg-skill').innerText = `${avgSkill} / 4`;
+                document.getElementById('profile-avg-skill').innerText = `${avgSkill} / 5`;
             }
 
             toggleSkillsSection() {
@@ -1061,7 +1066,7 @@
                 let y = 83;
                 classes.forEach((c, index) => {
                     if (y > 270) { doc.addPage(); y = 20; }
-                    const durationText = c.duration === 90 ? '2h (90 min)' : '1h (45 min)';
+                    const durationText = c.duration === 90 ? 'Clase 2h' : 'Clase 1h';
                     const skillsStr = (c.skills || []).join(', ');
                     doc.text(`${index + 1}. [${new Date(c.date).toLocaleDateString()}] ${c.type} (${durationText}) - Prof. ${c.instructor || 'N/A'}`, 14, y);
                     y += 6;
