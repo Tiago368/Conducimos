@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Conducimos - Gestión de Alumnos y Clases v0.07</title>
+    <title>Escuela Moderna - Gestión de Alumnos y Clases v0.08</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -11,7 +11,7 @@
     <!-- jsPDF para informes en PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <meta name="theme-color" content="#0f172a">
-    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Conducimos%22%2C%22short_name%22%3A%22Conducimos%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230f172a%22%2C%22theme_color%22%3A%22%230f172a%22%2C%22icons%22%3A%5B%5D%7D">
+    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Escuela%20Moderna%22%2C%22short_name%22%3A%22Escuela%20Moderna%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230f172a%22%2C%22theme_color%22%3A%22%230f172a%22%2C%22icons%22%3A%5B%5D%7D">
 </head>
 <body class="h-full text-slate-100 flex flex-col antialiased selection:bg-amber-500 selection:text-slate-950">
 
@@ -47,9 +47,8 @@
     <!-- Main Navigation Header -->
     <header class="bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center justify-between shrink-0">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-amber-500 text-slate-950 rounded-xl flex items-center justify-center font-black text-xl shadow-lg shadow-amber-500/20">C</div>
             <div>
-                <h1 class="font-bold text-white text-base leading-tight">Conducimos</h1>
+                <h1 class="font-bold text-white text-base leading-tight">Escuela Moderna</h1>
                 <p id="instructor-badge" class="text-xs text-amber-400 font-medium">Instructor: Sin registrar</p>
             </div>
         </div>
@@ -133,16 +132,14 @@
                             <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Tipo de Clase</label>
                             <select id="class-type" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-500">
                                 <option value="Práctica">Práctica</option>
-                                <option value="Teórica">Teórica</option>
                                 <option value="Evaluación">Evaluación</option>
-                                <option value="Simulador">Simulador</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Duración de Clase *</label>
                             <select id="class-duration-select" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-500">
-                                <option value="90">Clase de 2 Horas (90 min reales)</option>
-                                <option value="45">Clase de 1 Hora (45 min reales)</option>
+                                <option value="90">Clase de 2 Horas</option>
+                                <option value="45">Clase de 1 Hora</option>
                             </select>
                         </div>
                     </div>
@@ -177,7 +174,7 @@
         </section>
 
         <!-- VIEW: BACKUPS / EXPORTACIONES -->
-        <section id="view-backups" class="space-y-4 hidden">
+        <section id="view-backups" class="space-y-4 hidden relative">
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
                 <h2 class="text-lg font-bold text-white flex items-center gap-2">
                     <i class="fa-solid fa-database text-amber-500"></i> Copias de Seguridad y Datos
@@ -188,7 +185,7 @@
 
                 <div class="pt-2 space-y-3">
                     <button onclick="App.exportJSON()" class="w-full py-3.5 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-white font-bold rounded-xl transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-download text-amber-400"></i> Descargar Copia de Seguridad Completa (JSON)
+                        <i class="fa-solid fa-download text-amber-400"></i> Descargar Copia de Seguridad Completa
                     </button>
 
                     <label class="w-full py-3.5 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-white font-bold rounded-xl transition flex items-center justify-center gap-2 cursor-pointer">
@@ -200,6 +197,13 @@
                         Borrar Todos los Datos Locales
                     </button>
                 </div>
+            </div>
+
+            <!-- Marca de agua de la versión -->
+            <div class="text-center pt-2">
+                <span class="text-[10px] font-mono font-medium text-slate-600 uppercase tracking-widest select-none">
+                    CLASES INSTRUCTORES • v0.08
+                </span>
             </div>
         </section>
 
@@ -217,7 +221,7 @@
         </button>
         <button onclick="App.switchTab('classes')" class="nav-btn flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-slate-200" data-target="classes">
             <i class="fa-solid fa-clipboard-list text-lg"></i>
-            <span class="text-[10px] mt-1 font-semibold">Clase</span>
+            <span class="text-[10px] mt-1 font-semibold">Clases</span>
         </button>
         <button onclick="App.switchTab('backups')" class="nav-btn flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-slate-200" data-target="backups">
             <i class="fa-solid fa-cloud-arrow-down text-lg"></i>
@@ -240,7 +244,7 @@
                 <div class="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 text-center space-y-2">
                     <p class="text-xs text-blue-300 font-medium">¿Recibió la ficha de un alumno de otro profesor?</p>
                     <label class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition cursor-pointer shadow-md">
-                        <i class="fa-solid fa-file-import"></i> Cargar / Importar Ficha (.json)
+                        <i class="fa-solid fa-file-import"></i> Cargar / Importar Ficha
                         <input type="file" accept=".json" onchange="App.importSingleStudentJSON(event)" class="hidden">
                     </label>
                 </div>
@@ -257,12 +261,12 @@
                         <input type="text" id="student-name" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Apodo o Seña Distintiva (Opcional)</label>
-                        <input type="text" id="student-nickname" placeholder="Ej. Carlos (Joven) o Carlos (Empresa)" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Apodo (Opcional)</label>
+                        <input type="text" id="student-nickname" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
                     </div>
                     
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1.5">Categoría(s) de Licencia * (Puede marcar varias)</label>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1.5">Categoría(s) de Licencia *</label>
                         <div id="student-categories-checkboxes" class="grid grid-cols-4 gap-2 bg-slate-800/50 border border-slate-700/50 rounded-xl p-3">
                             <label class="flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer"><input type="checkbox" name="student-cat" value="A1" class="rounded bg-slate-700 text-amber-500"> A1</label>
                             <label class="flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer"><input type="checkbox" name="student-cat" value="A2" class="rounded bg-slate-700 text-amber-500"> A2</label>
@@ -311,7 +315,7 @@
             
             <div class="p-4 border-b border-slate-800 bg-slate-900/50 flex gap-2">
                 <button onclick="App.generatePDF()" class="flex-1 py-2 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-file-pdf text-rose-400"></i> Descargar Informe PDF
+                    <i class="fa-solid fa-file-pdf text-rose-400"></i> Descargar Informe
                 </button>
                 <button onclick="App.exportSingleStudentJSON()" class="py-2 px-3 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-amber-400 rounded-xl text-xs font-bold transition flex items-center gap-1.5" title="Exportar Ficha JSON">
                     <i class="fa-solid fa-share-nodes"></i> Compartir Ficha
@@ -392,14 +396,12 @@
         const SKILLS_LIST = [
             "Posición de manejo y espejos",
             "Uso de embrague y caja de cambios",
-            "Arranque en pendiente / Loma",
             "Control de dirección y trazada",
-            "Parqueo en línea (Reversa)",
-            "Parqueo en paralelo / Garaje",
-            "Señalización y prelación en intersecciones",
             "Conducción en vía rápida / Adelantamientos",
             "Frenado de emergencia",
-            "Lectura de señales de tránsito"
+            "Parqueo en línea (Reversa)",
+            "Parqueo en paralelo / Garaje",
+            "Arranque en pendiente / Loma"
         ];
 
         class DrivingApp {
@@ -729,16 +731,14 @@
                 document.getElementById('profile-modal-name').innerText = student.name + nick;
                 document.getElementById('profile-modal-meta').innerText = `Cat: ${cats} • ${student.experience}`;
 
-                // Cálculo de Horas (Asumiendo 0 horas previas ya que se eliminó ese campo)
+                // Cálculo de Horas
                 const totalMinutes = classes.reduce((acc, c) => acc + Number(c.duration), 0);
                 const totalHours = (totalMinutes / 60).toFixed(1);
                 document.getElementById('profile-hours-done').innerText = `${totalHours} h`;
                 document.getElementById('profile-classes-count').innerText = classes.length;
 
                 // Nivel Promedio en escala de 1 a 4
-                const skillsValues = Object.values(student.skills || {});
-                const avgSkill = skillsValues.length > 0 ? (skillsValues.reduce((a,b)=>a+b,0) / skillsValues.length).toFixed(1) : '1.0';
-                document.getElementById('profile-avg-skill').innerText = `${avgSkill} / 4`;
+                this.updateAvgSkillDisplay(student.skills);
 
                 // Ocultar sección de habilidades por defecto al abrir la ficha
                 document.getElementById('profile-skills-container').classList.add('hidden');
@@ -747,7 +747,7 @@
                 // Render skills con 4 Opciones Claras
                 const skillsContainer = document.getElementById('profile-skills-container');
                 skillsContainer.innerHTML = SKILLS_LIST.map(skill => {
-                    const level = student.skills[skill] || 1;
+                    const level = (student.skills && student.skills[skill]) || 1;
                     return `
                         <div class="bg-slate-800/40 border border-slate-700/50 rounded-xl p-3 flex items-center justify-between gap-3">
                             <span class="text-xs text-slate-200 font-medium flex-1">${skill}</span>
@@ -788,6 +788,12 @@
                 document.getElementById('student-profile-modal').classList.remove('hidden');
             }
 
+            updateAvgSkillDisplay(skills) {
+                const skillsValues = Object.values(skills || {});
+                const avgSkill = skillsValues.length > 0 ? (skillsValues.reduce((a,b)=>a+b,0) / skillsValues.length).toFixed(1) : '1.0';
+                document.getElementById('profile-avg-skill').innerText = `${avgSkill} / 4`;
+            }
+
             toggleSkillsSection() {
                 const container = document.getElementById('profile-skills-container');
                 const icon = document.getElementById('skills-toggle-icon');
@@ -811,7 +817,9 @@
                 if (!student.skills) student.skills = {};
                 student.skills[skillName] = Number(level);
                 await this.saveRecord('students', student);
-                this.openProfile(studentId);
+                
+                // Actualizar el promedio visualmente sin volver a abrir/renderizar el modal completo
+                this.updateAvgSkillDisplay(student.skills);
             }
 
             editCurrentStudent() {
@@ -884,12 +892,12 @@
 
             exportJSON() {
                 Promise.all([this.getAll('students'), this.getAll('classes'), this.getAll('settings')]).then(([students, classes, settings]) => {
-                    const backup = { schemaVersion: 7, exportedAt: new Date().toISOString(), students, classes, settings };
+                    const backup = { schemaVersion: 8, exportedAt: new Date().toISOString(), students, classes, settings };
                     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `conducimos_backup_${new Date().toISOString().slice(0,10)}.json`;
+                    a.download = `escuela_moderna_backup_${new Date().toISOString().slice(0,10)}.json`;
                     a.click();
                     URL.revokeObjectURL(url);
                 });
@@ -902,7 +910,7 @@
                 
                 const exportData = {
                     type: 'single_student_export',
-                    schemaVersion: 7,
+                    schemaVersion: 8,
                     exportedAt: new Date().toISOString(),
                     student,
                     classes
@@ -917,7 +925,6 @@
                 URL.revokeObjectURL(url);
             }
 
-            // IMPORTACIÓN INTELIGENTE SIN DUPLICADOS POR NOMBRE + APODO
             async importSingleStudentJSON(event) {
                 const file = event.target.files[0];
                 if (!file) return;
@@ -929,7 +936,6 @@
                             const importedStudent = data.student;
                             const allStudents = await this.getAll('students');
                             
-                            // Buscar si ya existe por coincidencia exacta de nombre y apodo
                             let existingStudent = allStudents.find(s => 
                                 s.name.toLowerCase() === importedStudent.name.toLowerCase() && 
                                 (s.nickname || '').toLowerCase() === (importedStudent.nickname || '').toLowerCase()
@@ -1043,7 +1049,7 @@
                 doc.rect(0, 0, 210, 40, 'F');
                 doc.setTextColor(255, 255, 255);
                 doc.setFontSize(20);
-                doc.text("Informe de Aprendizaje - Conducimos", 14, 25);
+                doc.text("Informe de Aprendizaje - Escuela Moderna", 14, 25);
 
                 doc.setTextColor(50, 50, 50);
                 doc.setFontSize(13);
