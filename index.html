@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Conducimos - Gestión de Alumnos y Clases v0.04</title>
+    <title>Conducimos - Gestión de Alumnos y Clases v0.05</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -65,22 +65,6 @@
         
         <!-- VIEW: HOME / INICIO -->
         <section id="view-home" class="space-y-6">
-            <div class="bg-gradient-to-br from-slate-900 to-slate-900/50 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-gauge-high text-amber-500"></i> Resumen General
-                </h2>
-                <div class="grid grid-cols-2 gap-3 mt-4">
-                    <div class="bg-slate-800/60 border border-slate-700/50 rounded-xl p-4">
-                        <p class="text-xs text-slate-400 uppercase font-semibold">Alumnos Registrados</p>
-                        <p id="stat-active-students" class="text-2xl font-black text-white mt-1">0</p>
-                    </div>
-                    <div class="bg-slate-800/60 border border-slate-700/50 rounded-xl p-4">
-                        <p class="text-xs text-slate-400 uppercase font-semibold">Clases Impartidas</p>
-                        <p id="stat-total-classes" class="text-2xl font-black text-amber-400 mt-1">0</p>
-                    </div>
-                </div>
-            </div>
-
             <div class="space-y-3">
                 <div class="flex items-center justify-between">
                     <h3 class="font-bold text-slate-200 text-sm uppercase tracking-wider">Acciones Rápidas</h3>
@@ -252,9 +236,9 @@
             </div>
             <div class="p-5 overflow-y-auto space-y-5 flex-1">
                 
-                <!-- Botón para Cargar / Importar Ficha desde JSON -->
+                <!-- Botón para Cargar / Importar Ficha desde JSON -->
                 <div class="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 text-center space-y-2">
-                    <p class="text-xs text-blue-300 font-medium">¿Recibió la ficha o informe de un alumno de otro profesor?</p>
+                    <p class="text-xs text-blue-300 font-medium">¿Recibió la ficha de un alumno de otro profesor?</p>
                     <label class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition cursor-pointer shadow-md">
                         <i class="fa-solid fa-file-import"></i> Cargar / Importar Ficha (.json)
                         <input type="file" accept=".json" onchange="App.importSingleStudentJSON(event)" class="hidden">
@@ -346,32 +330,38 @@
                 <!-- Horas y Progreso -->
                 <div class="grid grid-cols-3 gap-3">
                     <div class="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-3 text-center">
-                        <p class="text-[10px] uppercase font-bold text-slate-400">Horas Reales</p>
+                        <p class="text-[10px] uppercase font-bold text-slate-400">Horas</p>
                         <p id="profile-hours-done" class="text-xl font-black text-amber-400 mt-1">0 h</p>
                     </div>
                     <div class="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-3 text-center">
-                        <p class="text-[10px] uppercase font-bold text-slate-400">Clases Realizadas</p>
+                        <p class="text-[10px] uppercase font-bold text-slate-400">Clases Vistas</p>
                         <p id="profile-classes-count" class="text-xl font-black text-white mt-1">0</p>
                     </div>
-                    <div class="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-3 text-center">
-                        <p class="text-[10px] uppercase font-bold text-slate-400">Nivel Promedio</p>
+                    <div onclick="App.toggleSkillsSection()" class="bg-slate-800/50 border border-slate-700/50 hover:border-amber-500/50 rounded-2xl p-3 text-center cursor-pointer transition group">
+                        <p class="text-[10px] uppercase font-bold text-slate-400 group-hover:text-amber-400">Nivel Promedio</p>
                         <p id="profile-avg-skill" class="text-xl font-black text-blue-400 mt-1">-</p>
                     </div>
                 </div>
 
-                <!-- Evaluación de Habilidades -->
+                <!-- Historial de Clases Vistas (PROTAGONISTA) -->
                 <div>
                     <h4 class="font-bold text-slate-200 text-sm uppercase tracking-wider mb-3 flex items-center justify-between">
-                        <span>Evaluación de Habilidades</span>
-                        <span class="text-xs text-slate-400 font-normal">Escala 1 a 6</span>
+                        <span>Clases Vistas</span>
                     </h4>
-                    <div id="profile-skills-list" class="space-y-2"></div>
+                    <div id="profile-classes-list" class="space-y-3"></div>
                 </div>
 
-                <!-- Historial de Clases del Alumno -->
-                <div>
-                    <h4 class="font-bold text-slate-200 text-sm uppercase tracking-wider mb-3">Historial de Clases</h4>
-                    <div id="profile-classes-list" class="space-y-3"></div>
+                <!-- Evaluación de Habilidades (DESPLEGABLE / OCULTA POR DEFECTO) -->
+                <div class="border-t border-slate-800/80 pt-4">
+                    <button onclick="App.toggleSkillsSection()" class="w-full flex items-center justify-between py-2 text-left group">
+                        <span class="font-bold text-slate-300 group-hover:text-amber-400 text-xs uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-slate-400 group-hover:text-amber-400"></i> Evaluación de Habilidades (Opcional)
+                        </span>
+                        <i id="skills-toggle-icon" class="fa-solid fa-chevron-down text-slate-500 text-xs transition-transform duration-200"></i>
+                    </button>
+                    <div id="profile-skills-container" class="space-y-2 mt-3 hidden">
+                        <!-- Carga dinámica -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -575,9 +565,6 @@
                 const students = await this.getAll('students');
                 const classes = await this.getAll('classes');
 
-                document.getElementById('stat-active-students').innerText = students.length;
-                document.getElementById('stat-total-classes').innerText = classes.length;
-
                 // Home Students
                 const homeList = document.getElementById('home-students-list');
                 if (students.length === 0) {
@@ -713,18 +700,23 @@
                 document.getElementById('profile-modal-name').innerText = student.name;
                 document.getElementById('profile-modal-meta').innerText = `Cat ${student.category} • ${student.experience}`;
 
-                // Cálculo de horas
+                // Cálculo simplificado de Horas
                 const totalMinutes = classes.reduce((acc, c) => acc + Number(c.duration), 0) + (student.prevHours * 60);
                 const totalHours = (totalMinutes / 60).toFixed(1);
                 document.getElementById('profile-hours-done').innerText = `${totalHours} h`;
                 document.getElementById('profile-classes-count').innerText = classes.length;
 
+                // Nivel Promedio en escala de 1 a 4
                 const skillsValues = Object.values(student.skills || {});
                 const avgSkill = skillsValues.length > 0 ? (skillsValues.reduce((a,b)=>a+b,0) / skillsValues.length).toFixed(1) : '1.0';
-                document.getElementById('profile-avg-skill').innerText = `${avgSkill} / 6`;
+                document.getElementById('profile-avg-skill').innerText = `${avgSkill} / 4`;
 
-                // Render skills
-                const skillsContainer = document.getElementById('profile-skills-list');
+                // Ocultar sección de habilidades por defecto al abrir la ficha
+                document.getElementById('profile-skills-container').classList.add('hidden');
+                document.getElementById('skills-toggle-icon').classList.remove('rotate-180');
+
+                // Render skills con 4 Opciones Claras
+                const skillsContainer = document.getElementById('profile-skills-container');
                 skillsContainer.innerHTML = SKILLS_LIST.map(skill => {
                     const level = student.skills[skill] || 1;
                     return `
@@ -733,16 +725,14 @@
                             <select onchange="App.updateSkillLevel(${student.id}, '${skill}', this.value)" class="bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs text-amber-400 font-bold focus:outline-none">
                                 <option value="1" ${level==1?'selected':''}>1. No evaluada</option>
                                 <option value="2" ${level==2?'selected':''}>2. No domina</option>
-                                <option value="3" ${level==3?'selected':''}>3. En aprendizaje</option>
-                                <option value="4" ${level==4?'selected':''}>4. En progreso</option>
-                                <option value="5" ${level==5?'selected':''}>5. Dominada (Auto)</option>
-                                <option value="6" ${level==6?'selected':''}>6. Dominada (Consistente)</option>
+                                <option value="3" ${level==3?'selected':''}>3. En progreso</option>
+                                <option value="4" ${level==4?'selected':''}>4. Dominada</option>
                             </select>
                         </div>
                     `;
                 }).join('');
 
-                // Render clases del alumno
+                // Render Clases Vistas (PROTAGONISTA)
                 const classesContainer = document.getElementById('profile-classes-list');
                 if (classes.length === 0) {
                     classesContainer.innerHTML = `<p class="text-slate-500 text-xs italic">Sin clases registradas para este alumno.</p>`;
@@ -767,6 +757,18 @@
                 }
 
                 document.getElementById('student-profile-modal').classList.remove('hidden');
+            }
+
+            toggleSkillsSection() {
+                const container = document.getElementById('profile-skills-container');
+                const icon = document.getElementById('skills-toggle-icon');
+                if (container.classList.contains('hidden')) {
+                    container.classList.remove('hidden');
+                    icon.classList.add('rotate-180');
+                } else {
+                    container.classList.add('hidden');
+                    icon.classList.remove('rotate-180');
+                }
             }
 
             closeProfileModal() {
@@ -853,7 +855,7 @@
 
             exportJSON() {
                 Promise.all([this.getAll('students'), this.getAll('classes'), this.getAll('settings')]).then(([students, classes, settings]) => {
-                    const backup = { schemaVersion: 3, exportedAt: new Date().toISOString(), students, classes, settings };
+                    const backup = { schemaVersion: 4, exportedAt: new Date().toISOString(), students, classes, settings };
                     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
@@ -871,7 +873,7 @@
                 
                 const exportData = {
                     type: 'single_student_export',
-                    schemaVersion: 3,
+                    schemaVersion: 4,
                     exportedAt: new Date().toISOString(),
                     student,
                     classes
@@ -988,7 +990,7 @@
                 doc.setFontSize(10);
                 doc.text(`Categoría: ${student.category} | Teléfono: ${student.phone || 'N/A'} | Exp: ${student.experience}`, 14, 60);
 
-                doc.text("Historial Detallado de Clases:", 14, 75);
+                doc.text("Historial Detallado de Clases Vistas:", 14, 75);
                 let y = 83;
                 classes.forEach((c, index) => {
                     if (y > 270) { doc.addPage(); y = 20; }
