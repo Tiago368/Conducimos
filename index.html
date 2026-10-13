@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Conducimos - Gestión de Alumnos y Clases v1.2</title>
+    <title>Conducimos - Gestión de Alumnos y Clases v0.04</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -71,7 +71,7 @@
                 </h2>
                 <div class="grid grid-cols-2 gap-3 mt-4">
                     <div class="bg-slate-800/60 border border-slate-700/50 rounded-xl p-4">
-                        <p class="text-xs text-slate-400 uppercase font-semibold">Alumnos Activos</p>
+                        <p class="text-xs text-slate-400 uppercase font-semibold">Alumnos Registrados</p>
                         <p id="stat-active-students" class="text-2xl font-black text-white mt-1">0</p>
                     </div>
                     <div class="bg-slate-800/60 border border-slate-700/50 rounded-xl p-4">
@@ -86,13 +86,13 @@
                     <h3 class="font-bold text-slate-200 text-sm uppercase tracking-wider">Acciones Rápidas</h3>
                 </div>
                 <div class="grid grid-cols-2 gap-3">
-                    <button onclick="App.switchTab('students')" class="p-4 bg-slate-900 hover:bg-slate-850 border border-slate-800 rounded-2xl text-left transition flex flex-col justify-between group">
+                    <button onclick="App.switchTab('students'); App.openStudentModal();" class="p-4 bg-slate-900 hover:bg-slate-850 border border-slate-800 rounded-2xl text-left transition flex flex-col justify-between group">
                         <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-lg mb-3 group-hover:scale-110 transition">
                             <i class="fa-solid fa-user-plus"></i>
                         </div>
                         <div>
                             <span class="font-bold text-white block">Nuevo Alumno</span>
-                            <span class="text-xs text-slate-400">Registrar y evaluar</span>
+                            <span class="text-xs text-slate-400">Crear o importar ficha</span>
                         </div>
                     </button>
                     <button onclick="App.switchTab('classes')" class="p-4 bg-slate-900 hover:bg-slate-850 border border-slate-800 rounded-2xl text-left transition flex flex-col justify-between group">
@@ -108,7 +108,7 @@
             </div>
 
             <div class="space-y-3">
-                <h3 class="font-bold text-slate-200 text-sm uppercase tracking-wider">Últimos Alumnos Activos</h3>
+                <h3 class="font-bold text-slate-200 text-sm uppercase tracking-wider">Últimos Alumnos</h3>
                 <div id="home-students-list" class="space-y-2">
                     <p class="text-slate-500 text-sm italic text-center py-6">No hay alumnos registrados todavía.</p>
                 </div>
@@ -125,13 +125,6 @@
                 <button onclick="App.openStudentModal()" class="px-4 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm rounded-xl transition flex items-center gap-2 shrink-0 shadow-lg shadow-amber-500/20">
                     <i class="fa-solid fa-plus"></i> Alumno
                 </button>
-            </div>
-
-            <div class="flex gap-2 overflow-x-auto pb-1 text-xs">
-                <button onclick="App.filterStudentStatus('all')" class="filter-btn px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-bold transition whitespace-nowrap">Todos</button>
-                <button onclick="App.filterStudentStatus('activo')" class="filter-btn px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 font-medium transition whitespace-nowrap">Activos</button>
-                <button onclick="App.filterStudentStatus('pausado')" class="filter-btn px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 font-medium transition whitespace-nowrap">Pausados</button>
-                <button onclick="App.filterStudentStatus('finalizado')" class="filter-btn px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 font-medium transition whitespace-nowrap">Finalizados</button>
             </div>
 
             <div id="students-container" class="space-y-3"></div>
@@ -171,7 +164,7 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Habilidades / Maniobras Practicadas *</label>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Habilidades / Maniobras Practicadas</label>
                         <div id="class-skills-checkboxes" class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-800/50 border border-slate-700/50 rounded-xl p-3 max-h-48 overflow-y-auto text-xs">
                             <!-- Checkboxes de habilidades -->
                         </div>
@@ -211,7 +204,7 @@
 
                 <div class="pt-2 space-y-3">
                     <button onclick="App.exportJSON()" class="w-full py-3.5 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-white font-bold rounded-xl transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-download text-amber-400"></i> Descargar Copia de Seguridad (JSON)
+                        <i class="fa-solid fa-download text-amber-400"></i> Descargar Copia de Seguridad Completa (JSON)
                     </button>
 
                     <label class="w-full py-3.5 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-white font-bold rounded-xl transition flex items-center justify-center gap-2 cursor-pointer">
@@ -248,7 +241,7 @@
         </button>
     </nav>
 
-    <!-- MODAL: STUDENT FORM / FICHA -->
+    <!-- MODAL: STUDENT FORM / CREAR / IMPORTAR FICHA -->
     <div id="student-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
             <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900">
@@ -257,7 +250,22 @@
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="p-5 overflow-y-auto space-y-4 flex-1">
+            <div class="p-5 overflow-y-auto space-y-5 flex-1">
+                
+                <!-- Botón para Cargar / Importar Ficha desde JSON -->
+                <div class="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 text-center space-y-2">
+                    <p class="text-xs text-blue-300 font-medium">¿Recibió la ficha o informe de un alumno de otro profesor?</p>
+                    <label class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition cursor-pointer shadow-md">
+                        <i class="fa-solid fa-file-import"></i> Cargar / Importar Ficha (.json)
+                        <input type="file" accept=".json" onchange="App.importSingleStudentJSON(event)" class="hidden">
+                    </label>
+                </div>
+
+                <div class="relative flex items-center justify-center">
+                    <div class="border-t border-slate-800 w-full"></div>
+                    <span class="bg-slate-900 px-3 text-[10px] uppercase font-bold text-slate-500 absolute">o complete los datos manualmente</span>
+                </div>
+
                 <form id="student-form" onsubmit="App.saveStudent(event)" class="space-y-4">
                     <input type="hidden" id="student-id">
                     <div>
@@ -270,43 +278,31 @@
                             <input type="tel" id="student-phone" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Categoría Licencia</label>
-                            <select id="student-category" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                                <option value="B1">B1 (Particular)</option>
-                                <option value="C1">C1 (Público)</option>
-                                <option value="A2">A2 (Moto)</option>
-                                <option value="B2">B2</option>
-                                <option value="C2">C2</option>
+                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Categoría Licencia *</label>
+                            <select id="student-category" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                                <option value="A1">A1 (Motos hasta 125 c.c.)</option>
+                                <option value="A2">A2 (Motos más de 125 c.c.)</option>
+                                <option value="B1">B1 (Automóviles particulares)</option>
+                                <option value="B2">B2 (Camiones particulares)</option>
+                                <option value="B3">B3 (Vehículos articulados part.)</option>
+                                <option value="C1">C1 (Automóviles públicos)</option>
+                                <option value="C2">C2 (Camiones públicos)</option>
+                                <option value="C3">C3 (Vehículos articulados públ.)</option>
                             </select>
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Experiencia Previa</label>
-                            <select id="student-experience" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                                <option value="Ninguna">Nunca ha conducido</option>
-                                <option value="Poca">Ha recibido algunas clases</option>
-                                <option value="Media">Sabe conducir, necesita mejorar</option>
-                                <option value="Avanzada">Se prepara para evaluación</option>
+                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Experiencia Previa *</label>
+                            <select id="student-experience" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                                <option value="Sin experiencia">Sin experiencia</option>
+                                <option value="Con experiencia previa">Con experiencia previa</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Horas Previas (Horas)</label>
                             <input type="number" id="student-prev-hours" value="0" min="0" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
                         </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Objetivo Principal</label>
-                        <input type="text" id="student-objective" placeholder="Ej. Arranque en pendiente, parqueo en paralelo..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Estado</label>
-                        <select id="student-status" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                            <option value="activo">Activo</option>
-                            <option value="pausado">Pausado</option>
-                            <option value="finalizado">Finalizado</option>
-                            <option value="archivado">Archivado</option>
-                        </select>
                     </div>
                     <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition shadow-lg shadow-amber-500/20">
                         Guardar Alumno
@@ -326,7 +322,7 @@
                     </div>
                     <div>
                         <h3 id="profile-modal-name" class="font-bold text-white text-base leading-tight">Nombre Alumno</h3>
-                        <p id="profile-modal-meta" class="text-xs text-slate-400">Cat B1 • Activo</p>
+                        <p id="profile-modal-meta" class="text-xs text-slate-400">Cat B1</p>
                     </div>
                 </div>
                 <button onclick="App.closeProfileModal()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white">
@@ -337,6 +333,9 @@
             <div class="p-4 border-b border-slate-800 bg-slate-900/50 flex gap-2">
                 <button onclick="App.generatePDF()" class="flex-1 py-2 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
                     <i class="fa-solid fa-file-pdf text-rose-400"></i> Descargar Informe PDF
+                </button>
+                <button onclick="App.exportSingleStudentJSON()" class="py-2 px-3 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-amber-400 rounded-xl text-xs font-bold transition flex items-center gap-1.5" title="Exportar Ficha JSON">
+                    <i class="fa-solid fa-share-nodes"></i> Compartir Ficha
                 </button>
                 <button onclick="App.editCurrentStudent()" class="px-4 py-2 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-white rounded-xl text-xs font-bold transition">
                     <i class="fa-solid fa-pen"></i> Editar
@@ -422,7 +421,6 @@
             constructor() {
                 this.db = null;
                 this.currentTab = 'home';
-                this.currentFilterStatus = 'all';
                 this.selectedStudentIdForProfile = null;
                 this.instructorName = '';
                 this.initDB();
@@ -577,7 +575,7 @@
                 const students = await this.getAll('students');
                 const classes = await this.getAll('classes');
 
-                document.getElementById('stat-active-students').innerText = students.filter(s => s.status === 'activo').length;
+                document.getElementById('stat-active-students').innerText = students.length;
                 document.getElementById('stat-total-classes').innerText = classes.length;
 
                 // Home Students
@@ -589,9 +587,9 @@
                         <div onclick="App.openProfile(${s.id})" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between cursor-pointer hover:border-slate-700 transition">
                             <div>
                                 <h4 class="font-bold text-white text-sm">${s.name}</h4>
-                                <p class="text-xs text-slate-400 mt-0.5">Cat: ${s.category} • Obj: ${s.objective || 'Sin definir'}</p>
+                                <p class="text-xs text-slate-400 mt-0.5">Cat: ${s.category} • Exp: ${s.experience}</p>
                             </div>
-                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${s.status === 'activo' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-800 text-slate-400'}">${s.status}</span>
+                            <i class="fa-solid fa-chevron-right text-slate-600 text-xs"></i>
                         </div>
                     `).join('');
                 }
@@ -635,11 +633,7 @@
                 const container = document.getElementById('students-container');
                 const search = document.getElementById('student-search').value.toLowerCase();
 
-                let filtered = students.filter(s => {
-                    const matchName = s.name.toLowerCase().includes(search);
-                    const matchStatus = this.currentFilterStatus === 'all' || s.status === this.currentFilterStatus;
-                    return matchName && matchStatus;
-                });
+                let filtered = students.filter(s => s.name.toLowerCase().includes(search));
 
                 if (filtered.length === 0) {
                     container.innerHTML = `<p class="text-slate-500 text-sm italic text-center py-10">No se encontraron alumnos.</p>`;
@@ -650,12 +644,9 @@
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between cursor-pointer hover:border-slate-700 transition" onclick="App.openProfile(${s.id})">
                         <div class="space-y-1">
                             <h4 class="font-bold text-white text-sm">${s.name}</h4>
-                            <p class="text-xs text-slate-400">Tel: ${s.phone || 'No registrado'} • Cat: ${s.category}</p>
+                            <p class="text-xs text-slate-400">Tel: ${s.phone || 'Sin número'} • Cat: ${s.category} • Exp: ${s.experience}</p>
                         </div>
-                        <div class="flex items-center gap-3">
-                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${s.status === 'activo' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-800 text-slate-400'}">${s.status}</span>
-                            <i class="fa-solid fa-chevron-right text-slate-600 text-xs"></i>
-                        </div>
+                        <i class="fa-solid fa-chevron-right text-slate-600 text-xs"></i>
                     </div>
                 `).join('');
             }
@@ -664,26 +655,13 @@
                 this.getAll('students').then(students => this.renderStudentsList(students));
             }
 
-            filterStudentStatus(status) {
-                this.currentFilterStatus = status;
-                document.querySelectorAll('.filter-btn').forEach(btn => {
-                    btn.classList.remove('bg-amber-500', 'text-slate-950', 'font-bold');
-                    btn.classList.add('bg-slate-900', 'border', 'border-slate-800', 'text-slate-300', 'font-medium');
-                });
-                event.target.classList.remove('bg-slate-900', 'border', 'border-slate-800', 'text-slate-300', 'font-medium');
-                event.target.classList.add('bg-amber-500', 'text-slate-950', 'font-bold');
-                this.getAll('students').then(students => this.renderStudentsList(students));
-            }
-
             openStudentModal(student = null) {
                 document.getElementById('student-id').value = student ? student.id : '';
                 document.getElementById('student-name').value = student ? student.name : '';
                 document.getElementById('student-phone').value = student ? student.phone : '';
                 document.getElementById('student-category').value = student ? student.category : 'B1';
-                document.getElementById('student-experience').value = student ? student.experience : 'Ninguna';
+                document.getElementById('student-experience').value = student ? student.experience : 'Sin experiencia';
                 document.getElementById('student-prev-hours').value = student ? (student.prevHours || 0) : 0;
-                document.getElementById('student-objective').value = student ? student.objective : '';
-                document.getElementById('student-status').value = student ? student.status : 'activo';
                 document.getElementById('student-modal-title').innerText = student ? 'Editar Alumno' : 'Registrar Nuevo Alumno';
                 document.getElementById('student-modal').classList.remove('hidden');
             }
@@ -702,8 +680,6 @@
                     category: document.getElementById('student-category').value,
                     experience: document.getElementById('student-experience').value,
                     prevHours: Number(document.getElementById('student-prev-hours').value),
-                    objective: document.getElementById('student-objective').value,
-                    status: document.getElementById('student-status').value,
                     createdAt: idVal ? undefined : new Date().toISOString()
                 };
 
@@ -735,9 +711,9 @@
                 const classes = (await this.getAll('classes')).filter(c => c.studentId === id);
 
                 document.getElementById('profile-modal-name').innerText = student.name;
-                document.getElementById('profile-modal-meta').innerText = `Cat ${student.category} • ${student.status.toUpperCase()}`;
+                document.getElementById('profile-modal-meta').innerText = `Cat ${student.category} • ${student.experience}`;
 
-                // Cálculo exacto de horas
+                // Cálculo de horas
                 const totalMinutes = classes.reduce((acc, c) => acc + Number(c.duration), 0) + (student.prevHours * 60);
                 const totalHours = (totalMinutes / 60).toFixed(1);
                 document.getElementById('profile-hours-done').innerText = `${totalHours} h`;
@@ -766,7 +742,7 @@
                     `;
                 }).join('');
 
-                // Render clases del alumno con habilidades visibles
+                // Render clases del alumno
                 const classesContainer = document.getElementById('profile-classes-list');
                 if (classes.length === 0) {
                     classesContainer.innerHTML = `<p class="text-slate-500 text-xs italic">Sin clases registradas para este alumno.</p>`;
@@ -825,17 +801,11 @@
 
                 const studentId = Number(document.getElementById('class-student-id').value);
                 const type = document.getElementById('class-type').value;
-                const duration = Number(document.getElementById('class-duration-select').value); // 90 o 45
+                const duration = Number(document.getElementById('class-duration-select').value);
                 const notes = document.getElementById('class-notes').value;
 
                 const selectedSkills = [];
                 document.querySelectorAll('input[name="class-skill"]:checked').forEach(cb => selectedSkills.push(cb.value));
-
-                if (selectedSkills.length === 0) {
-                    if (!confirm('No seleccionó ninguna habilidad practicada. ¿Desea guardar la clase de todas formas?')) {
-                        return;
-                    }
-                }
 
                 const classData = {
                     id: Date.now(),
@@ -883,7 +853,7 @@
 
             exportJSON() {
                 Promise.all([this.getAll('students'), this.getAll('classes'), this.getAll('settings')]).then(([students, classes, settings]) => {
-                    const backup = { schemaVersion: 2, exportedAt: new Date().toISOString(), students, classes, settings };
+                    const backup = { schemaVersion: 3, exportedAt: new Date().toISOString(), students, classes, settings };
                     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
@@ -892,6 +862,53 @@
                     a.click();
                     URL.revokeObjectURL(url);
                 });
+            }
+
+            async exportSingleStudentJSON() {
+                if (!this.selectedStudentIdForProfile) return;
+                const student = await this.getStudentById(this.selectedStudentIdForProfile);
+                const classes = (await this.getAll('classes')).filter(c => c.studentId === student.id);
+                
+                const exportData = {
+                    type: 'single_student_export',
+                    schemaVersion: 3,
+                    exportedAt: new Date().toISOString(),
+                    student,
+                    classes
+                };
+
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `alumno_${student.name.replace(/\s+/g, '_')}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+
+            importSingleStudentJSON(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (data.type === 'single_student_export' && data.student) {
+                            await this.saveRecord('students', data.student);
+                            if (data.classes) {
+                                for (const c of data.classes) await this.saveRecord('classes', c);
+                            }
+                            this.closeStudentModal();
+                            await this.refreshData();
+                            alert(`Ficha del alumno "${data.student.name}" importada correctamente.`);
+                        } else {
+                            alert('El archivo no corresponde a una ficha de alumno válida.');
+                        }
+                    } catch (err) {
+                        alert('Error al leer la ficha del alumno.');
+                    }
+                };
+                reader.readAsText(file);
             }
 
             importJSON(event) {
@@ -969,7 +986,7 @@
                 doc.setFontSize(13);
                 doc.text(`Alumno: ${student.name}`, 14, 52);
                 doc.setFontSize(10);
-                doc.text(`Categoría: ${student.category} | Teléfono: ${student.phone || 'N/A'} | Estado: ${student.status}`, 14, 60);
+                doc.text(`Categoría: ${student.category} | Teléfono: ${student.phone || 'N/A'} | Exp: ${student.experience}`, 14, 60);
 
                 doc.text("Historial Detallado de Clases:", 14, 75);
                 let y = 83;
