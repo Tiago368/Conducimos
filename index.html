@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Escuela Moderna - Gestión de Alumnos y Clases v0.14</title>
+    <title>Escuela Moderna - Gestión de Alumnos y Clases v0.15</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -206,7 +206,7 @@
 
             <div class="text-center pt-2">
                 <span class="text-[10px] font-mono font-medium text-slate-600 uppercase tracking-widest select-none">
-                    ESCUELA MODERNA • v0.14
+                    APP SG • v0.15
                 </span>
             </div>
         </section>
@@ -382,7 +382,7 @@
                 </button>
             </div>
             <p class="text-xs text-slate-400">Escanee este código con la app de otro instructor para transferir la ficha al instante.</p>
-            <div id="qrcode-container" class="bg-white p-3 rounded-2xl inline-flex items-center justify-center shadow-inner min-h-[220px] min-w-[220px]"></div>
+            <div id="qrcode-container" class="bg-white p-3 rounded-2xl inline-flex items-center justify-center shadow-inner min-h-[210px] min-w-[210px]"></div>
             <button onclick="App.closeStudentQR()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-750 text-white font-bold text-xs rounded-xl transition">Cerrar</button>
         </div>
     </div>
@@ -1017,13 +1017,14 @@
                         e: student.experience,
                         sk: student.skills || {}
                     },
-                    cl: classes.slice(-8).map(c => ({
+                    cl: classes.map(c => ({
+                        id: c.id, // <--- ID original preservado para evitar duplicados
                         t: c.type === 'Práctica' ? 'P' : 'E',
                         d: c.duration,
                         n: (c.notes || '').substring(0, 40),
                         s: (c.skills || []).map(sName => SKILLS_LIST.indexOf(sName)).filter(idx => idx !== -1),
                         i: c.instructor || '',
-                        dt: c.date ? c.date.substring(0, 10) : ''
+                        dt: c.date ? c.date : ''
                     }))
                 };
 
@@ -1043,7 +1044,7 @@
                         level: 'L'
                     });
                 } catch (err) {
-                    console.error("Error generando QR con clases, reintentando solo perfil:", err);
+                    console.error("Error generando QR:", err);
                     delete compactData.cl;
                     new QRious({
                         element: document.getElementById('qr-canvas'),
@@ -1119,26 +1120,32 @@
 
                         await this.saveRecord('students', importedStudent);
 
+                        // Control estricto anti-duplicados de clases mediante IDs originales
                         if (data.cl && Array.isArray(data.cl)) {
                             const existingClasses = await this.getAll('classes');
                             for (const c of data.cl) {
-                                const classSkills = (c.s || []).map(idx => SKILLS_LIST[idx]).filter(Boolean);
-                                const classObj = {
-                                    id: Date.now() + Math.floor(Math.random() * 1000),
-                                    studentId: targetStudentId,
-                                    type: c.t === 'P' ? 'Práctica' : 'Evaluación',
-                                    duration: c.d,
-                                    notes: c.n,
-                                    skills: classSkills,
-                                    instructor: c.i,
-                                    date: c.dt ? new Date(c.dt).toISOString() : new Date().toISOString()
-                                };
-                                await this.saveRecord('classes', classObj);
+                                const classId = c.id || (Date.now() + Math.floor(Math.random() * 1000));
+                                const classExists = existingClasses.some(ec => ec.id === classId);
+
+                                if (!classExists) {
+                                    const classSkills = (c.s || []).map(idx => SKILLS_LIST[idx]).filter(Boolean);
+                                    const classObj = {
+                                        id: classId,
+                                        studentId: targetStudentId,
+                                        type: c.t === 'P' ? 'Práctica' : 'Evaluación',
+                                        duration: c.d,
+                                        notes: c.n,
+                                        skills: classSkills,
+                                        instructor: c.i,
+                                        date: c.dt ? c.dt : new Date().toISOString()
+                                    };
+                                    await this.saveRecord('classes', classObj);
+                                }
                             }
                         }
 
                         await this.refreshData();
-                        alert(`¡Ficha del alumno "${importedStudent.name}" importada exitosamente vía QR!`);
+                        alert(`¡Ficha del alumno "${importedStudent.name}" sincronizada exitosamente sin duplicados!`);
                     } else {
                         alert('El código QR escaneado no corresponde a una ficha válida de Escuela Moderna.');
                     }
