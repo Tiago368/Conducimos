@@ -154,8 +154,10 @@
                     <div>
                         <div class="flex items-center justify-between mb-1">
                             <label class="block text-xs font-semibold uppercase text-slate-400">Observaciones de la clase</label>
-                            <button type="button" onclick="App.toggleVoiceDictation('class-notes')" class="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1 font-medium">
-                                <i id="mic-icon" class="fa-solid fa-microphone"></i> Dictar por voz
+                            <!-- Botón intuitivo Mantener Presionado para Dictar -->
+                            <button type="button" id="mic-btn" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl text-xs text-amber-400 font-medium flex items-center gap-2 transition select-none touch-none shadow-sm" title="Mantén presionado para hablar">
+                                <i id="mic-icon" class="fa-solid fa-microphone"></i>
+                                <span id="mic-text">Mantener para dictar</span>
                             </button>
                         </div>
                         <textarea id="class-notes" rows="3" placeholder="¿Cómo fue el desempeño? ¿Qué dificultades presentó el alumno?" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-amber-500"></textarea>
@@ -411,6 +413,7 @@
                 this.currentTab = 'home';
                 this.selectedStudentIdForProfile = null;
                 this.instructorName = '';
+                this.recognition = null;
                 this.initDB();
             }
 
@@ -444,6 +447,7 @@
                 await this.loadInstructorName();
                 await this.refreshData();
                 this.setupPinInputs();
+                this.setupVoiceDictation();
             }
 
             async loadInstructorName() {
@@ -490,6 +494,109 @@
                         document.getElementById('pin-error').classList.remove('hidden');
                     }
                 });
+            }
+
+            setupVoiceDictation() {
+                const micBtn = document.getElementById('mic-btn');
+                if (!micBtn) return;
+
+                // Eventos de puntero para mantener presionado (funciona en móvil y PC)
+                micBtn.addEventListener('pointerdown', (e) => {
+                    e.preventDefault();
+                    this.startDictation('class-notes');
+                });
+
+                micBtn.addEventListener('pointerup', (e) => {
+                    e.preventDefault();
+                    this.stopDictation();
+                });
+
+                micBtn.addEventListener('pointerleave', (e) => {
+                    e.preventDefault();
+                    this.stopDictation();
+                });
+
+                micBtn.addEventListener('pointercancel', (e) => {
+                    e.preventDefault();
+                    this.stopDictation();
+                });
+            }
+
+            startDictation(textareaId) {
+                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                    alert('El reconocimiento de voz no es compatible con este navegador.');
+                    return;
+                }
+
+                if (this.recognition) {
+                    try { this.recognition.abort(); } catch(e) {}
+                }
+
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                this.recognition = new SpeechRecognition();
+                this.recognition.lang = 'es-CO';
+                this.recognition.interimResults = true;
+                this.recognition.continuous = true;
+
+                const ta = document.getElementById(textareaId);
+                const micBtn = document.getElementById('mic-btn');
+                const micIcon = document.getElementById('mic-icon');
+                const micText = document.getElementById('mic-text');
+
+                // Estado visual activo (Grabando / Escuchando)
+                micBtn.classList.remove('bg-slate-800', 'border-slate-700', 'text-amber-400');
+                micBtn.classList.add('bg-rose-500/20', 'border-rose-500', 'text-rose-400', 'animate-pulse');
+                micText.innerText = 'Escuchando...';
+                micIcon.classList.add('fa-beat');
+
+                let baseText = ta.value ? ta.value.trim() + ' ' : '';
+
+                this.recognition.onresult = (event) => {
+                    let transcript = '';
+                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        transcript += event.results[i][0].transcript;
+                    }
+                    if (transcript) {
+                        ta.value = baseText + transcript.trim();
+                    }
+                };
+
+                this.recognition.onerror = (event) => {
+                    console.error('Error de reconocimiento de voz:', event.error);
+                };
+
+                this.recognition.onend = () => {
+                    this.stopDictationUI();
+                };
+
+                try {
+                    this.recognition.start();
+                } catch(e) {
+                    console.error(e);
+                    this.stopDictationUI();
+                }
+            }
+
+            stopDictation() {
+                if (this.recognition) {
+                    try {
+                        this.recognition.stop();
+                    } catch(e) {}
+                    this.recognition = null;
+                }
+                this.stopDictationUI();
+            }
+
+            stopDictationUI() {
+                const micBtn = document.getElementById('mic-btn');
+                const micIcon = document.getElementById('mic-icon');
+                const micText = document.getElementById('mic-text');
+                if (micBtn) {
+                    micBtn.classList.remove('bg-rose-500/20', 'border-rose-500', 'text-rose-400', 'animate-pulse');
+                    micBtn.classList.add('bg-slate-800', 'border-slate-700', 'text-amber-400');
+                }
+                if (micText) micText.innerText = 'Mantener para dictar';
+                if (micIcon) micIcon.classList.remove('fa-beat');
             }
 
             async getSetting(key) {
@@ -868,32 +975,6 @@
                 document.querySelectorAll('input[name="class-skill"]').forEach(cb => cb.checked = false);
                 await this.refreshData();
                 this.switchTab('home');
-            }
-
-            toggleVoiceDictation(textareaId) {
-                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                    alert('El reconocimiento de voz no es compatible con este navegador.');
-                    return;
-                }
-                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                const recognition = new SpeechRecognition();
-                recognition.lang = 'es-CO';
-                recognition.interimResults = false;
-
-                const micIcon = document.getElementById('mic-icon');
-                micIcon.classList.add('text-rose-500', 'fa-beat');
-
-                recognition.onresult = (event) => {
-                    const text = event.results[0][0].transcript;
-                    const ta = document.getElementById(textareaId);
-                    ta.value = ta.value ? ta.value + ' ' + text : text;
-                    micIcon.classList.remove('text-rose-500', 'fa-beat');
-                };
-
-                recognition.onerror = () => micIcon.classList.remove('text-rose-500', 'fa-beat');
-                recognition.onend = () => micIcon.classList.remove('text-rose-500', 'fa-beat');
-
-                recognition.start();
             }
 
             exportJSON() {
