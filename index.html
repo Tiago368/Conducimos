@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Conducimos - Gestión de Alumnos y Clases</title>
+    <title>Conducimos - Gestión de Alumnos y Clases v1.2</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -40,7 +40,7 @@
     <div class="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 text-xs text-amber-300 flex items-center justify-between shrink-0">
         <span class="flex items-center gap-2">
             <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
-            <strong>Seguridad vial:</strong> Detenga el vehículo en lugar seguro antes de registrar o consultar.
+            <strong>Seguridad vial:</strong> Registre la información únicamente con el vehículo detenido.
         </span>
     </div>
 
@@ -50,11 +50,11 @@
             <div class="w-10 h-10 bg-amber-500 text-slate-950 rounded-xl flex items-center justify-center font-black text-xl shadow-lg shadow-amber-500/20">C</div>
             <div>
                 <h1 class="font-bold text-white text-base leading-tight">Conducimos</h1>
-                <p class="text-xs text-slate-400">Gestión de Alumnos y Clases</p>
+                <p id="instructor-badge" class="text-xs text-amber-400 font-medium">Instructor: Sin registrar</p>
             </div>
         </div>
         <div class="flex items-center gap-2">
-            <button onclick="App.openSettings()" class="w-10 h-10 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl flex items-center justify-center transition" title="Configuración / PIN">
+            <button onclick="App.openSettings()" class="w-10 h-10 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl flex items-center justify-center transition" title="Configuración / Perfil Instructor">
                 <i class="fa-solid fa-gear"></i>
             </button>
         </div>
@@ -75,7 +75,7 @@
                         <p id="stat-active-students" class="text-2xl font-black text-white mt-1">0</p>
                     </div>
                     <div class="bg-slate-800/60 border border-slate-700/50 rounded-xl p-4">
-                        <p class="text-xs text-slate-400 uppercase font-semibold">Clases Registradas</p>
+                        <p class="text-xs text-slate-400 uppercase font-semibold">Clases Impartidas</p>
                         <p id="stat-total-classes" class="text-2xl font-black text-amber-400 mt-1">0</p>
                     </div>
                 </div>
@@ -110,7 +110,6 @@
             <div class="space-y-3">
                 <h3 class="font-bold text-slate-200 text-sm uppercase tracking-wider">Últimos Alumnos Activos</h3>
                 <div id="home-students-list" class="space-y-2">
-                    <!-- Dinámico -->
                     <p class="text-slate-500 text-sm italic text-center py-6">No hay alumnos registrados todavía.</p>
                 </div>
             </div>
@@ -135,9 +134,7 @@
                 <button onclick="App.filterStudentStatus('finalizado')" class="filter-btn px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 font-medium transition whitespace-nowrap">Finalizados</button>
             </div>
 
-            <div id="students-container" class="space-y-3">
-                <!-- Dinámico -->
-            </div>
+            <div id="students-container" class="space-y-3"></div>
         </section>
 
         <!-- VIEW: CLASSES / CLASES -->
@@ -165,26 +162,29 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Duración (minutos) *</label>
-                            <input type="number" id="class-duration" value="60" min="15" step="15" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-500">
+                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Duración de Clase *</label>
+                            <select id="class-duration-select" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-500">
+                                <option value="90">Clase de 2 Horas (90 min reales)</option>
+                                <option value="45">Clase de 1 Hora (45 min reales)</option>
+                            </select>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Habilidades Trabajadas</label>
-                        <div id="class-skills-checkboxes" class="grid grid-cols-2 gap-2 bg-slate-800/50 border border-slate-700/50 rounded-xl p-3 max-h-40 overflow-y-auto text-xs">
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Habilidades / Maniobras Practicadas *</label>
+                        <div id="class-skills-checkboxes" class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-800/50 border border-slate-700/50 rounded-xl p-3 max-h-48 overflow-y-auto text-xs">
                             <!-- Checkboxes de habilidades -->
                         </div>
                     </div>
 
                     <div>
                         <div class="flex items-center justify-between mb-1">
-                            <label class="block text-xs font-semibold uppercase text-slate-400">Observaciones / Dictado por Voz</label>
+                            <label class="block text-xs font-semibold uppercase text-slate-400">Observaciones de la clase</label>
                             <button type="button" onclick="App.toggleVoiceDictation('class-notes')" class="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1 font-medium">
                                 <i id="mic-icon" class="fa-solid fa-microphone"></i> Dictar por voz
                             </button>
                         </div>
-                        <textarea id="class-notes" rows="3" placeholder="¿Qué hizo bien? ¿Qué errores cometió? ¿Objetivos siguientes?" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-amber-500"></textarea>
+                        <textarea id="class-notes" rows="3" placeholder="¿Cómo fue el desempeño? ¿Qué dificultades presentó el alumno?" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-amber-500"></textarea>
                     </div>
 
                     <button type="submit" class="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition shadow-lg shadow-amber-500/20">
@@ -195,9 +195,7 @@
 
             <div class="space-y-3">
                 <h3 class="font-bold text-slate-200 text-sm uppercase tracking-wider">Historial Reciente de Clases</h3>
-                <div id="recent-classes-list" class="space-y-2">
-                    <!-- Dinámico -->
-                </div>
+                <div id="recent-classes-list" class="space-y-2"></div>
             </div>
         </section>
 
@@ -208,7 +206,7 @@
                     <i class="fa-solid fa-database text-amber-500"></i> Copias de Seguridad y Datos
                 </h2>
                 <p class="text-xs text-slate-400 leading-relaxed">
-                    Toda su información se almacena de forma segura en este dispositivo (IndexedDB). Puede exportar un archivo JSON para respaldo o migrar sus datos a otro celular en cualquier momento.
+                    Toda su información se almacena localmente en este celular. Puede exportar un archivo JSON para respaldo o transferirlo a otro instructor.
                 </p>
 
                 <div class="pt-2 space-y-3">
@@ -253,7 +251,7 @@
     <!-- MODAL: STUDENT FORM / FICHA -->
     <div id="student-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
-            <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/9ku">
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900">
                 <h3 id="student-modal-title" class="font-bold text-white text-base">Registrar Nuevo Alumno</h3>
                 <button onclick="App.closeStudentModal()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white">
                     <i class="fa-solid fa-xmark"></i>
@@ -293,13 +291,13 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Horas Previas</label>
+                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Horas Previas (Horas)</label>
                             <input type="number" id="student-prev-hours" value="0" min="0" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
                         </div>
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Objetivo Principal</label>
-                        <input type="text" id="student-objective" placeholder="Ej. Perder miedo en pendientes, examen práctico..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                        <input type="text" id="student-objective" placeholder="Ej. Arranque en pendiente, parqueo en paralelo..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Estado</label>
@@ -349,7 +347,7 @@
                 <!-- Horas y Progreso -->
                 <div class="grid grid-cols-3 gap-3">
                     <div class="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-3 text-center">
-                        <p class="text-[10px] uppercase font-bold text-slate-400">Horas Acumuladas</p>
+                        <p class="text-[10px] uppercase font-bold text-slate-400">Horas Reales</p>
                         <p id="profile-hours-done" class="text-xl font-black text-amber-400 mt-1">0 h</p>
                     </div>
                     <div class="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-3 text-center">
@@ -357,7 +355,7 @@
                         <p id="profile-classes-count" class="text-xl font-black text-white mt-1">0</p>
                     </div>
                     <div class="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-3 text-center">
-                        <p class="text-[10px] uppercase font-bold text-slate-400">Nivel General</p>
+                        <p class="text-[10px] uppercase font-bold text-slate-400">Nivel Promedio</p>
                         <p id="profile-avg-skill" class="text-xl font-black text-blue-400 mt-1">-</p>
                     </div>
                 </div>
@@ -368,37 +366,37 @@
                         <span>Evaluación de Habilidades</span>
                         <span class="text-xs text-slate-400 font-normal">Escala 1 a 6</span>
                     </h4>
-                    <div id="profile-skills-list" class="space-y-2">
-                        <!-- Dinámico -->
-                    </div>
+                    <div id="profile-skills-list" class="space-y-2"></div>
                 </div>
 
                 <!-- Historial de Clases del Alumno -->
                 <div>
                     <h4 class="font-bold text-slate-200 text-sm uppercase tracking-wider mb-3">Historial de Clases</h4>
-                    <div id="profile-classes-list" class="space-y-2">
-                        <!-- Dinámico -->
-                    </div>
+                    <div id="profile-classes-list" class="space-y-3"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: SETTINGS & PIN -->
+    <!-- MODAL: SETTINGS & INSTRUCTOR PROFILE -->
     <div id="settings-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-5">
             <div class="flex items-center justify-between">
-                <h3 class="font-bold text-white text-base">Configuración de Seguridad</h3>
+                <h3 class="font-bold text-white text-base">Perfil e Instrucción</h3>
                 <button onclick="App.closeSettings()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">PIN de Seguridad (4 dígitos)</label>
-                    <input type="password" id="settings-pin" maxlength="4" placeholder="Dejar en blanco para desactivar" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" inputmode="numeric">
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Nombre del Instructor *</label>
+                    <input type="text" id="settings-instructor-name" placeholder="Ej. Juan Pérez" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
                 </div>
-                <button onclick="App.saveSettingsPin()" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition shadow-lg shadow-amber-500/20">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">PIN de Seguridad (4 dígitos)</label>
+                    <input type="password" id="settings-pin" maxlength="4" placeholder="Opcional" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" inputmode="numeric">
+                </div>
+                <button onclick="App.saveSettings()" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition shadow-lg shadow-amber-500/20">
                     Guardar Configuración
                 </button>
             </div>
@@ -410,13 +408,13 @@
         const SKILLS_LIST = [
             "Posición de manejo y espejos",
             "Uso de embrague y caja de cambios",
-            "Arranque en pendiente (Ayuda)",
+            "Arranque en pendiente / Loma",
             "Control de dirección y trazada",
             "Parqueo en línea (Reversa)",
-            "Parqueo en paralelo / garaje",
+            "Parqueo en paralelo / Garaje",
             "Señalización y prelación en intersecciones",
-            "Conducción en vía rápida / adelantamientos",
-            "Frenado de emergencia y control ABS",
+            "Conducción en vía rápida / Adelantamientos",
+            "Frenado de emergencia",
             "Lectura de señales de tránsito"
         ];
 
@@ -426,6 +424,7 @@
                 this.currentTab = 'home';
                 this.currentFilterStatus = 'all';
                 this.selectedStudentIdForProfile = null;
+                this.instructorName = '';
                 this.initDB();
             }
 
@@ -456,8 +455,19 @@
             async initApp() {
                 this.checkPinLock();
                 this.renderSkillsCheckboxes();
+                await this.loadInstructorName();
                 await this.refreshData();
                 this.setupPinInputs();
+            }
+
+            async loadInstructorName() {
+                const savedName = await this.getSetting('instructor_name');
+                if (savedName) {
+                    this.instructorName = savedName;
+                    document.getElementById('instructor-badge').innerText = `Prof: ${savedName}`;
+                } else {
+                    document.getElementById('instructor-badge').innerText = `Instructor: Sin registrar`;
+                }
             }
 
             async checkPinLock() {
@@ -535,10 +545,10 @@
 
             renderSkillsCheckboxes() {
                 const container = document.getElementById('class-skills-checkboxes');
-                container.innerHTML = SKILLS_LIST.map((skill, idx) => `
-                    <label class="flex items-center gap-2 cursor-pointer p-1 rounded hover:bg-slate-700/30">
-                        <input type="checkbox" name="class-skill" value="${skill}" class="rounded bg-slate-700 border-slate-600 text-amber-500 focus:ring-0">
-                        <span class="text-slate-300 truncate">${skill}</span>
+                container.innerHTML = SKILLS_LIST.map((skill) => `
+                    <label class="flex items-center gap-2 cursor-pointer p-1.5 rounded-lg hover:bg-slate-800/80 bg-slate-800/30 border border-slate-700/30">
+                        <input type="checkbox" name="class-skill" value="${skill}" class="rounded bg-slate-700 border-slate-600 text-amber-500 focus:ring-0 w-4 h-4">
+                        <span class="text-slate-200 font-medium truncate">${skill}</span>
                     </label>
                 `).join('');
             }
@@ -563,20 +573,10 @@
                 });
             }
 
-            async deleteRecord(storeName, id) {
-                return new Promise((resolve) => {
-                    const tx = this.db.transaction(storeName, 'readwrite');
-                    const store = tx.objectStore(storeName);
-                    store.delete(id);
-                    tx.oncomplete = () => resolve(true);
-                });
-            }
-
             async refreshData() {
                 const students = await this.getAll('students');
                 const classes = await this.getAll('classes');
 
-                // Stats
                 document.getElementById('stat-active-students').innerText = students.filter(s => s.status === 'activo').length;
                 document.getElementById('stat-total-classes').innerText = classes.length;
 
@@ -596,27 +596,32 @@
                     `).join('');
                 }
 
-                // Students Select in Class Form
+                // Select de alumnos para el formulario
                 const classSelect = document.getElementById('class-student-id');
                 classSelect.innerHTML = `<option value="">Seleccione un alumno...</option>` + students.map(s => `<option value="${s.id}">${s.name} (${s.category})</option>`).join('');
 
-                // Recent Classes List
+                // Render Historial Reciente de Clases
                 const recentClassesList = document.getElementById('recent-classes-list');
                 if (classes.length === 0) {
                     recentClassesList.innerHTML = `<p class="text-slate-500 text-sm italic text-center py-6">No hay clases registradas todavía.</p>`;
                 } else {
                     recentClassesList.innerHTML = classes.slice(-5).reverse().map(c => {
                         const student = students.find(s => s.id === c.studentId);
+                        const skillsBadges = (c.skills || []).map(s => `<span class="bg-slate-800 text-amber-300 border border-slate-700 text-[10px] px-2 py-0.5 rounded-md font-medium">${s}</span>`).join(' ');
+                        const hoursLabel = c.duration === 90 ? 'Clase 2h (90 min)' : 'Clase 1h (45 min)';
                         return `
                             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2">
                                 <div class="flex items-center justify-between">
                                     <span class="font-bold text-white text-sm">${student ? student.name : 'Alumno eliminado'}</span>
-                                    <span class="text-xs font-semibold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-lg">${c.duration} min</span>
+                                    <span class="text-xs font-semibold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-lg border border-amber-500/20">${hoursLabel}</span>
+                                </div>
+                                <div class="flex flex-wrap gap-1 my-1">
+                                    ${skillsBadges || '<span class="text-[10px] text-slate-500 italic">Sin habilidades asociadas</span>'}
                                 </div>
                                 <p class="text-xs text-slate-300">${c.notes || 'Sin observaciones'}</p>
-                                <div class="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-800">
+                                <div class="flex items-center justify-between text-[10px] text-slate-500 pt-2 border-t border-slate-800/60">
+                                    <span>Prof. ${c.instructor || 'No asignado'}</span>
                                     <span>${new Date(c.date).toLocaleDateString()}</span>
-                                    <span>Tipo: ${c.type}</span>
                                 </div>
                             </div>
                         `;
@@ -702,10 +707,9 @@
                     createdAt: idVal ? undefined : new Date().toISOString()
                 };
 
-                // Si es nuevo, inicializar evaluaciones de habilidades
                 if (!idVal) {
                     studentData.skills = {};
-                    SKILLS_LIST.forEach(s => studentData.skills[s] = 1); // Nivel 1: No evaluada
+                    SKILLS_LIST.forEach(s => studentData.skills[s] = 1);
                 } else {
                     const existing = await this.getStudentById(Number(idVal));
                     studentData.skills = existing.skills || {};
@@ -733,18 +737,17 @@
                 document.getElementById('profile-modal-name').innerText = student.name;
                 document.getElementById('profile-modal-meta').innerText = `Cat ${student.category} • ${student.status.toUpperCase()}`;
 
-                // Calcular horas
+                // Cálculo exacto de horas
                 const totalMinutes = classes.reduce((acc, c) => acc + Number(c.duration), 0) + (student.prevHours * 60);
                 const totalHours = (totalMinutes / 60).toFixed(1);
                 document.getElementById('profile-hours-done').innerText = `${totalHours} h`;
                 document.getElementById('profile-classes-count').innerText = classes.length;
 
-                // Nivel promedio de habilidades
                 const skillsValues = Object.values(student.skills || {});
                 const avgSkill = skillsValues.length > 0 ? (skillsValues.reduce((a,b)=>a+b,0) / skillsValues.length).toFixed(1) : '1.0';
                 document.getElementById('profile-avg-skill').innerText = `${avgSkill} / 6`;
 
-                // Render skills list
+                // Render skills
                 const skillsContainer = document.getElementById('profile-skills-list');
                 skillsContainer.innerHTML = SKILLS_LIST.map(skill => {
                     const level = student.skills[skill] || 1;
@@ -763,20 +766,28 @@
                     `;
                 }).join('');
 
-                // Render student classes
+                // Render clases del alumno con habilidades visibles
                 const classesContainer = document.getElementById('profile-classes-list');
                 if (classes.length === 0) {
                     classesContainer.innerHTML = `<p class="text-slate-500 text-xs italic">Sin clases registradas para este alumno.</p>`;
                 } else {
-                    classesContainer.innerHTML = classes.reverse().map(c => `
-                        <div class="bg-slate-800/40 border border-slate-700/50 rounded-xl p-3 space-y-1">
-                            <div class="flex items-center justify-between text-xs font-bold text-white">
-                                <span>${c.type} (${c.duration} min)</span>
-                                <span class="text-slate-400 font-normal">${new Date(c.date).toLocaleDateString()}</span>
+                    classesContainer.innerHTML = classes.reverse().map(c => {
+                        const skillsBadges = (c.skills || []).map(s => `<span class="bg-slate-800 text-amber-300 border border-slate-700 text-[10px] px-2 py-0.5 rounded-md font-medium">${s}</span>`).join(' ');
+                        const hoursLabel = c.duration === 90 ? 'Clase 2h (90 min)' : 'Clase 1h (45 min)';
+                        return `
+                            <div class="bg-slate-800/40 border border-slate-700/50 rounded-xl p-3.5 space-y-2">
+                                <div class="flex items-center justify-between text-xs font-bold text-white">
+                                    <span>${c.type} - ${hoursLabel}</span>
+                                    <span class="text-slate-400 font-normal">${new Date(c.date).toLocaleDateString()}</span>
+                                </div>
+                                <div class="flex flex-wrap gap-1">
+                                    ${skillsBadges || '<span class="text-[10px] text-slate-500 italic">Sin habilidades marcadas</span>'}
+                                </div>
+                                <p class="text-xs text-slate-300">${c.notes || 'Sin observaciones'}</p>
+                                <div class="text-[10px] text-amber-400 font-medium pt-1">Prof. ${c.instructor || 'No registrado'}</div>
                             </div>
-                            <p class="text-xs text-slate-300">${c.notes || 'Sin observaciones'}</p>
-                        </div>
-                    `).join('');
+                        `;
+                    }).join('');
                 }
 
                 document.getElementById('student-profile-modal').classList.remove('hidden');
@@ -805,13 +816,26 @@
 
             async saveClass(event) {
                 event.preventDefault();
+
+                if (!this.instructorName) {
+                    alert('Por favor registre su nombre de Instructor en Configuración (icono de engranaje arriba a la derecha) antes de registrar la clase.');
+                    this.openSettings();
+                    return;
+                }
+
                 const studentId = Number(document.getElementById('class-student-id').value);
                 const type = document.getElementById('class-type').value;
-                const duration = Number(document.getElementById('class-duration').value);
+                const duration = Number(document.getElementById('class-duration-select').value); // 90 o 45
                 const notes = document.getElementById('class-notes').value;
 
                 const selectedSkills = [];
                 document.querySelectorAll('input[name="class-skill"]:checked').forEach(cb => selectedSkills.push(cb.value));
+
+                if (selectedSkills.length === 0) {
+                    if (!confirm('No seleccionó ninguna habilidad practicada. ¿Desea guardar la clase de todas formas?')) {
+                        return;
+                    }
+                }
 
                 const classData = {
                     id: Date.now(),
@@ -820,19 +844,20 @@
                     duration,
                     notes,
                     skills: selectedSkills,
+                    instructor: this.instructorName,
                     date: new Date().toISOString()
                 };
 
                 await this.saveRecord('classes', classData);
                 document.getElementById('class-form').reset();
-                document.getElementById('class-duration').value = '60';
+                document.querySelectorAll('input[name="class-skill"]').forEach(cb => cb.checked = false);
                 await this.refreshData();
                 this.switchTab('home');
             }
 
             toggleVoiceDictation(textareaId) {
                 if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                    alert('El reconocimiento de voz no es compatible con este navegador. Utilice el teclado.');
+                    alert('El reconocimiento de voz no es compatible con este navegador.');
                     return;
                 }
                 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -850,20 +875,15 @@
                     micIcon.classList.remove('text-rose-500', 'fa-beat');
                 };
 
-                recognition.onerror = () => {
-                    micIcon.classList.remove('text-rose-500', 'fa-beat');
-                };
-
-                recognition.onend = () => {
-                    micIcon.classList.remove('text-rose-500', 'fa-beat');
-                };
+                recognition.onerror = () => micIcon.classList.remove('text-rose-500', 'fa-beat');
+                recognition.onend = () => micIcon.classList.remove('text-rose-500', 'fa-beat');
 
                 recognition.start();
             }
 
             exportJSON() {
                 Promise.all([this.getAll('students'), this.getAll('classes'), this.getAll('settings')]).then(([students, classes, settings]) => {
-                    const backup = { schemaVersion: 1, exportedAt: new Date().toISOString(), students, classes, settings };
+                    const backup = { schemaVersion: 2, exportedAt: new Date().toISOString(), students, classes, settings };
                     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
@@ -881,9 +901,7 @@
                 reader.onload = async (e) => {
                     try {
                         const data = JSON.parse(e.target.result);
-                        if (!data.students || !data.classes) {
-                            throw new Error('Archivo inválido');
-                        }
+                        if (!data.students || !data.classes) throw new Error('Archivo inválido');
                         for (const s of data.students) await this.saveRecord('students', s);
                         for (const c of data.classes) await this.saveRecord('classes', c);
                         await this.refreshData();
@@ -908,6 +926,7 @@
 
             openSettings() {
                 document.getElementById('settings-modal').classList.remove('hidden');
+                document.getElementById('settings-instructor-name').value = this.instructorName || '';
                 this.getSetting('app_pin').then(pin => {
                     document.getElementById('settings-pin').value = pin || '';
                 });
@@ -917,11 +936,19 @@
                 document.getElementById('settings-modal').classList.add('hidden');
             }
 
-            async saveSettingsPin() {
-                const pin = document.getElementById('settings-pin').value;
-                await this.setSetting('app_pin', pin.trim() ? pin.trim() : null);
+            async saveSettings() {
+                const name = document.getElementById('settings-instructor-name').value.trim();
+                const pin = document.getElementById('settings-pin').value.trim();
+
+                if (name) {
+                    await this.setSetting('instructor_name', name);
+                    this.instructorName = name;
+                    document.getElementById('instructor-badge').innerText = `Prof: ${name}`;
+                }
+
+                await this.setSetting('app_pin', pin ? pin : null);
                 this.closeSettings();
-                alert('Configuración guardada.');
+                alert('Configuración guardada correctamente.');
             }
 
             async generatePDF() {
@@ -935,22 +962,34 @@
                 doc.setFillColor(15, 23, 42);
                 doc.rect(0, 0, 210, 40, 'F');
                 doc.setTextColor(255, 255, 255);
-                doc.setFontSize(22);
-                doc.text("Informe de Alumno - Conducimos", 14, 25);
+                doc.setFontSize(20);
+                doc.text("Informe de Aprendizaje - Conducimos", 14, 25);
 
                 doc.setTextColor(50, 50, 50);
-                doc.setFontSize(14);
-                doc.text(`Nombre: ${student.name}`, 14, 55);
+                doc.setFontSize(13);
+                doc.text(`Alumno: ${student.name}`, 14, 52);
                 doc.setFontSize(10);
-                doc.text(`Categoría: ${student.category} | Teléfono: ${student.phone || 'N/A'} | Estado: ${student.status}`, 14, 63);
-                doc.text(`Objetivo: ${student.objective || 'N/A'}`, 14, 71);
+                doc.text(`Categoría: ${student.category} | Teléfono: ${student.phone || 'N/A'} | Estado: ${student.status}`, 14, 60);
 
-                doc.text("Historial de Clases:", 14, 85);
-                let y = 92;
+                doc.text("Historial Detallado de Clases:", 14, 75);
+                let y = 83;
                 classes.forEach((c, index) => {
                     if (y > 270) { doc.addPage(); y = 20; }
-                    doc.text(`${index + 1}. [${new Date(c.date).toLocaleDateString()}] ${c.type} - ${c.duration} min: ${c.notes || 'Sin notas'}`, 14, y);
-                    y += 8;
+                    const durationText = c.duration === 90 ? '2h (90 min)' : '1h (45 min)';
+                    const skillsStr = (c.skills || []).join(', ');
+                    doc.text(`${index + 1}. [${new Date(c.date).toLocaleDateString()}] ${c.type} (${durationText}) - Prof. ${c.instructor || 'N/A'}`, 14, y);
+                    y += 6;
+                    if (skillsStr) {
+                        doc.setTextColor(100, 100, 100);
+                        doc.text(`   Habilidades: ${skillsStr}`, 14, y);
+                        y += 6;
+                        doc.setTextColor(50, 50, 50);
+                    }
+                    if (c.notes) {
+                        doc.text(`   Notas: ${c.notes}`, 14, y);
+                        y += 6;
+                    }
+                    y += 2;
                 });
 
                 doc.save(`informe_${student.name.replace(/\s+/g, '_')}.pdf`);
