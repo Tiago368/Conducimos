@@ -1,1207 +1,963 @@
-<!-- PIN Lock Overlay -->
-<div id="pin-lock-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 hidden">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center space-y-6">
-        <div class="w-16 h-16 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-2xl">
-            <i class="fa-solid fa-shield-halved"></i>
-        </div>
-        <div>
-            <h2 class="text-xl font-bold text-white">Aplicación Bloqueada</h2>
-            <p class="text-slate-400 text-sm mt-1">Ingrese su PIN de seguridad de 4 dígitos</p>
-        </div>
-        <div class="flex justify-center gap-3">
-            <input type="password" maxlength="1" class="pin-digit w-12 h-14 text-center text-2xl font-bold bg-slate-800 border border-slate-700 rounded-xl text-white focus:border-amber-500 focus:outline-none" inputmode="numeric" />
-            <input type="password" maxlength="1" class="pin-digit w-12 h-14 text-center text-2xl font-bold bg-slate-800 border border-slate-700 rounded-xl text-white focus:border-amber-500 focus:outline-none" inputmode="numeric" />
-            <input type="password" maxlength="1" class="pin-digit w-12 h-14 text-center text-2xl font-bold bg-slate-800 border border-slate-700 rounded-xl text-white focus:border-amber-500 focus:outline-none" inputmode="numeric" />
-            <input type="password" maxlength="1" class="pin-digit w-12 h-14 text-center text-2xl font-bold bg-slate-800 border border-slate-700 rounded-xl text-white focus:border-amber-500 focus:outline-none" inputmode="numeric" />
-        </div>
-        <button id="btn-unlock" class="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition shadow-lg shadow-amber-500/20">Desbloquear</button>
-        <p id="pin-error" class="text-rose-400 text-xs hidden">PIN incorrecto. Intente nuevamente.</p>
-    </div>
-</div>
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-950">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Conducimos - Gestión de Alumnos y Clases</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- jsPDF para informes en PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <meta name="theme-color" content="#0f172a">
+    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Conducimos%22%2C%22short_name%22%3A%22Conducimos%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230f172a%22%2C%22theme_color%22%3A%22%230f172a%22%2C%22icons%22%3A%5B%5D%7D">
+</head>
+<body class="h-full text-slate-100 flex flex-col antialiased selection:bg-amber-500 selection:text-slate-950">
 
-<!-- Safety Banner (Driving Reminder) -->
-<div class="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 text-xs text-amber-300 flex items-center justify-between gap-2">
-    <div class="flex items-center gap-2">
-        <i class="fa-solid fa-triangle-exclamation text-amber-400 shrink-0"></i>
-        <span><strong>Seguridad Vial:</strong> Registre y consulte únicamente con el vehículo detenido en lugar seguro.</span>
-    </div>
-    <button onclick="this.parentElement.style.display='none'" class="text-amber-400 hover:text-amber-200 px-1"><i class="fa-solid fa-xmark"></i></button>
-</div>
-
-<!-- Main Navigation Header -->
-<header class="bg-slate-900/80 backdrop-blur border-b border-slate-800 sticky top-0 z-30 px-4 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center text-slate-950 font-extrabold shadow-md shadow-amber-500/20">
-            <i class="fa-solid fa-car"></i>
-        </div>
-        <div>
-            <h1 class="font-bold text-base text-white leading-tight">DriveCoach Pro</h1>
-            <p class="text-xs text-amber-400/90 font-medium">Colombia • Normativa MinTransporte</p>
-        </div>
-    </div>
-    <div class="flex items-center gap-2">
-        <button onclick="openModal('modal-quick-class')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-amber-500/20 transition">
-            <i class="fa-solid fa-plus"></i> <span class="hidden sm:inline">Clase</span>
-        </button>
-        <button onclick="openModal('modal-quick-student')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition">
-            <i class="fa-solid fa-user-plus"></i> <span class="hidden sm:inline">Alumno</span>
-        </button>
-    </div>
-</header>
-
-<!-- App Container Body -->
-<main class="flex-1 max-w-4xl w-full mx-auto p-4 pb-24">
-
-    <!-- TAB 1: INICIO (DASHBOARD) -->
-    <section id="tab-inicio" class="tab-content active fade-in space-y-6">
-        <!-- Stats Grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4">
-                <p class="text-xs text-slate-400 font-medium">Alumnos Activos</p>
-                <h3 id="stat-active-students" class="text-2xl font-bold text-white mt-1">0</h3>
+    <!-- PIN Lock Overlay -->
+    <div id="pin-lock-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center space-y-6">
+            <div class="w-16 h-16 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-2xl">
+                <i class="fa-solid fa-shield-halved"></i>
             </div>
-            <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4">
-                <p class="text-xs text-slate-400 font-medium">Clases este Mes</p>
-                <h3 id="stat-month-classes" class="text-2xl font-bold text-white mt-1">0</h3>
-            </div>
-            <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4">
-                <p class="text-xs text-slate-400 font-medium">Horas Prácticas</p>
-                <h3 id="stat-total-hours" class="text-2xl font-bold text-amber-400 mt-1">0h</h3>
-            </div>
-            <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4">
-                <p class="text-xs text-slate-400 font-medium">Pendientes Seguimiento</p>
-                <h3 id="stat-pending-follow" class="text-2xl font-bold text-sky-400 mt-1">0</h3>
-            </div>
-        </div>
-
-        <!-- Quick Actions Banner -->
-        <div class="bg-gradient-to-r from-amber-500/20 via-amber-600/10 to-transparent border border-amber-500/30 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-                <h2 class="font-bold text-white text-base">Registro Rápido de Clase</h2>
-                <p class="text-xs text-slate-300 mt-0.5">Seleccione alumno, habilidades trabajadas y duración en segundos.</p>
+                <h2 class="text-xl font-bold text-white">Aplicación Bloqueada</h2>
+                <p class="text-slate-400 text-sm mt-1">Ingrese su PIN de seguridad de 4 dígitos</p>
             </div>
-            <button onclick="openModal('modal-quick-class')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2.5 rounded-xl text-sm transition shadow-md shadow-amber-500/20 w-full sm:w-auto text-center">
-                Iniciar Registro
+            <div class="flex justify-center gap-3">
+                <input type="password" maxlength="1" class="pin-digit w-12 h-14 text-center text-2xl font-bold bg-slate-800 border border-slate-700 rounded-xl focus:border-amber-500 focus:outline-none text-white" inputmode="numeric">
+                <input type="password" maxlength="1" class="pin-digit w-12 h-14 text-center text-2xl font-bold bg-slate-800 border border-slate-700 rounded-xl focus:border-amber-500 focus:outline-none text-white" inputmode="numeric">
+                <input type="password" maxlength="1" class="pin-digit w-12 h-14 text-center text-2xl font-bold bg-slate-800 border border-slate-700 rounded-xl focus:border-amber-500 focus:outline-none text-white" inputmode="numeric">
+                <input type="password" maxlength="1" class="pin-digit w-12 h-14 text-center text-2xl font-bold bg-slate-800 border border-slate-700 rounded-xl focus:border-amber-500 focus:outline-none text-white" inputmode="numeric">
+            </div>
+            <button id="btn-unlock" class="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition shadow-lg shadow-amber-500/20">Desbloquear</button>
+            <p id="pin-error" class="text-rose-400 text-xs hidden">PIN incorrecto. Intente nuevamente.</p>
+        </div>
+    </div>
+
+    <!-- Safety Banner -->
+    <div class="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2 text-xs text-amber-300 flex items-center justify-between shrink-0">
+        <span class="flex items-center gap-2">
+            <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
+            <strong>Seguridad vial:</strong> Detenga el vehículo en lugar seguro antes de registrar o consultar.
+        </span>
+    </div>
+
+    <!-- Main Navigation Header -->
+    <header class="bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center justify-between shrink-0">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-amber-500 text-slate-950 rounded-xl flex items-center justify-center font-black text-xl shadow-lg shadow-amber-500/20">C</div>
+            <div>
+                <h1 class="font-bold text-white text-base leading-tight">Conducimos</h1>
+                <p class="text-xs text-slate-400">Gestión de Alumnos y Clases</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="App.openSettings()" class="w-10 h-10 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl flex items-center justify-center transition" title="Configuración / PIN">
+                <i class="fa-solid fa-gear"></i>
             </button>
         </div>
+    </header>
 
-        <!-- Recent Classes & Recommendations -->
-        <div class="grid md:grid-cols-2 gap-6">
-            <!-- Recent Classes -->
-            <div class="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-4">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="font-bold text-sm text-white flex items-center gap-2">
-                        <i class="fa-solid fa-clock-rotate-left text-amber-400"></i> Clases Recientes
-                    </h3>
-                    <button onclick="switchTab('alumnos')" class="text-xs text-amber-400 hover:underline">Ver todos</button>
-                </div>
-                <div id="recent-classes-list" class="space-y-2.5">
-                    <p class="text-xs text-slate-500 italic py-4 text-center">No hay clases registradas aún.</p>
-                </div>
-            </div>
-
-            <!-- Smart Local Suggestions -->
-            <div class="bg-slate-800/40 border border-slate-700/60 rounded-2xl p-4">
-                <h3 class="font-bold text-sm text-white flex items-center gap-2 mb-3">
-                    <i class="fa-solid fa-lightbulb text-amber-400"></i> Sugerencias Pedagógicas Locales
-                </h3>
-                <div id="smart-suggestions-list" class="space-y-2.5">
-                    <p class="text-xs text-slate-500 italic py-4 text-center">Sin sugerencias pendientes. Registre alumnos y clases.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- TAB 2: ALUMNOS -->
-    <section id="tab-alumnos" class="tab-content fade-in space-y-4">
-        <div class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
-            <div class="relative flex-1">
-                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
-                <input type="text" id="search-student" placeholder="Buscar por nombre, teléfono o categoría..." class="w-full bg-slate-800 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-amber-500" oninput="renderStudentsList()" />
-            </div>
-            <div class="flex gap-2">
-                <select id="filter-status" class="bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" onchange="renderStudentsList()">
-                    <option value="todos">Todos los estados</option>
-                    <option value="activo" selected>Activos</option>
-                    <option value="pausado">Pausados</option>
-                    <option value="finalizado">Finalizados</option>
-                    <option value="archivado">Archivados</option>
-                </select>
-                <button onclick="openModal('modal-quick-student')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-2 shrink-0">
-                    <i class="fa-solid fa-plus"></i> Nuevo
-                </button>
-            </div>
-        </div>
-
-        <!-- Students List Grid -->
-        <div id="students-grid" class="grid sm:grid-cols-2 gap-3">
-            <div class="col-span-full text-center py-12 text-slate-500 text-sm">
-                Cargando alumnos...
-            </div>
-        </div>
-    </section>
-
-    <!-- TAB 3: REGISTRAR CLASE (Dedicated View) -->
-    <section id="tab-registrar" class="tab-content fade-in space-y-6">
-        <div class="bg-slate-800/50 border border-slate-700/60 rounded-3xl p-6 max-w-2xl mx-auto">
-            <h2 class="text-lg font-bold text-white mb-1 flex items-center gap-2">
-                <i class="fa-solid fa-clipboard-user text-amber-400"></i> Registrar Nueva Sesión de Práctica / Teoría
-            </h2>
-            <p class="text-xs text-slate-400 mb-6">Complete los datos clave. El sistema actualizará automáticamente las horas acumuladas.</p>
-
-            <form id="form-class" onsubmit="handleSaveClass(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Alumno *</label>
-                    <select id="class-student-id" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                        <option value="">Seleccione un alumno activo...</option>
-                    </select>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Tipo de Sesión</label>
-                        <select id="class-type" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                            <option value="Práctica">Práctica en vía</option>
-                            <option value="Teórica">Teórica</option>
-                            <option value="Evaluación">Evaluación</option>
-                            <option value="Pista/Simulador">Pista / Patios</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Duración Programada (min)</label>
-                        <input type="number" id="class-dur-prog" value="60" min="15" max="300" step="15" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" />
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Duración Real (min) *</label>
-                        <input type="number" id="class-dur-real" value="60" min="0" max="300" step="5" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" />
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Habilidades Trabajadas (Seleccione las principales)</label>
-                    <div id="class-skills-checkboxes" class="grid grid-cols-2 sm:grid-cols-3 gap-2 bg-slate-900/50 p-3 rounded-xl border border-slate-800 max-h-40 overflow-y-auto">
-                        <!-- Populated dynamically -->
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Nivel de Confianza Observado</label>
-                        <select id="class-confidence" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                            <option value="Normal">Normal / Estable</option>
-                            <option value="Tenso / Nervioso">Tenso / Nervioso</option>
-                            <option value="Inseguro">Inseguro</option>
-                            <option value="Muy seguro / Confiado">Muy seguro / Confiado</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Actitud / Estado Emocional</label>
-                        <input type="text" id="class-mood" placeholder="Ej. Concentrado, distraído..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" />
-                    </div>
-                </div>
-
-                <div>
-                    <div class="flex items-center justify-between mb-1.5">
-                        <label class="block text-xs font-semibold text-slate-300">Observaciones y Errores Observados</label>
-                        <button type="button" onclick="startVoiceDictation('class-notes')" class="text-xs bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 px-2 py-1 rounded-lg flex items-center gap-1 transition">
-                            <i class="fa-solid fa-microphone"></i> Dictar por voz
-                        </button>
-                    </div>
-                    <textarea id="class-notes" rows="3" placeholder="¿Qué hizo bien? ¿Qué errores recurrentes cometió? ¿Qué reforzar en la próxima clase?" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-amber-500"></textarea>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Objetivo Recomendado Siguiente Clase</label>
-                    <input type="text" id="class-next-goal" placeholder="Ej. Repetir estacionamiento en pendiente con menor intervención" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" />
-                </div>
-
-                <div class="pt-3 flex justify-end gap-3">
-                    <button type="button" onclick="switchTab('inicio')" class="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 text-sm font-semibold hover:bg-slate-800 transition">Cancelar</button>
-                    <button type="submit" class="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm transition shadow-lg shadow-amber-500/20">Guardar Registro de Clase</button>
-                </div>
-            </form>
-        </div>
-    </section>
-
-    <!-- TAB 4: COPIAS DE SEGURIDAD Y DATOS -->
-    <section id="tab-backup" class="tab-content fade-in space-y-6">
-        <div class="bg-slate-800/40 border border-slate-700/60 rounded-3xl p-6 max-w-xl mx-auto space-y-6">
-            <div>
+    <!-- App Content Container -->
+    <main class="flex-1 overflow-y-auto pb-24 p-4 max-w-2xl mx-auto w-full">
+        
+        <!-- VIEW: HOME / INICIO -->
+        <section id="view-home" class="space-y-6">
+            <div class="bg-gradient-to-br from-slate-900 to-slate-900/50 border border-slate-800 rounded-2xl p-5 shadow-xl">
                 <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-database text-amber-400"></i> Copias de Seguridad y Datos Locales
+                    <i class="fa-solid fa-gauge-high text-amber-500"></i> Resumen General
                 </h2>
-                <p class="text-xs text-slate-400 mt-1">Sus datos se guardan de forma segura en este dispositivo (IndexedDB). Exporte regularmente un archivo JSON para respaldo o transferencia entre dispositivos.</p>
+                <div class="grid grid-cols-2 gap-3 mt-4">
+                    <div class="bg-slate-800/60 border border-slate-700/50 rounded-xl p-4">
+                        <p class="text-xs text-slate-400 uppercase font-semibold">Alumnos Activos</p>
+                        <p id="stat-active-students" class="text-2xl font-black text-white mt-1">0</p>
+                    </div>
+                    <div class="bg-slate-800/60 border border-slate-700/50 rounded-xl p-4">
+                        <p class="text-xs text-slate-400 uppercase font-semibold">Clases Registradas</p>
+                        <p id="stat-total-classes" class="text-2xl font-black text-amber-400 mt-1">0</p>
+                    </div>
+                </div>
             </div>
 
-            <div class="space-y-3 pt-2">
-                <button onclick="exportFullBackupJSON()" class="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-sm flex items-center justify-center gap-2 transition shadow-lg shadow-amber-500/20">
-                    <i class="fa-solid fa-file-arrow-down"></i> Exportar Copia de Seguridad Completa (JSON)
-                </button>
-                <label class="w-full py-3.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold rounded-xl text-sm flex items-center justify-center gap-2 transition cursor-pointer">
-                    <i class="fa-solid fa-file-arrow-up"></i> Importar Copia de Seguridad (JSON)
-                    <input type="file" id="import-file-input" accept=".json" onchange="importFullBackupJSON(event)" class="hidden" />
-                </label>
-            </div>
-
-            <div class="border-t border-slate-700/60 pt-6 space-y-4">
-                <h3 class="text-sm font-bold text-white">Información PWA y Sin Conexión</h3>
-                <p class="text-xs text-slate-400">Esta aplicación cuenta con Service Worker y manifiesto. Puede instalarla en su celular desde el menú del navegador seleccionando "Agregar a la pantalla principal". Funciona completamente sin conexión a internet tras la primera carga.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- TAB 5: CONFIGURACIÓN Y SEGURIDAD -->
-    <section id="tab-config" class="tab-content fade-in space-y-6">
-        <div class="bg-slate-800/40 border border-slate-700/60 rounded-3xl p-6 max-w-xl mx-auto space-y-6">
-            <div>
-                <h2 class="text-lg font-bold text-white flex items-center gap-2">
-                    <i class="fa-solid fa-gear text-amber-400"></i> Configuración y Seguridad PIN
-                </h2>
-                <p class="text-xs text-slate-400 mt-1">Configure la seguridad de acceso y preferencias del instructor.</p>
-            </div>
-
-            <div class="space-y-4 bg-slate-900/50 p-4 rounded-2xl border border-slate-800">
-                <h3 class="text-sm font-semibold text-white">Bloqueo por PIN de Seguridad</h3>
+            <div class="space-y-3">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs text-slate-300">Activar bloqueo por PIN al iniciar</span>
-                    <input type="checkbox" id="toggle-pin-active" onchange="togglePinSetting(this)" class="w-5 h-5 accent-amber-500 rounded cursor-pointer" />
+                    <h3 class="font-bold text-slate-200 text-sm uppercase tracking-wider">Acciones Rápidas</h3>
                 </div>
-                <div id="pin-change-container" class="space-y-3 pt-2 hidden">
-                    <label class="block text-xs text-slate-300">Establecer nuevo PIN (4 dígitos)</label>
-                    <div class="flex gap-2">
-                        <input type="password" id="new-pin-input" maxlength="4" placeholder="Ej. 1234" class="bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white w-32 focus:outline-none focus:border-amber-500" inputmode="numeric" />
-                        <button onclick="saveNewPin()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition">Guardar PIN</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="border-t border-slate-700/60 pt-6 space-y-4">
-                <h3 class="text-sm font-bold text-rose-400">Zona de Peligro</h3>
-                <button onclick="confirmResetDatabase()" class="w-full py-3 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 font-semibold rounded-xl text-xs flex items-center justify-center gap-2 transition">
-                    <i class="fa-solid fa-triangle-exclamation"></i> Borrar todos los datos locales
-                </button>
-            </div>
-        </div>
-    </section>
-
-</main>
-
-<!-- Bottom Mobile Navigation Bar -->
-<nav class="bg-slate-900/95 backdrop-blur border-t border-slate-800 fixed bottom-0 left-0 right-0 z-40 px-2 py-2 flex justify-around items-center max-w-4xl mx-auto">
-    <button onclick="switchTab('inicio')" id="nav-btn-inicio" class="nav-btn flex flex-col items-center gap-1 text-amber-400 px-3 py-1 rounded-xl transition">
-        <i class="fa-solid fa-house text-lg"></i>
-        <span class="text-[10px] font-medium">Inicio</span>
-    </button>
-    <button onclick="switchTab('alumnos')" id="nav-btn-alumnos" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 px-3 py-1 rounded-xl transition">
-        <i class="fa-solid fa-users text-lg"></i>
-        <span class="text-[10px] font-medium">Alumnos</span>
-    </button>
-    <button onclick="switchTab('registrar')" id="nav-btn-registrar" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 px-3 py-1 rounded-xl transition">
-        <i class="fa-solid fa-clipboard-list text-lg"></i>
-        <span class="text-[10px] font-medium">Clase</span>
-    </button>
-    <button onclick="switchTab('backup')" id="nav-btn-backup" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 px-3 py-1 rounded-xl transition">
-        <i class="fa-solid fa-file-arrow-down text-lg"></i>
-        <span class="text-[10px] font-medium">Datos</span>
-    </button>
-    <button onclick="switchTab('config')" id="nav-btn-config" class="nav-btn flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 px-3 py-1 rounded-xl transition">
-        <i class="fa-solid fa-gear text-lg"></i>
-        <span class="text-[10px] font-medium">Ajustes</span>
-    </button>
-</nav>
-
-<!-- MODAL: QUICK STUDENT (Nuevo / Editar Alumno) -->
-<div id="modal-quick-student" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden overflow-y-auto">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl my-8 space-y-4 max-h-[90vh] overflow-y-auto">
-        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
-            <h3 id="modal-student-title" class="font-bold text-base text-white flex items-center gap-2">
-                <i class="fa-solid fa-user-plus text-amber-400"></i> Registrar Nuevo Alumno
-            </h3>
-            <button onclick="closeModal('modal-quick-student')" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
-        </div>
-        <form id="form-student" onsubmit="handleSaveStudent(event)" class="space-y-4">
-            <input type="hidden" id="student-id" />
-            <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre Completo *</label>
-                <input type="text" id="student-name" required placeholder="Ej. Carlos Mario Pérez" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" />
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Teléfono / Contacto</label>
-                    <input type="tel" id="student-phone" placeholder="Ej. 3103004050" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" />
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Categoría Licencia (Col)</label>
-                    <select id="student-category" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                        <option value="A2">A2 (Motocicletas)</option>
-                        <option value="B1" selected>B1 (Automóviles particulares)</option>
-                        <option value="C1">C1 (Servicio público automóviles)</option>
-                        <option value="B2">B2 (Camiones / Buses particulares)</option>
-                        <option value="C2">C2 (Camiones / Buses públicos)</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Experiencia Previa Declarada</label>
-                    <select id="student-experience" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                        <option value="Nunca ha conducido">Nunca ha conducido</option>
-                        <option value="Conocimientos básicos / Empírico">Conocimientos básicos / Empírico</option>
-                        <option value="Ha recibido clases previas">Ha recibido clases previas</option>
-                        <option value="Sabe conducir, mejora técnica">Sabe conducir, mejora técnica</option>
-                        <option value="Preparación para evaluación">Preparación para evaluación</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Nivel Inicial Evaluado</label>
-                    <select id="student-initial-level" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                        <option value="1">1. No evaluada / Cero dominio</option>
-                        <option value="2">2. No domina todavía</option>
-                        <option value="3">3. En aprendizaje (ayuda frecuente)</option>
-                        <option value="4">4. En progreso (algunas indicaciones)</option>
-                        <option value="5">5. Dominada con autonomía</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Horas Prácticas Contratadas</label>
-                    <input type="number" id="student-hours-contracted" value="20" min="1" max="100" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" />
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Estado del Proceso</label>
-                    <select id="student-status" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                        <option value="activo" selected>Activo</option>
-                        <option value="pausado">Pausado</option>
-                        <option value="finalizado">Finalizado</option>
-                        <option value="archivado">Archivado</option>
-                    </select>
-                </div>
-            </div>
-
-            <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1">Objetivo Principal del Alumno</label>
-                <input type="text" id="student-goal" placeholder="Ej. Dominar parqueo en pendiente y tráfico urbano" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" />
-            </div>
-
-            <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1">Observaciones Iniciales</label>
-                <textarea id="student-observations" rows="2" placeholder="Notas sobre confianza, postura o dificultades específicas..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-amber-500"></textarea>
-            </div>
-
-            <div class="pt-2 flex justify-end gap-3">
-                <button type="button" onclick="closeModal('modal-quick-student')" class="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 text-sm font-semibold hover:bg-slate-800 transition">Cancelar</button>
-                <button type="submit" class="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm transition shadow-lg shadow-amber-500/20">Guardar Alumno</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- MODAL: QUICK CLASS (From anywhere) -->
-<div id="modal-quick-class" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden overflow-y-auto">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl my-8 space-y-4 max-h-[90vh] overflow-y-auto">
-        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
-            <h3 class="font-bold text-base text-white flex items-center gap-2">
-                <i class="fa-solid fa-clipboard-user text-amber-400"></i> Registrar Clase Rápida
-            </h3>
-            <button onclick="closeModal('modal-quick-class')" class="text-slate-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
-        </div>
-        <form id="form-quick-class" onsubmit="handleSaveQuickClass(event)" class="space-y-4">
-            <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1">Alumno *</label>
-                <select id="qclass-student-id" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                    <option value="">Seleccione alumno...</option>
-                </select>
-            </div>
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Duración Real (min) *</label>
-                    <input type="number" id="qclass-duration" value="60" min="15" max="300" step="15" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" />
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Tipo de Sesión</label>
-                    <select id="qclass-type" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                        <option value="Práctica">Práctica en vía</option>
-                        <option value="Teórica">Teórica</option>
-                        <option value="Evaluación">Evaluación</option>
-                    </select>
-                </div>
-            </div>
-            <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1">Habilidades Trabajadas</label>
-                <div id="qclass-skills-checkboxes" class="grid grid-cols-2 gap-2 bg-slate-900/50 p-3 rounded-xl border border-slate-800 max-h-32 overflow-y-auto">
-                    <!-- Checkboxes -->
-                </div>
-            </div>
-            <div>
-                <div class="flex items-center justify-between mb-1">
-                    <label class="block text-xs font-semibold text-slate-300">Observaciones Breves</label>
-                    <button type="button" onclick="startVoiceDictation('qclass-notes')" class="text-xs bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 px-2 py-1 rounded-lg flex items-center gap-1 transition">
-                        <i class="fa-solid fa-microphone"></i> Dictar
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="App.switchTab('students')" class="p-4 bg-slate-900 hover:bg-slate-850 border border-slate-800 rounded-2xl text-left transition flex flex-col justify-between group">
+                        <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-lg mb-3 group-hover:scale-110 transition">
+                            <i class="fa-solid fa-user-plus"></i>
+                        </div>
+                        <div>
+                            <span class="font-bold text-white block">Nuevo Alumno</span>
+                            <span class="text-xs text-slate-400">Registrar y evaluar</span>
+                        </div>
+                    </button>
+                    <button onclick="App.switchTab('classes')" class="p-4 bg-slate-900 hover:bg-slate-850 border border-slate-800 rounded-2xl text-left transition flex flex-col justify-between group">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-lg mb-3 group-hover:scale-110 transition">
+                            <i class="fa-solid fa-clipboard-user"></i>
+                        </div>
+                        <div>
+                            <span class="font-bold text-white block">Registrar Clase</span>
+                            <span class="text-xs text-slate-400">Anotar práctica y horas</span>
+                        </div>
                     </button>
                 </div>
-                <textarea id="qclass-notes" rows="2" placeholder="¿Qué tal estuvo la clase? Errores o logros..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-amber-500"></textarea>
-            </div>
-            <div class="pt-2 flex justify-end gap-3">
-                <button type="button" onclick="closeModal('modal-quick-class')" class="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 text-sm font-semibold hover:bg-slate-800 transition">Cancelar</button>
-                <button type="submit" class="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm transition shadow-lg shadow-amber-500/20">Guardar Clase</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- MODAL: STUDENT PROFILE & DETAILS -->
-<div id="modal-student-profile" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 hidden overflow-y-auto">
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full p-4 sm:p-6 shadow-2xl my-4 space-y-6 max-h-[92vh] overflow-y-auto">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-            <div class="flex items-center gap-3">
-                <div id="profile-avatar" class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 font-bold flex items-center justify-center text-lg">CP</div>
-                <div>
-                    <h2 id="profile-name" class="font-bold text-base text-white">Nombre Alumno</h2>
-                    <p id="profile-meta" class="text-xs text-slate-400">Categoría B1 • Activo</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-2">
-                <button onclick="generateStudentPDF()" class="bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 p-2.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 border border-sky-500/20 transition" title="Generar Informe PDF">
-                    <i class="fa-solid fa-file-pdf"></i> <span class="hidden sm:inline">PDF</span>
-                </button>
-                <button onclick="closeModal('modal-student-profile')" class="text-slate-400 hover:text-white p-2"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-        </div>
-
-        <!-- Profile Tabs / Sections -->
-        <div class="space-y-6">
-            <!-- Hours & Progress Summary -->
-            <div class="grid grid-cols-3 gap-3 bg-slate-800/50 p-4 rounded-2xl border border-slate-800 text-center">
-                <div>
-                    <p class="text-[10px] text-slate-400 font-medium uppercase">Contratadas</p>
-                    <h3 id="profile-hours-contracted" class="text-lg font-bold text-white mt-0.5">20h</h3>
-                </div>
-                <div>
-                    <p class="text-[10px] text-slate-400 font-medium uppercase">Realizadas</p>
-                    <h3 id="profile-hours-done" class="text-lg font-bold text-amber-400 mt-0.5">0h</h3>
-                </div>
-                <div>
-                    <p class="text-[10px] text-slate-400 font-medium uppercase">Pendientes</p>
-                    <h3 id="profile-hours-pending" class="text-lg font-bold text-sky-400 mt-0.5">20h</h3>
-                </div>
             </div>
 
-            <!-- Goal & Initial Notes -->
-            <div class="bg-slate-800/30 p-4 rounded-2xl border border-slate-800 space-y-2">
-                <p class="text-xs text-amber-400 font-semibold"><i class="fa-solid fa-bullseye"></i> Objetivo Principal</p>
-                <p id="profile-goal-text" class="text-xs text-slate-200">Sin definir</p>
-                <p class="text-xs text-slate-400 font-semibold pt-2"><i class="fa-solid fa-notes"></i> Experiencia / Observaciones Iniciales</p>
-                <p id="profile-obs-text" class="text-xs text-slate-300">Ninguna</p>
-            </div>
-
-            <!-- Skills Evaluation Matrix -->
-            <div>
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="font-bold text-sm text-white flex items-center gap-2">
-                        <i class="fa-solid fa-list-check text-amber-400"></i> Evaluación de Habilidades (6 Niveles)
-                    </h3>
-                    <span class="text-[10px] text-slate-400">Toque para actualizar nivel</span>
-                </div>
-                <div id="profile-skills-matrix" class="space-y-2">
-                    <!-- Dynamically populated skills evaluation -->
+            <div class="space-y-3">
+                <h3 class="font-bold text-slate-200 text-sm uppercase tracking-wider">Últimos Alumnos Activos</h3>
+                <div id="home-students-list" class="space-y-2">
+                    <!-- Dinámico -->
+                    <p class="text-slate-500 text-sm italic text-center py-6">No hay alumnos registrados todavía.</p>
                 </div>
             </div>
+        </section>
 
-            <!-- Class History Chronological -->
-            <div>
-                <h3 class="font-bold text-sm text-white flex items-center gap-2 mb-3">
-                    <i class="fa-solid fa-clock-rotate-left text-amber-400"></i> Historial de Clases
-                </h3>
-                <div id="profile-classes-history" class="space-y-2.5">
-                    <p class="text-xs text-slate-500 italic py-3 text-center">Sin clases registradas.</p>
+        <!-- VIEW: STUDENTS / ALUMNOS -->
+        <section id="view-students" class="space-y-4 hidden">
+            <div class="flex items-center justify-between gap-2">
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+                    <input type="text" id="student-search" placeholder="Buscar por nombre..." oninput="App.filterStudents()" class="w-full bg-slate-900 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-amber-500">
                 </div>
-            </div>
-
-            <!-- Student Danger Actions -->
-            <div class="pt-4 border-t border-slate-800 flex justify-between items-center">
-                <button onclick="archiveCurrentStudent()" class="text-xs text-amber-400 hover:underline flex items-center gap-1">
-                    <p id="archive-btn-text"><i class="fa-solid fa-box-archive"></i> Archivar alumno</p>
-                </button>
-                <button onclick="deleteCurrentStudent()" class="text-xs text-rose-400 hover:underline flex items-center gap-1">
-                    <i class="fa-solid fa-trash"></i> Eliminar alumno
+                <button onclick="App.openStudentModal()" class="px-4 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm rounded-xl transition flex items-center gap-2 shrink-0 shadow-lg shadow-amber-500/20">
+                    <i class="fa-solid fa-plus"></i> Alumno
                 </button>
             </div>
-        </div>
-    </div>
-</div>
 
-<!-- JavaScript Application Logic -->
-<script>
-    // --- CONSTANTS & STANDARD SKILLS (Colombia B1 / A2 / C1 Driving Framework) ---
-    const STANDARD_SKILLS = [
-        "Alistamiento y postura (Espejos, asiento, cinturón)",
-        "Manejo de embrague y caja de cambios",
-        "Arranque en pendiente sin retroceso",
-        "Direccional, prelación y señales de tránsito",
-        "Giro a izquierda y derecha en intersecciones",
-        "Parqueo en línea (Reversa)",
-        "Parqueo en batería / garaje",
-        "Conducción en vía rápida / fluida",
-        "Control y frenado de emergencia",
-        "Conducción nocturna y con lluvia"
-    ];
+            <div class="flex gap-2 overflow-x-auto pb-1 text-xs">
+                <button onclick="App.filterStudentStatus('all')" class="filter-btn px-3 py-1.5 rounded-lg bg-amber-500 text-slate-950 font-bold transition whitespace-nowrap">Todos</button>
+                <button onclick="App.filterStudentStatus('activo')" class="filter-btn px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 font-medium transition whitespace-nowrap">Activos</button>
+                <button onclick="App.filterStudentStatus('pausado')" class="filter-btn px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 font-medium transition whitespace-nowrap">Pausados</button>
+                <button onclick="App.filterStudentStatus('finalizado')" class="filter-btn px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 font-medium transition whitespace-nowrap">Finalizados</button>
+            </div>
 
-    const SKILL_LEVELS_DESC = {
-        1: "No evaluada",
-        2: "No domina todavía",
-        3: "En aprendizaje (ayuda frecuente)",
-        4: "En progreso (algunas indicaciones)",
-        5: "Dominada con autonomía",
-        6: "Dominada de forma consistente"
-    };
+            <div id="students-container" class="space-y-3">
+                <!-- Dinámico -->
+            </div>
+        </section>
 
-    // --- INDEXEDDB STORAGE WRAPPER ---
-    const DB_NAME = "DriveCoachProDB";
-    const DB_VERSION = 1;
-    let db = null;
-
-    function initDB() {
-        return new Promise((resolve, reject) => {
-            const request = indexedDB.open(DB_NAME, DB_VERSION);
-            request.onerror = (event) => {
-                console.error("Error al abrir IndexedDB", event);
-                reject(event);
-            };
-            request.onsuccess = (event) => {
-                db = event.target.result;
-                resolve(db);
-            };
-            request.onupgradeneeded = (event) => {
-                const database = event.target.result;
-                if (!database.objectStoreNames.contains('students')) {
-                    database.createObjectStore('students', { keyPath: 'id', autoIncrement: true });
-                }
-                if (!database.objectStoreNames.contains('classes')) {
-                    database.createObjectStore('classes', { keyPath: 'id', autoIncrement: true });
-                }
-                if (!database.objectStoreNames.contains('evaluations')) {
-                    database.createObjectStore('evaluations', { keyPath: 'id', autoIncrement: true });
-                }
-            };
-        });
-    }
-
-    // Generic DB Helpers
-    function dbGetAll(storeName) {
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction(storeName, 'readonly');
-            const store = transaction.objectStore(storeName);
-            const request = store.getAll();
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
-        });
-    }
-
-    function dbAdd(storeName, data) {
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction(storeName, 'readwrite');
-            const store = transaction.objectStore(storeName);
-            const request = store.add(data);
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
-        });
-    }
-
-    function dbPut(storeName, data) {
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction(storeName, 'readwrite');
-            const store = transaction.objectStore(storeName);
-            const request = store.put(data);
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
-        });
-    }
-
-    function dbDelete(storeName, id) {
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction(storeName, 'readwrite');
-            const store = transaction.objectStore(storeName);
-            const request = store.delete(id);
-            request.onsuccess = () => resolve(request.result);
-            request.onerror = () => reject(request.error);
-        });
-    }
-
-    // --- APP STATE & NAVIGATION ---
-    let currentActiveStudentId = null;
-
-    function switchTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(el => {
-            el.classList.remove('text-amber-400');
-            el.classList.add('text-slate-400');
-        });
-        document.getElementById('tab-' + tabId).classList.add('active');
-        const navBtn = document.getElementById('nav-btn-' + tabId);
-        if (navBtn) {
-            navBtn.classList.remove('text-slate-400');
-            navBtn.classList.add('text-amber-400');
-        }
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        if (tabId === 'inicio') refreshDashboard();
-        if (tabId === 'alumnos') renderStudentsList();
-        if (tabId === 'registrar') loadSelectStudents();
-    }
-
-    function openModal(modalId) {
-        document.getElementById(modalId).classList.remove('hidden');
-        if (modalId === 'modal-quick-class' || modalId === 'modal-quick-student') {
-            loadSelectStudents();
-            populateSkillCheckboxes();
-        }
-    }
-
-    function closeModal(modalId) {
-        document.getElementById(modalId).classList.add('hidden');
-    }
-
-    // --- SECURITY PIN LOCK ---
-    function checkPinLock() {
-        const pinActive = localStorage.getItem('drivecoach_pin_active') === 'true';
-        const savedPin = localStorage.getItem('drivecoach_pin') || '1234';
-        if (pinActive) {
-            document.getElementById('pin-lock-modal').classList.remove('hidden');
-            setupPinInputs(savedPin);
-        } else {
-            document.getElementById('pin-lock-modal').classList.add('hidden');
-        }
-        const toggle = document.getElementById('toggle-pin-active');
-        if (toggle) toggle.checked = pinActive;
-        const container = document.getElementById('pin-change-container');
-        if (container) container.classList.toggle('hidden', !pinActive);
-    }
-
-    function setupPinInputs(correctPin) {
-        const inputs = document.querySelectorAll('.pin-digit');
-        inputs.forEach((input, index) => {
-            input.value = '';
-            input.oninput = (e) => {
-                if (e.target.value.length === 1 && index < inputs.length - 1) {
-                    inputs[index + 1].focus();
-                }
-            };
-            input.onkeydown = (e) => {
-                if (e.key === 'Backspace' && index > 0 && input.value === '') {
-                    inputs[index - 1].focus();
-                }
-            };
-        });
-        inputs[0].focus();
-
-        document.getElementById('btn-unlock').onclick = () => {
-            let entered = '';
-            inputs.forEach(i => entered += i.value);
-            if (entered === correctPin) {
-                document.getElementById('pin-lock-modal').classList.add('hidden');
-                document.getElementById('pin-error').classList.add('hidden');
-            } else {
-                document.getElementById('pin-error').classList.remove('hidden');
-                inputs.forEach(i => i.value = '');
-                inputs[0].focus();
-            }
-        };
-    }
-
-    function togglePinSetting(checkbox) {
-        localStorage.setItem('drivecoach_pin_active', checkbox.checked);
-        document.getElementById('pin-change-container').classList.toggle('hidden', !checkbox.checked);
-        if (checkbox.checked && !localStorage.getItem('drivecoach_pin')) {
-            localStorage.setItem('drivecoach_pin', '1234');
-        }
-    }
-
-    function saveNewPin() {
-        const val = document.getElementById('new-pin-input').value;
-        if (val.length === 4) {
-            localStorage.setItem('drivecoach_pin', val);
-            alert('¡PIN actualizado correctamente!');
-            document.getElementById('new-pin-input').value = '';
-        } else {
-            alert('El PIN debe tener exactamente 4 dígitos.');
-        }
-    }
-
-    // --- INITIALIZATION & REFRESH ---
-    window.addEventListener('DOMContentLoaded', async () => {
-        try {
-            await initDB();
-            checkPinLock();
-            refreshDashboard();
-            renderStudentsList();
-        } catch (err) {
-            console.error("Error iniciando base de datos:", err);
-        }
-    });
-
-    async function refreshDashboard() {
-        const students = await dbGetAll('students');
-        const classes = await dbGetAll('classes');
-
-        const activeStudents = students.filter(s => s.status === 'activo');
-        document.getElementById('stat-active-students').innerText = activeStudents.length;
-
-        const now = new Date();
-        const currentMonthClasses = classes.filter(c => {
-            const d = new Date(c.date);
-            return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-        });
-        document.getElementById('stat-month-classes').innerText = currentMonthClasses.length;
-
-        const totalMins = classes.reduce((acc, c) => acc + (parseInt(c.durationReal) || 0), 0);
-        document.getElementById('stat-total-hours').innerText = (totalMins / 60).toFixed(1) + 'h';
-
-        const pendingFollow = students.filter(s => s.status === 'activo' && (!s.evaluations || Object.keys(s.evaluations).length < 3));
-        document.getElementById('stat-pending-follow').innerText = pendingFollow.length;
-
-        // Render Recent Classes
-        const recentContainer = document.getElementById('recent-classes-list');
-        if (classes.length === 0) {
-            recentContainer.innerHTML = `<p class="text-xs text-slate-500 italic py-4 text-center">No hay clases registradas aún.</p>`;
-        } else {
-            const sorted = [...classes].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
-            recentContainer.innerHTML = sorted.map(c => {
-                const student = students.find(s => s.id === c.studentId);
-                const studentName = student ? student.name : 'Alumno desconocido';
-                return `
-                    <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 flex items-center justify-between">
-                        <div>
-                            <p class="text-xs font-bold text-white">${studentName}</p>
-                            <p class="text-[10px] text-slate-400">${c.type} • ${c.durationReal} min • ${new Date(c.date).toLocaleDateString()}</p>
-                        </div>
-                        <span class="text-xs bg-amber-500/10 text-amber-400 px-2 py-1 rounded-lg font-semibold">${c.type}</span>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Render Smart Suggestions
-        generateSmartSuggestions(students, classes);
-    }
-
-    function generateSmartSuggestions(students, classes) {
-        const container = document.getElementById('smart-suggestions-list');
-        let suggestions = [];
-
-        students.filter(s => s.status === 'activo').forEach(student => {
-            const sClasses = classes.filter(c => c.studentId === student.id);
-            if (sClasses.length === 0) {
-                suggestions.push({
-                    name: student.name,
-                    text: "Alumno sin clases registradas. Programe la primera sesión de práctica."
-                });
-            } else {
-                // Check if initial evaluation or skills need review
-                const evals = student.evaluations || {};
-                const un evaluated = STANDARD_SKILLS.filter(skill => !evals[skill] || evals[skill] <= 1);
-                if (unevaluated.length > 0) {
-                    suggestions.push({
-                        name: student.name,
-                        text: `Evaluar habilidad pendiente: "${unevaluated[0]}"`
-                    });
-                }
-            }
-        });
-
-        if (suggestions.length === 0) {
-            container.innerHTML = `<p class="text-xs text-slate-500 italic py-4 text-center">Todo al día. Sin recomendaciones urgentes.</p>`;
-        } else {
-            container.innerHTML = suggestions.slice(0, 4).map(s => `
-                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 flex items-start gap-2.5">
-                    <i class="fa-solid fa-circle-exclamation text-amber-400 mt-0.5 text-xs"></i>
+        <!-- VIEW: CLASSES / CLASES -->
+        <section id="view-classes" class="space-y-4 hidden">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+                <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-clipboard-user text-amber-500"></i> Registrar Nueva Clase
+                </h2>
+                <form id="class-form" onsubmit="App.saveClass(event)" class="space-y-4">
                     <div>
-                        <p class="text-xs font-bold text-white">${s.name}</p>
-                        <p class="text-[11px] text-slate-300 mt-0.5">${s.text}</p>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Alumno *</label>
+                        <select id="class-student-id" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-500">
+                            <option value="">Seleccione un alumno...</option>
+                        </select>
                     </div>
-                </div>
-            `).join('');
-        }
-    }
 
-    // --- STUDENTS MANAGEMENT ---
-    async function renderStudentsList() {
-        const students = await dbGetAll('students');
-        const search = document.getElementById('search-student').value.toLowerCase();
-        const statusFilter = document.getElementById('filter-status').value;
-
-        const filtered = students.filter(s => {
-            const matchSearch = s.name.toLowerCase().includes(search) || (s.phone && s.phone.includes(search)) || s.category.toLowerCase().includes(search);
-            const matchStatus = statusFilter === 'todos' || s.status === statusFilter;
-            return matchSearch && matchStatus;
-        });
-
-        const grid = document.getElementById('students-grid');
-        if (filtered.length === 0) {
-            grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500 text-sm">No se encontraron alumnos registrados.</div>`;
-            return;
-        }
-
-        grid.innerHTML = filtered.map(s => {
-            const initials = s.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
-            return `
-                <div onclick="openStudentProfile(${s.id})" class="bg-slate-800/40 hover:bg-slate-800/70 border border-slate-700/60 rounded-2xl p-4 transition cursor-pointer flex items-center justify-between gap-3">
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 font-bold flex items-center justify-center text-sm shrink-0">
-                            ${initials}
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Tipo de Clase</label>
+                            <select id="class-type" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-500">
+                                <option value="Práctica">Práctica</option>
+                                <option value="Teórica">Teórica</option>
+                                <option value="Evaluación">Evaluación</option>
+                                <option value="Simulador">Simulador</option>
+                            </select>
                         </div>
                         <div>
-                            <h4 class="font-bold text-sm text-white">${s.name}</h4>
-                            <p class="text-xs text-slate-400 mt-0.5">Cat. ${s.category} • ${s.phone || 'Sin teléfono'}</p>
+                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Duración (minutos) *</label>
+                            <input type="number" id="class-duration" value="60" min="15" step="15" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-500">
                         </div>
                     </div>
-                    <span class="text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full font-bold ${s.status === 'activo' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-700/50 text-slate-400'}">
-                        ${s.status}
-                    </span>
-                </div>
-            `;
-        }).join('');
-    }
 
-    async function handleSaveStudent(event) {
-        event.preventDefault();
-        const id = document.getElementById('student-id').value;
-        const studentData = {
-            name: document.getElementById('student-name').value,
-            phone: document.getElementById('student-phone').value,
-            category: document.getElementById('student-category').value,
-            experience: document.getElementById('student-experience').value,
-            initialLevel: parseInt(document.getElementById('student-initial-level').value),
-            hoursContracted: parseInt(document.getElementById('student-hours-contracted').value) || 20,
-            status: document.getElementById('student-status').value,
-            goal: document.getElementById('student-goal').value,
-            observations: document.getElementById('student-observations').value,
-            createdAt: id ? undefined : new Date().toISOString(),
-            evaluations: {}
-        };
-
-        if (id) {
-            studentData.id = parseInt(id);
-            const existing = (await dbGetAll('students')).find(s => s.id === parseInt(id));
-            studentData.createdAt = existing.createdAt;
-            studentData.evaluations = existing.evaluations || {};
-            await dbPut('students', studentData);
-        } else {
-            await dbAdd('students', studentData);
-        }
-
-        closeModal('modal-quick-student');
-        document.getElementById('form-student').reset();
-        document.getElementById('student-id').value = '';
-        renderStudentsList();
-    }
-
-    async function loadSelectStudents() {
-        const students = await dbGetAll('students');
-        const active = students.filter(s => s.status === 'activo');
-        const optionsHtml = `<option value="">Seleccione un alumno...</option>` + active.map(s => `<option value="${s.id}">${s.name} (Cat. ${s.category})</option>`).join('');
-        
-        const sel1 = document.getElementById('class-student-id');
-        const sel2 = document.getElementById('qclass-student-id');
-        if (sel1) sel1.innerHTML = optionsHtml;
-        if (sel2) sel2.innerHTML = optionsHtml;
-    }
-
-    function populateSkillCheckboxes() {
-        const container1 = document.getElementById('class-skills-checkboxes');
-        const container2 = document.getElementById('qclass-skills-checkboxes');
-        const html = STANDARD_SKILLS.map((skill, idx) => `
-            <label class="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
-                <input type="checkbox" name="skill-worked" value="${skill}" class="accent-amber-500 rounded" />
-                <span class="truncate">${skill}</span>
-            </label>
-        `).join('');
-
-        if (container1) container1.innerHTML = html;
-        if (container2) container2.innerHTML = html;
-    }
-
-    // --- STUDENT PROFILE MODAL & DETAILS ---
-    async function openStudentProfile(studentId) {
-        currentActiveStudentId = studentId;
-        const students = await dbGetAll('students');
-        const student = students.find(s => s.id === studentId);
-        if (!student) return;
-
-        const classes = await dbGetAll('classes');
-        const studentClasses = classes.filter(c => c.studentId === studentId);
-        const totalMinsDone = studentClasses.reduce((acc, c) => acc + (parseInt(c.durationReal) || 0), 0);
-        const hoursDone = (totalMinsDone / 60).toFixed(1);
-        const hoursContracted = student.hoursContracted || 20;
-        const hoursPending = Math.max(0, hoursContracted - (totalMinsDone / 60)).toFixed(1);
-
-        document.getElementById('profile-avatar').innerText = student.name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
-        document.getElementById('profile-name').innerText = student.name;
-        document.getElementById('profile-meta').innerText = `Categoría ${student.category} • ${student.status.toUpperCase()} • ${student.phone || 'Sin contacto'}`;
-        document.getElementById('profile-hours-contracted').innerText = hoursContracted + 'h';
-        document.getElementById('profile-hours-done').innerText = hoursDone + 'h';
-        document.getElementById('profile-hours-pending').innerText = hoursPending + 'h';
-        document.getElementById('profile-goal-text').innerText = student.goal || 'Sin objetivo principal registrado.';
-        document.getElementById('profile-obs-text').innerText = `${student.experience} | ${student.observations || 'Sin observaciones iniciales.'}`;
-
-        // Render Skills Matrix
-        const matrixContainer = document.getElementById('profile-skills-matrix');
-        if (!student.evaluations) student.evaluations = {};
-        matrixContainer.innerHTML = STANDARD_SKILLS.map(skill => {
-            const currentLevel = student.evaluations[skill] || 1;
-            return `
-                <div class="bg-slate-900/50 p-3 rounded-xl border border-slate-800 flex items-center justify-between gap-3">
-                    <div class="text-xs text-slate-200 font-medium flex-1">${skill}</div>
-                    <select onchange="updateStudentSkill(${student.id}, '${skill}', this.value)" class="bg-slate-800 border border-slate-700 text-amber-400 font-bold text-xs rounded-lg px-2 py-1.5 focus:outline-none focus:border-amber-500">
-                        <option value="1" ${currentLevel==1?'selected':''}>1. No eval.</option>
-                        <option value="2" ${currentLevel==2?'selected':''}>2. No domina</option>
-                        <option value="3" ${currentLevel==3?'selected':''}>3. Aprendizaje</option>
-                        <option value="4" ${currentLevel==4?'selected':''}>4. Progreso</option>
-                        <option value="5" ${currentLevel==5?'selected':''}>5. Autónomo</option>
-                        <option value="6" ${currentLevel==6?'selected':''}>6. Consistente</option>
-                    </select>
-                </div>
-            `;
-        }).join('');
-
-        // Render Class History
-        const historyContainer = document.getElementById('profile-classes-history');
-        if (studentClasses.length === 0) {
-            historyContainer.innerHTML = `<p class="text-xs text-slate-500 italic py-3 text-center">Sin clases registradas para este alumno.</p>`;
-        } else {
-            historyContainer.innerHTML = studentClasses.sort((a,b)=>new Date(b.date)-new Date(a.date)).map(c => `
-                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800 space-y-1">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-amber-400">${c.type} (${c.durationReal} min)</span>
-                        <span class="text-[10px] text-slate-400">${new Date(c.date).toLocaleDateString()}</span>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Habilidades Trabajadas</label>
+                        <div id="class-skills-checkboxes" class="grid grid-cols-2 gap-2 bg-slate-800/50 border border-slate-700/50 rounded-xl p-3 max-h-40 overflow-y-auto text-xs">
+                            <!-- Checkboxes de habilidades -->
+                        </div>
                     </div>
-                    <p class="text-xs text-slate-200">${c.notes || 'Sin observaciones detalladas.'}</p>
+
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-xs font-semibold uppercase text-slate-400">Observaciones / Dictado por Voz</label>
+                            <button type="button" onclick="App.toggleVoiceDictation('class-notes')" class="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1 font-medium">
+                                <i id="mic-icon" class="fa-solid fa-microphone"></i> Dictar por voz
+                            </button>
+                        </div>
+                        <textarea id="class-notes" rows="3" placeholder="¿Qué hizo bien? ¿Qué errores cometió? ¿Objetivos siguientes?" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-amber-500"></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition shadow-lg shadow-amber-500/20">
+                        Guardar Registro de Clase
+                    </button>
+                </form>
+            </div>
+
+            <div class="space-y-3">
+                <h3 class="font-bold text-slate-200 text-sm uppercase tracking-wider">Historial Reciente de Clases</h3>
+                <div id="recent-classes-list" class="space-y-2">
+                    <!-- Dinámico -->
                 </div>
-            `).join('');
-        }
+            </div>
+        </section>
 
-        openModal('modal-student-profile');
-    }
+        <!-- VIEW: BACKUPS / EXPORTACIONES -->
+        <section id="view-backups" class="space-y-4 hidden">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-database text-amber-500"></i> Copias de Seguridad y Datos
+                </h2>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    Toda su información se almacena de forma segura en este dispositivo (IndexedDB). Puede exportar un archivo JSON para respaldo o migrar sus datos a otro celular en cualquier momento.
+                </p>
 
-    async function updateStudentSkill(studentId, skillName, level) {
-        const students = await dbGetAll('students');
-        const student = students.find(s => s.id === studentId);
-        if (student) {
-            if (!student.evaluations) student.evaluations = {};
-            student.evaluations[skillName] = parseInt(level);
-            await dbPut('students', student);
-        }
-    }
+                <div class="pt-2 space-y-3">
+                    <button onclick="App.exportJSON()" class="w-full py-3.5 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-white font-bold rounded-xl transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-download text-amber-400"></i> Descargar Copia de Seguridad (JSON)
+                    </button>
 
-    async function archiveCurrentStudent() {
-        if (!currentActiveStudentId) return;
-        const students = await dbGetAll('students');
-        const student = students.find(s => s.id === currentActiveStudentId);
-        if (student) {
-            student.status = student.status === 'archivado' ? 'activo' : 'archivado';
-            await dbPut('students', student);
-            closeModal('modal-student-profile');
-            renderStudentsList();
-        }
-    }
+                    <label class="w-full py-3.5 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-white font-bold rounded-xl transition flex items-center justify-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-upload text-blue-400"></i> Importar Copia de Seguridad
+                        <input type="file" id="import-file-input" accept=".json" onchange="App.importJSON(event)" class="hidden">
+                    </label>
 
-    async function deleteCurrentStudent() {
-        if (!currentActiveStudentId) return;
-        if (confirm('¿Está seguro de eliminar este alumno y todo su historial asociado? Esta acción no se puede deshacer.')) {
-            await dbDelete('students', currentActiveStudentId);
-            closeModal('modal-student-profile');
-            renderStudentsList();
-            refreshDashboard();
-        }
-    }
+                    <button onclick="App.confirmClearData()" class="w-full py-3 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 font-bold rounded-xl transition text-xs">
+                        Borrar Todos los Datos Locales
+                    </button>
+                </div>
+            </div>
+        </section>
 
-    // --- CLASS REGISTRATION HANDLERS ---
-    async function handleSaveClass(event) {
-        event.preventDefault();
-        const studentId = parseInt(document.getElementById('class-student-id').value);
-        const selectedSkills = Array.from(document.querySelectorAll('#class-skills-checkboxes input[name="skill-worked"]:checked')).map(cb => cb.value);
+    </main>
 
-        const classData = {
-            studentId: studentId,
-            date: new Date().toISOString(),
-            type: document.getElementById('class-type').value,
-            durationProg: parseInt(document.getElementById('class-dur-prog').value) || 60,
-            durationReal: parseInt(document.getElementById('class-dur-real').value) || 60,
-            skills: selectedSkills,
-            confidence: document.getElementById('class-confidence').value,
-            mood: document.getElementById('class-mood').value,
-            notes: document.getElementById('class-notes').value,
-            nextGoal: document.getElementById('class-next-goal').value
-        };
+    <!-- Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 px-2 py-2 flex justify-around items-center z-40 max-w-2xl mx-auto">
+        <button onclick="App.switchTab('home')" class="nav-btn flex flex-col items-center justify-center flex-1 py-1 text-amber-500" data-target="home">
+            <i class="fa-solid fa-house text-lg"></i>
+            <span class="text-[10px] mt-1 font-semibold">Inicio</span>
+        </button>
+        <button onclick="App.switchTab('students')" class="nav-btn flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-slate-200" data-target="students">
+            <i class="fa-solid fa-users text-lg"></i>
+            <span class="text-[10px] mt-1 font-semibold">Alumnos</span>
+        </button>
+        <button onclick="App.switchTab('classes')" class="nav-btn flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-slate-200" data-target="classes">
+            <i class="fa-solid fa-clipboard-list text-lg"></i>
+            <span class="text-[10px] mt-1 font-semibold">Clase</span>
+        </button>
+        <button onclick="App.switchTab('backups')" class="nav-btn flex flex-col items-center justify-center flex-1 py-1 text-slate-400 hover:text-slate-200" data-target="backups">
+            <i class="fa-solid fa-cloud-arrow-down text-lg"></i>
+            <span class="text-[10px] mt-1 font-semibold">Datos</span>
+        </button>
+    </nav>
 
-        await dbAdd('classes', classData);
-        document.getElementById('form-class').reset();
-        alert('¡Clase registrada correctamente!');
-        switchTab('inicio');
-    }
+    <!-- MODAL: STUDENT FORM / FICHA -->
+    <div id="student-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/9ku">
+                <h3 id="student-modal-title" class="font-bold text-white text-base">Registrar Nuevo Alumno</h3>
+                <button onclick="App.closeStudentModal()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-5 overflow-y-auto space-y-4 flex-1">
+                <form id="student-form" onsubmit="App.saveStudent(event)" class="space-y-4">
+                    <input type="hidden" id="student-id">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Nombre Completo *</label>
+                        <input type="text" id="student-name" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Teléfono / Contacto</label>
+                            <input type="tel" id="student-phone" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Categoría Licencia</label>
+                            <select id="student-category" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                                <option value="B1">B1 (Particular)</option>
+                                <option value="C1">C1 (Público)</option>
+                                <option value="A2">A2 (Moto)</option>
+                                <option value="B2">B2</option>
+                                <option value="C2">C2</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Experiencia Previa</label>
+                            <select id="student-experience" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                                <option value="Ninguna">Nunca ha conducido</option>
+                                <option value="Poca">Ha recibido algunas clases</option>
+                                <option value="Media">Sabe conducir, necesita mejorar</option>
+                                <option value="Avanzada">Se prepara para evaluación</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Horas Previas</label>
+                            <input type="number" id="student-prev-hours" value="0" min="0" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Objetivo Principal</label>
+                        <input type="text" id="student-objective" placeholder="Ej. Perder miedo en pendientes, examen práctico..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Estado</label>
+                        <select id="student-status" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                            <option value="activo">Activo</option>
+                            <option value="pausado">Pausado</option>
+                            <option value="finalizado">Finalizado</option>
+                            <option value="archivado">Archivado</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition shadow-lg shadow-amber-500/20">
+                        Guardar Alumno
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
 
-    async function handleSaveQuickClass(event) {
-        event.preventDefault();
-        const studentId = parseInt(document.getElementById('qclass-student-id').value);
-        const selectedSkills = Array.from(document.querySelectorAll('#qclass-skills-checkboxes input[name="skill-worked"]:checked')).map(cb => cb.value);
+    <!-- MODAL: DETAILED STUDENT PROFILE / FICHA INDIVIDUAL -->
+    <div id="student-profile-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-amber-500/10 text-amber-400 rounded-xl flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-user-graduate"></i>
+                    </div>
+                    <div>
+                        <h3 id="profile-modal-name" class="font-bold text-white text-base leading-tight">Nombre Alumno</h3>
+                        <p id="profile-modal-meta" class="text-xs text-slate-400">Cat B1 • Activo</p>
+                    </div>
+                </div>
+                <button onclick="App.closeProfileModal()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="p-4 border-b border-slate-800 bg-slate-900/50 flex gap-2">
+                <button onclick="App.generatePDF()" class="flex-1 py-2 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-file-pdf text-rose-400"></i> Descargar Informe PDF
+                </button>
+                <button onclick="App.editCurrentStudent()" class="px-4 py-2 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-white rounded-xl text-xs font-bold transition">
+                    <i class="fa-solid fa-pen"></i> Editar
+                </button>
+            </div>
 
-        const classData = {
-            studentId: studentId,
-            date: new Date().toISOString(),
-            type: document.getElementById('qclass-type').value,
-            durationProg: 60,
-            durationReal: parseInt(document.getElementById('qclass-duration').value) || 60,
-            skills: selectedSkills,
-            notes: document.getElementById('qclass-notes').value
-        };
+            <div class="p-5 overflow-y-auto space-y-6 flex-1">
+                <!-- Horas y Progreso -->
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-3 text-center">
+                        <p class="text-[10px] uppercase font-bold text-slate-400">Horas Acumuladas</p>
+                        <p id="profile-hours-done" class="text-xl font-black text-amber-400 mt-1">0 h</p>
+                    </div>
+                    <div class="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-3 text-center">
+                        <p class="text-[10px] uppercase font-bold text-slate-400">Clases Realizadas</p>
+                        <p id="profile-classes-count" class="text-xl font-black text-white mt-1">0</p>
+                    </div>
+                    <div class="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-3 text-center">
+                        <p class="text-[10px] uppercase font-bold text-slate-400">Nivel General</p>
+                        <p id="profile-avg-skill" class="text-xl font-black text-blue-400 mt-1">-</p>
+                    </div>
+                </div>
 
-        await dbAdd('classes', classData);
-        document.getElementById('form-quick-class').reset();
-        closeModal('modal-quick-class');
-        refreshDashboard();
-        alert('¡Clase rápida guardada con éxito!');
-    }
+                <!-- Evaluación de Habilidades -->
+                <div>
+                    <h4 class="font-bold text-slate-200 text-sm uppercase tracking-wider mb-3 flex items-center justify-between">
+                        <span>Evaluación de Habilidades</span>
+                        <span class="text-xs text-slate-400 font-normal">Escala 1 a 6</span>
+                    </h4>
+                    <div id="profile-skills-list" class="space-y-2">
+                        <!-- Dinámico -->
+                    </div>
+                </div>
 
-    // --- VOICE DICTATION (Web Speech API) ---
-    function startVoiceDictation(targetElementId) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            alert('El reconocimiento de voz por navegador no está disponible en este dispositivo. Utilice el teclado.');
-            return;
-        }
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'es-CO';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
+                <!-- Historial de Clases del Alumno -->
+                <div>
+                    <h4 class="font-bold text-slate-200 text-sm uppercase tracking-wider mb-3">Historial de Clases</h4>
+                    <div id="profile-classes-list" class="space-y-2">
+                        <!-- Dinámico -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        recognition.onstart = () => {
-            console.log('Escuchando dictado...');
-        };
+    <!-- MODAL: SETTINGS & PIN -->
+    <div id="settings-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-5">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-white text-base">Configuración de Seguridad</h3>
+                <button onclick="App.closeSettings()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">PIN de Seguridad (4 dígitos)</label>
+                    <input type="password" id="settings-pin" maxlength="4" placeholder="Dejar en blanco para desactivar" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" inputmode="numeric">
+                </div>
+                <button onclick="App.saveSettingsPin()" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition shadow-lg shadow-amber-500/20">
+                    Guardar Configuración
+                </button>
+            </div>
+        </div>
+    </div>
 
-        recognition.onresult = (event) => {
-            const speechResult = event.results[0][0].transcript;
-            const el = document.getElementById(targetElementId);
-            if (el) {
-                el.value = el.value ? el.value + ' ' + speechResult : speechResult;
+    <!-- JavaScript Core Logic -->
+    <script>
+        const SKILLS_LIST = [
+            "Posición de manejo y espejos",
+            "Uso de embrague y caja de cambios",
+            "Arranque en pendiente (Ayuda)",
+            "Control de dirección y trazada",
+            "Parqueo en línea (Reversa)",
+            "Parqueo en paralelo / garaje",
+            "Señalización y prelación en intersecciones",
+            "Conducción en vía rápida / adelantamientos",
+            "Frenado de emergencia y control ABS",
+            "Lectura de señales de tránsito"
+        ];
+
+        class DrivingApp {
+            constructor() {
+                this.db = null;
+                this.currentTab = 'home';
+                this.currentFilterStatus = 'all';
+                this.selectedStudentIdForProfile = null;
+                this.initDB();
             }
-        };
 
-        recognition.onerror = (event) => {
-            console.error('Error de reconocimiento de voz:', event.error);
-            alert('No se pudo capturar audio por voz. Compruebe permisos del micrófono.');
-        };
-
-        recognition.start();
-    }
-
-    // --- PDF REPORT GENERATION ---
-    async function generateStudentPDF() {
-        if (!currentActiveStudentId) return;
-        const students = await dbGetAll('students');
-        const student = students.find(s => s.id === currentActiveStudentId);
-        const classes = (await dbGetAll('classes')).filter(c => c.studentId === currentActiveStudentId);
-
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-
-        doc.setFillColor(15, 23, 42); // Dark slate header
-        doc.rect(0, 0, 210, 40, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(18);
-        doc.text("DriveCoach Pro - Informe Individual de Alumno", 14, 20);
-        doc.setFontSize(10);
-        doc.text("Escuela de Conducción • Normativa Colombiana", 14, 28);
-
-        doc.setTextColor(30, 41, 59);
-        doc.setFontSize(14);
-        doc.text(`Alumno: ${student.name}`, 14, 52);
-
-        doc.setFontSize(10);
-        doc.text(`Categoría Licencia: ${student.category}`, 14, 60);
-        doc.text(`Teléfono: ${student.phone || 'No registrado'}`, 14, 66);
-        doc.text(`Estado: ${student.status.toUpperCase()}`, 14, 72);
-        doc.text(`Experiencia inicial: ${student.experience}`, 14, 78);
-        doc.text(`Objetivo: ${student.goal || 'Ninguno'}`, 14, 84);
-
-        let y = 98;
-        doc.setFontSize(12);
-        doc.text("Historial de Clases Recientes", 14, y);
-        y += 8;
-
-        doc.setFontSize(9);
-        classes.slice(-8).forEach((c, idx) => {
-            if (y > 270) { doc.addPage(); y = 20; }
-            doc.text(`• [${new Date(c.date).toLocaleDateString()}] ${c.type} - Duración: ${c.durationReal} min`, 14, y);
-            y += 6;
-            if (c.notes) {
-                doc.text(`  Notas: ${c.notes}`, 18, y);
-                y += 6;
+            async initDB() {
+                return new Promise((resolve, reject) => {
+                    const request = indexedDB.open('ConducimosDB', 1);
+                    request.onerror = () => reject(request.error);
+                    request.onsuccess = () => {
+                        this.db = request.result;
+                        this.initApp();
+                        resolve(this.db);
+                    };
+                    request.onupgradeneeded = (event) => {
+                        const db = event.target.result;
+                        if (!db.objectStoreNames.contains('students')) {
+                            db.createObjectStore('students', { keyPath: 'id', autoIncrement: true });
+                        }
+                        if (!db.objectStoreNames.contains('classes')) {
+                            db.createObjectStore('classes', { keyPath: 'id', autoIncrement: true });
+                        }
+                        if (!db.objectStoreNames.contains('settings')) {
+                            db.createObjectStore('settings', { keyPath: 'key' });
+                        }
+                    };
+                });
             }
-        });
 
-        doc.save(`Informe_${student.name.replace(/\s+/g, '_')}.pdf`);
-    }
+            async initApp() {
+                this.checkPinLock();
+                this.renderSkillsCheckboxes();
+                await this.refreshData();
+                this.setupPinInputs();
+            }
 
-    // --- BACKUP & EXPORT JSON ---
-    async function exportFullBackupJSON() {
-        const students = await dbGetAll('students');
-        const classes = await dbGetAll('classes');
-        const backupData = {
-            schemaVersion: 1,
-            exportDate: new Date().toISOString(),
-            students,
-            classes
-        };
+            async checkPinLock() {
+                const pin = await this.getSetting('app_pin');
+                if (pin) {
+                    document.getElementById('pin-lock-modal').classList.remove('hidden');
+                }
+            }
 
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
-        const downloadAnchor = document.createElement('a');
-        downloadAnchor.setAttribute("href", dataStr);
-        downloadAnchor.setAttribute("download", `DriveCoachPro_Backup_${new Date().toISOString().slice(0,10)}.json`);
-        document.body.appendChild(downloadAnchor);
-        downloadAnchor.click();
-        downloadAnchor.remove();
-    }
+            setupPinInputs() {
+                const inputs = document.querySelectorAll('.pin-digit');
+                inputs.forEach((input, index) => {
+                    input.addEventListener('input', (e) => {
+                        if (e.target.value && index < inputs.length - 1) {
+                            inputs[index + 1].focus();
+                        }
+                    });
+                    input.addEventListener('keydown', (e) => {
+                        if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                            inputs[index - 1].focus();
+                        }
+                    });
+                });
 
-    async function importFullBackupJSON(event) {
-        const file = event.target.files[0];
-        if (!file) return;
+                document.getElementById('btn-unlock').addEventListener('click', async () => {
+                    let enteredPin = '';
+                    inputs.forEach(i => enteredPin += i.value);
+                    const savedPin = await this.getSetting('app_pin');
+                    if (enteredPin === savedPin) {
+                        document.getElementById('pin-lock-modal').classList.add('hidden');
+                        inputs.forEach(i => i.value = '');
+                        document.getElementById('pin-error').classList.add('hidden');
+                    } else {
+                        document.getElementById('pin-error').classList.remove('hidden');
+                    }
+                });
+            }
 
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-            try {
-                const data = JSON.parse(e.target.result);
-                if (!data.students || !data.classes) {
-                    throw new Error("Formato de archivo inválido.");
+            async getSetting(key) {
+                return new Promise((resolve) => {
+                    const tx = this.db.transaction('settings', 'readonly');
+                    const store = tx.objectStore('settings');
+                    const req = store.get(key);
+                    req.onsuccess = () => resolve(req.result ? req.result.value : null);
+                    req.onerror = () => resolve(null);
+                });
+            }
+
+            async setSetting(key, value) {
+                return new Promise((resolve) => {
+                    const tx = this.db.transaction('settings', 'readwrite');
+                    const store = tx.objectStore('settings');
+                    store.put({ key, value });
+                    tx.oncomplete = () => resolve(true);
+                });
+            }
+
+            switchTab(tabId) {
+                this.currentTab = tabId;
+                document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
+                document.getElementById(`view-${tabId}`).classList.remove('hidden');
+
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    if (btn.dataset.target === tabId) {
+                        btn.classList.remove('text-slate-400');
+                        btn.classList.add('text-amber-500');
+                    } else {
+                        btn.classList.remove('text-amber-500');
+                        btn.classList.add('text-slate-400');
+                    }
+                });
+
+                window.scrollTo(0, 0);
+            }
+
+            renderSkillsCheckboxes() {
+                const container = document.getElementById('class-skills-checkboxes');
+                container.innerHTML = SKILLS_LIST.map((skill, idx) => `
+                    <label class="flex items-center gap-2 cursor-pointer p-1 rounded hover:bg-slate-700/30">
+                        <input type="checkbox" name="class-skill" value="${skill}" class="rounded bg-slate-700 border-slate-600 text-amber-500 focus:ring-0">
+                        <span class="text-slate-300 truncate">${skill}</span>
+                    </label>
+                `).join('');
+            }
+
+            async getAll(storeName) {
+                return new Promise((resolve) => {
+                    const tx = this.db.transaction(storeName, 'readonly');
+                    const store = tx.objectStore(storeName);
+                    const req = store.getAll();
+                    req.onsuccess = () => resolve(req.result || []);
+                    req.onerror = () => resolve([]);
+                });
+            }
+
+            async saveRecord(storeName, data) {
+                return new Promise((resolve, reject) => {
+                    const tx = this.db.transaction(storeName, 'readwrite');
+                    const store = tx.objectStore(storeName);
+                    const req = store.put(data);
+                    req.onsuccess = () => resolve(req.result);
+                    req.onerror = () => reject(req.error);
+                });
+            }
+
+            async deleteRecord(storeName, id) {
+                return new Promise((resolve) => {
+                    const tx = this.db.transaction(storeName, 'readwrite');
+                    const store = tx.objectStore(storeName);
+                    store.delete(id);
+                    tx.oncomplete = () => resolve(true);
+                });
+            }
+
+            async refreshData() {
+                const students = await this.getAll('students');
+                const classes = await this.getAll('classes');
+
+                // Stats
+                document.getElementById('stat-active-students').innerText = students.filter(s => s.status === 'activo').length;
+                document.getElementById('stat-total-classes').innerText = classes.length;
+
+                // Home Students
+                const homeList = document.getElementById('home-students-list');
+                if (students.length === 0) {
+                    homeList.innerHTML = `<p class="text-slate-500 text-sm italic text-center py-6">No hay alumnos registrados todavía.</p>`;
+                } else {
+                    homeList.innerHTML = students.slice(-4).reverse().map(s => `
+                        <div onclick="App.openProfile(${s.id})" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between cursor-pointer hover:border-slate-700 transition">
+                            <div>
+                                <h4 class="font-bold text-white text-sm">${s.name}</h4>
+                                <p class="text-xs text-slate-400 mt-0.5">Cat: ${s.category} • Obj: ${s.objective || 'Sin definir'}</p>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${s.status === 'activo' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-800 text-slate-400'}">${s.status}</span>
+                        </div>
+                    `).join('');
                 }
 
-                if (confirm(`Se importarán ${data.students.length} alumnos y ${data.classes.length} clases. ¿Desea combinar o sobrescribir los datos actuales?`)) {
-                    for (let s of data.students) {
-                        await dbPut('students', s);
-                    }
-                    for (let c of data.classes) {
-                        await dbPut('classes', c);
-                    }
-                    alert('¡Copia de seguridad importada con éxito!');
-                    refreshDashboard();
-                    renderStudentsList();
-                }
-            } catch (err) {
-                alert('Error al procesar el archivo JSON: ' + err.message);
-            }
-        };
-        reader.readAsText(file);
-    }
+                // Students Select in Class Form
+                const classSelect = document.getElementById('class-student-id');
+                classSelect.innerHTML = `<option value="">Seleccione un alumno...</option>` + students.map(s => `<option value="${s.id}">${s.name} (${s.category})</option>`).join('');
 
-    async function confirmResetDatabase() {
-        if (confirm('ADVERTENCIA: Se borrarán TODOS los alumnos, clases e historiales guardados en este dispositivo. ¿Está completamente seguro?')) {
-            const tx1 = db.transaction('students', 'readwrite');
-            tx1.objectStore('students').clear();
-            const tx2 = db.transaction('classes', 'readwrite');
-            tx2.objectStore('classes').clear();
-            alert('Datos eliminados correctamente.');
-            refreshDashboard();
-            renderStudentsList();
+                // Recent Classes List
+                const recentClassesList = document.getElementById('recent-classes-list');
+                if (classes.length === 0) {
+                    recentClassesList.innerHTML = `<p class="text-slate-500 text-sm italic text-center py-6">No hay clases registradas todavía.</p>`;
+                } else {
+                    recentClassesList.innerHTML = classes.slice(-5).reverse().map(c => {
+                        const student = students.find(s => s.id === c.studentId);
+                        return `
+                            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-white text-sm">${student ? student.name : 'Alumno eliminado'}</span>
+                                    <span class="text-xs font-semibold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-lg">${c.duration} min</span>
+                                </div>
+                                <p class="text-xs text-slate-300">${c.notes || 'Sin observaciones'}</p>
+                                <div class="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-800">
+                                    <span>${new Date(c.date).toLocaleDateString()}</span>
+                                    <span>Tipo: ${c.type}</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+
+                this.renderStudentsList(students);
+            }
+
+            renderStudentsList(students) {
+                const container = document.getElementById('students-container');
+                const search = document.getElementById('student-search').value.toLowerCase();
+
+                let filtered = students.filter(s => {
+                    const matchName = s.name.toLowerCase().includes(search);
+                    const matchStatus = this.currentFilterStatus === 'all' || s.status === this.currentFilterStatus;
+                    return matchName && matchStatus;
+                });
+
+                if (filtered.length === 0) {
+                    container.innerHTML = `<p class="text-slate-500 text-sm italic text-center py-10">No se encontraron alumnos.</p>`;
+                    return;
+                }
+
+                container.innerHTML = filtered.map(s => `
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex items-center justify-between cursor-pointer hover:border-slate-700 transition" onclick="App.openProfile(${s.id})">
+                        <div class="space-y-1">
+                            <h4 class="font-bold text-white text-sm">${s.name}</h4>
+                            <p class="text-xs text-slate-400">Tel: ${s.phone || 'No registrado'} • Cat: ${s.category}</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${s.status === 'activo' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-800 text-slate-400'}">${s.status}</span>
+                            <i class="fa-solid fa-chevron-right text-slate-600 text-xs"></i>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            filterStudents() {
+                this.getAll('students').then(students => this.renderStudentsList(students));
+            }
+
+            filterStudentStatus(status) {
+                this.currentFilterStatus = status;
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('bg-amber-500', 'text-slate-950', 'font-bold');
+                    btn.classList.add('bg-slate-900', 'border', 'border-slate-800', 'text-slate-300', 'font-medium');
+                });
+                event.target.classList.remove('bg-slate-900', 'border', 'border-slate-800', 'text-slate-300', 'font-medium');
+                event.target.classList.add('bg-amber-500', 'text-slate-950', 'font-bold');
+                this.getAll('students').then(students => this.renderStudentsList(students));
+            }
+
+            openStudentModal(student = null) {
+                document.getElementById('student-id').value = student ? student.id : '';
+                document.getElementById('student-name').value = student ? student.name : '';
+                document.getElementById('student-phone').value = student ? student.phone : '';
+                document.getElementById('student-category').value = student ? student.category : 'B1';
+                document.getElementById('student-experience').value = student ? student.experience : 'Ninguna';
+                document.getElementById('student-prev-hours').value = student ? (student.prevHours || 0) : 0;
+                document.getElementById('student-objective').value = student ? student.objective : '';
+                document.getElementById('student-status').value = student ? student.status : 'activo';
+                document.getElementById('student-modal-title').innerText = student ? 'Editar Alumno' : 'Registrar Nuevo Alumno';
+                document.getElementById('student-modal').classList.remove('hidden');
+            }
+
+            closeStudentModal() {
+                document.getElementById('student-modal').classList.add('hidden');
+            }
+
+            async saveStudent(event) {
+                event.preventDefault();
+                const idVal = document.getElementById('student-id').value;
+                const studentData = {
+                    id: idVal ? Number(idVal) : Date.now(),
+                    name: document.getElementById('student-name').value,
+                    phone: document.getElementById('student-phone').value,
+                    category: document.getElementById('student-category').value,
+                    experience: document.getElementById('student-experience').value,
+                    prevHours: Number(document.getElementById('student-prev-hours').value),
+                    objective: document.getElementById('student-objective').value,
+                    status: document.getElementById('student-status').value,
+                    createdAt: idVal ? undefined : new Date().toISOString()
+                };
+
+                // Si es nuevo, inicializar evaluaciones de habilidades
+                if (!idVal) {
+                    studentData.skills = {};
+                    SKILLS_LIST.forEach(s => studentData.skills[s] = 1); // Nivel 1: No evaluada
+                } else {
+                    const existing = await this.getStudentById(Number(idVal));
+                    studentData.skills = existing.skills || {};
+                    studentData.createdAt = existing.createdAt;
+                }
+
+                await this.saveRecord('students', studentData);
+                this.closeStudentModal();
+                await this.refreshData();
+                if (idVal) this.openProfile(Number(idVal));
+            }
+
+            async getStudentById(id) {
+                const students = await this.getAll('students');
+                return students.find(s => s.id === id);
+            }
+
+            async openProfile(id) {
+                this.selectedStudentIdForProfile = id;
+                const student = await this.getStudentById(id);
+                if (!student) return;
+
+                const classes = (await this.getAll('classes')).filter(c => c.studentId === id);
+
+                document.getElementById('profile-modal-name').innerText = student.name;
+                document.getElementById('profile-modal-meta').innerText = `Cat ${student.category} • ${student.status.toUpperCase()}`;
+
+                // Calcular horas
+                const totalMinutes = classes.reduce((acc, c) => acc + Number(c.duration), 0) + (student.prevHours * 60);
+                const totalHours = (totalMinutes / 60).toFixed(1);
+                document.getElementById('profile-hours-done').innerText = `${totalHours} h`;
+                document.getElementById('profile-classes-count').innerText = classes.length;
+
+                // Nivel promedio de habilidades
+                const skillsValues = Object.values(student.skills || {});
+                const avgSkill = skillsValues.length > 0 ? (skillsValues.reduce((a,b)=>a+b,0) / skillsValues.length).toFixed(1) : '1.0';
+                document.getElementById('profile-avg-skill').innerText = `${avgSkill} / 6`;
+
+                // Render skills list
+                const skillsContainer = document.getElementById('profile-skills-list');
+                skillsContainer.innerHTML = SKILLS_LIST.map(skill => {
+                    const level = student.skills[skill] || 1;
+                    return `
+                        <div class="bg-slate-800/40 border border-slate-700/50 rounded-xl p-3 flex items-center justify-between gap-3">
+                            <span class="text-xs text-slate-200 font-medium flex-1">${skill}</span>
+                            <select onchange="App.updateSkillLevel(${student.id}, '${skill}', this.value)" class="bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-xs text-amber-400 font-bold focus:outline-none">
+                                <option value="1" ${level==1?'selected':''}>1. No evaluada</option>
+                                <option value="2" ${level==2?'selected':''}>2. No domina</option>
+                                <option value="3" ${level==3?'selected':''}>3. En aprendizaje</option>
+                                <option value="4" ${level==4?'selected':''}>4. En progreso</option>
+                                <option value="5" ${level==5?'selected':''}>5. Dominada (Auto)</option>
+                                <option value="6" ${level==6?'selected':''}>6. Dominada (Consistente)</option>
+                            </select>
+                        </div>
+                    `;
+                }).join('');
+
+                // Render student classes
+                const classesContainer = document.getElementById('profile-classes-list');
+                if (classes.length === 0) {
+                    classesContainer.innerHTML = `<p class="text-slate-500 text-xs italic">Sin clases registradas para este alumno.</p>`;
+                } else {
+                    classesContainer.innerHTML = classes.reverse().map(c => `
+                        <div class="bg-slate-800/40 border border-slate-700/50 rounded-xl p-3 space-y-1">
+                            <div class="flex items-center justify-between text-xs font-bold text-white">
+                                <span>${c.type} (${c.duration} min)</span>
+                                <span class="text-slate-400 font-normal">${new Date(c.date).toLocaleDateString()}</span>
+                            </div>
+                            <p class="text-xs text-slate-300">${c.notes || 'Sin observaciones'}</p>
+                        </div>
+                    `).join('');
+                }
+
+                document.getElementById('student-profile-modal').classList.remove('hidden');
+            }
+
+            closeProfileModal() {
+                document.getElementById('student-profile-modal').classList.add('hidden');
+                this.selectedStudentIdForProfile = null;
+            }
+
+            async updateSkillLevel(studentId, skillName, level) {
+                const student = await this.getStudentById(studentId);
+                if (!student) return;
+                if (!student.skills) student.skills = {};
+                student.skills[skillName] = Number(level);
+                await this.saveRecord('students', student);
+                this.openProfile(studentId);
+            }
+
+            editCurrentStudent() {
+                this.getStudentById(this.selectedStudentIdForProfile).then(student => {
+                    this.closeProfileModal();
+                    this.openStudentModal(student);
+                });
+            }
+
+            async saveClass(event) {
+                event.preventDefault();
+                const studentId = Number(document.getElementById('class-student-id').value);
+                const type = document.getElementById('class-type').value;
+                const duration = Number(document.getElementById('class-duration').value);
+                const notes = document.getElementById('class-notes').value;
+
+                const selectedSkills = [];
+                document.querySelectorAll('input[name="class-skill"]:checked').forEach(cb => selectedSkills.push(cb.value));
+
+                const classData = {
+                    id: Date.now(),
+                    studentId,
+                    type,
+                    duration,
+                    notes,
+                    skills: selectedSkills,
+                    date: new Date().toISOString()
+                };
+
+                await this.saveRecord('classes', classData);
+                document.getElementById('class-form').reset();
+                document.getElementById('class-duration').value = '60';
+                await this.refreshData();
+                this.switchTab('home');
+            }
+
+            toggleVoiceDictation(textareaId) {
+                if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                    alert('El reconocimiento de voz no es compatible con este navegador. Utilice el teclado.');
+                    return;
+                }
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const recognition = new SpeechRecognition();
+                recognition.lang = 'es-CO';
+                recognition.interimResults = false;
+
+                const micIcon = document.getElementById('mic-icon');
+                micIcon.classList.add('text-rose-500', 'fa-beat');
+
+                recognition.onresult = (event) => {
+                    const text = event.results[0][0].transcript;
+                    const ta = document.getElementById(textareaId);
+                    ta.value = ta.value ? ta.value + ' ' + text : text;
+                    micIcon.classList.remove('text-rose-500', 'fa-beat');
+                };
+
+                recognition.onerror = () => {
+                    micIcon.classList.remove('text-rose-500', 'fa-beat');
+                };
+
+                recognition.onend = () => {
+                    micIcon.classList.remove('text-rose-500', 'fa-beat');
+                };
+
+                recognition.start();
+            }
+
+            exportJSON() {
+                Promise.all([this.getAll('students'), this.getAll('classes'), this.getAll('settings')]).then(([students, classes, settings]) => {
+                    const backup = { schemaVersion: 1, exportedAt: new Date().toISOString(), students, classes, settings };
+                    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `conducimos_backup_${new Date().toISOString().slice(0,10)}.json`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                });
+            }
+
+            importJSON(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (!data.students || !data.classes) {
+                            throw new Error('Archivo inválido');
+                        }
+                        for (const s of data.students) await this.saveRecord('students', s);
+                        for (const c of data.classes) await this.saveRecord('classes', c);
+                        await this.refreshData();
+                        alert('Copia de seguridad importada exitosamente.');
+                    } catch (err) {
+                        alert('Error al importar archivo: formato incorrecto.');
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            confirmClearData() {
+                if (confirm('¿Está seguro de borrar todos los datos locales? Esta acción no se puede deshacer.')) {
+                    const txStudents = this.db.transaction('students', 'readwrite');
+                    txStudents.objectStore('students').clear();
+                    const txClasses = this.db.transaction('classes', 'readwrite');
+                    txClasses.objectStore('classes').clear();
+                    this.refreshData();
+                    alert('Datos borrados.');
+                }
+            }
+
+            openSettings() {
+                document.getElementById('settings-modal').classList.remove('hidden');
+                this.getSetting('app_pin').then(pin => {
+                    document.getElementById('settings-pin').value = pin || '';
+                });
+            }
+
+            closeSettings() {
+                document.getElementById('settings-modal').classList.add('hidden');
+            }
+
+            async saveSettingsPin() {
+                const pin = document.getElementById('settings-pin').value;
+                await this.setSetting('app_pin', pin.trim() ? pin.trim() : null);
+                this.closeSettings();
+                alert('Configuración guardada.');
+            }
+
+            async generatePDF() {
+                if (!this.selectedStudentIdForProfile) return;
+                const student = await this.getStudentById(this.selectedStudentIdForProfile);
+                const classes = (await this.getAll('classes')).filter(c => c.studentId === student.id);
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                doc.setFillColor(15, 23, 42);
+                doc.rect(0, 0, 210, 40, 'F');
+                doc.setTextColor(255, 255, 255);
+                doc.setFontSize(22);
+                doc.text("Informe de Alumno - Conducimos", 14, 25);
+
+                doc.setTextColor(50, 50, 50);
+                doc.setFontSize(14);
+                doc.text(`Nombre: ${student.name}`, 14, 55);
+                doc.setFontSize(10);
+                doc.text(`Categoría: ${student.category} | Teléfono: ${student.phone || 'N/A'} | Estado: ${student.status}`, 14, 63);
+                doc.text(`Objetivo: ${student.objective || 'N/A'}`, 14, 71);
+
+                doc.text("Historial de Clases:", 14, 85);
+                let y = 92;
+                classes.forEach((c, index) => {
+                    if (y > 270) { doc.addPage(); y = 20; }
+                    doc.text(`${index + 1}. [${new Date(c.date).toLocaleDateString()}] ${c.type} - ${c.duration} min: ${c.notes || 'Sin notas'}`, 14, y);
+                    y += 8;
+                });
+
+                doc.save(`informe_${student.name.replace(/\s+/g, '_')}.pdf`);
+            }
         }
-    }
-</script>
+
+        const App = new DrivingApp();
+    </script>
+</body>
+</html>
