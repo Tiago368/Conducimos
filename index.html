@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Conducimos - Gestión de Alumnos y Clases v0.05</title>
+    <title>Conducimos - Gestión de Alumnos y Clases v0.06</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -171,7 +171,7 @@
             </div>
 
             <div class="space-y-3">
-                <h3 class="font-bold text-slate-200 text-sm uppercase tracking-wider">Historial Reciente de Clases</h3>
+                <h3 class="font-bold text-slate-200 text-sm uppercase tracking-wider">Historial Reciente de Mis Clases</h3>
                 <div id="recent-classes-list" class="space-y-2"></div>
             </div>
         </section>
@@ -346,7 +346,7 @@
                 <!-- Historial de Clases Vistas (PROTAGONISTA) -->
                 <div>
                     <h4 class="font-bold text-slate-200 text-sm uppercase tracking-wider mb-3 flex items-center justify-between">
-                        <span>Clases Vistas</span>
+                        <span>Clases Vistas (Historial Completo)</span>
                     </h4>
                     <div id="profile-classes-list" class="space-y-3"></div>
                 </div>
@@ -585,12 +585,14 @@
                 const classSelect = document.getElementById('class-student-id');
                 classSelect.innerHTML = `<option value="">Seleccione un alumno...</option>` + students.map(s => `<option value="${s.id}">${s.name} (${s.category})</option>`).join('');
 
-                // Render Historial Reciente de Clases
+                // Render Historial Reciente de Mis Clases (EXCLUSIVO DEL PROFESOR ACTUAL)
                 const recentClassesList = document.getElementById('recent-classes-list');
-                if (classes.length === 0) {
-                    recentClassesList.innerHTML = `<p class="text-slate-500 text-sm italic text-center py-6">No hay clases registradas todavía.</p>`;
+                const myClasses = classes.filter(c => c.instructor === this.instructorName);
+
+                if (myClasses.length === 0) {
+                    recentClassesList.innerHTML = `<p class="text-slate-500 text-sm italic text-center py-6">No ha registrado clases todavía.</p>`;
                 } else {
-                    recentClassesList.innerHTML = classes.slice(-5).reverse().map(c => {
+                    recentClassesList.innerHTML = myClasses.slice(-5).reverse().map(c => {
                         const student = students.find(s => s.id === c.studentId);
                         const skillsBadges = (c.skills || []).map(s => `<span class="bg-slate-800 text-amber-300 border border-slate-700 text-[10px] px-2 py-0.5 rounded-md font-medium">${s}</span>`).join(' ');
                         const hoursLabel = c.duration === 90 ? 'Clase 2h (90 min)' : 'Clase 1h (45 min)';
@@ -700,7 +702,7 @@
                 document.getElementById('profile-modal-name').innerText = student.name;
                 document.getElementById('profile-modal-meta').innerText = `Cat ${student.category} • ${student.experience}`;
 
-                // Cálculo simplificado de Horas
+                // Cálculo de Horas
                 const totalMinutes = classes.reduce((acc, c) => acc + Number(c.duration), 0) + (student.prevHours * 60);
                 const totalHours = (totalMinutes / 60).toFixed(1);
                 document.getElementById('profile-hours-done').innerText = `${totalHours} h`;
@@ -732,7 +734,7 @@
                     `;
                 }).join('');
 
-                // Render Clases Vistas (PROTAGONISTA)
+                // Render Clases Vistas del Alumno (Incluye importadas de otros profesores para consulta)
                 const classesContainer = document.getElementById('profile-classes-list');
                 if (classes.length === 0) {
                     classesContainer.innerHTML = `<p class="text-slate-500 text-xs italic">Sin clases registradas para este alumno.</p>`;
@@ -855,7 +857,7 @@
 
             exportJSON() {
                 Promise.all([this.getAll('students'), this.getAll('classes'), this.getAll('settings')]).then(([students, classes, settings]) => {
-                    const backup = { schemaVersion: 4, exportedAt: new Date().toISOString(), students, classes, settings };
+                    const backup = { schemaVersion: 5, exportedAt: new Date().toISOString(), students, classes, settings };
                     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
@@ -873,7 +875,7 @@
                 
                 const exportData = {
                     type: 'single_student_export',
-                    schemaVersion: 4,
+                    schemaVersion: 5,
                     exportedAt: new Date().toISOString(),
                     student,
                     classes
