@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Escuela Moderna - Gestión de Alumnos y Clases v0.13</title>
+    <title>Escuela Moderna - Gestión de Alumnos y Clases v0.14</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- jsPDF para informes en PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- QRCode.js para generar códigos QR -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- QRious para generación limpia de códigos QR en Canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
     <!-- html5-qrcode para escanear códigos QR con la cámara -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
     <meta name="theme-color" content="#0f172a">
@@ -79,7 +79,7 @@
                         </div>
                         <div>
                             <span class="font-bold text-white block">Nuevo Alumno</span>
-                            <span class="text-xs text-slate-400">Crear o importar ficha</span>
+                            <span class="text-xs text-slate-400">Crear o escanear ficha</span>
                         </div>
                     </button>
                     <button onclick="App.switchTab('classes')" class="p-4 bg-slate-900 hover:bg-slate-850 border border-slate-800 rounded-2xl text-left transition flex flex-col justify-between group">
@@ -185,7 +185,7 @@
                     <i class="fa-solid fa-database text-amber-500"></i> Copias de Seguridad y Datos
                 </h2>
                 <p class="text-xs text-slate-400 leading-relaxed">
-                    Toda su información se almacena localmente en este celular. Puede exportar un archivo JSON para respaldo o transferirlo a otro instructor.
+                    Toda su información se almacena localmente en este celular. Puede exportar un archivo JSON para respaldo general.
                 </p>
 
                 <div class="pt-2 space-y-3">
@@ -206,7 +206,7 @@
 
             <div class="text-center pt-2">
                 <span class="text-[10px] font-mono font-medium text-slate-600 uppercase tracking-widest select-none">
-                    APP SG • v0.13
+                    ESCUELA MODERNA • v0.14
                 </span>
             </div>
         </section>
@@ -233,7 +233,7 @@
         </button>
     </nav>
 
-    <!-- MODAL: STUDENT FORM / CREAR / IMPORTAR FICHA -->
+    <!-- MODAL: STUDENT FORM / CREAR / ESCANEAR QR -->
     <div id="student-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
             <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900">
@@ -244,20 +244,12 @@
             </div>
             <div class="p-5 overflow-y-auto space-y-5 flex-1">
                 
-                <div class="grid grid-cols-2 gap-2">
-                    <div class="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-3 text-center space-y-2">
-                        <p class="text-[11px] text-blue-300 font-medium">Desde Archivo JSON</p>
-                        <label class="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition cursor-pointer shadow-md w-full">
-                            <i class="fa-solid fa-file-import"></i> Archivo
-                            <input type="file" accept=".json" onchange="App.importSingleStudentJSON(event)" class="hidden">
-                        </label>
-                    </div>
-                    <div class="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-3 text-center space-y-2">
-                        <p class="text-[11px] text-amber-300 font-medium">Desde Colega</p>
-                        <button type="button" onclick="App.openQRScanner()" class="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl transition cursor-pointer shadow-md w-full">
-                            <i class="fa-solid fa-qrcode"></i> Escanear QR
-                        </button>
-                    </div>
+                <!-- Botón exclusivo para Escanear Ficha por QR -->
+                <div class="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 text-center space-y-2">
+                    <p class="text-xs text-amber-300 font-medium">¿Recibió la ficha de un alumno de otro profesor?</p>
+                    <button type="button" onclick="App.openQRScanner()" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl transition cursor-pointer shadow-md w-full">
+                        <i class="fa-solid fa-qrcode"></i> Escanear Ficha por Código QR
+                    </button>
                 </div>
 
                 <div class="relative flex items-center justify-center">
@@ -390,7 +382,7 @@
                 </button>
             </div>
             <p class="text-xs text-slate-400">Escanee este código con la app de otro instructor para transferir la ficha al instante.</p>
-            <div id="qrcode-container" class="bg-white p-4 rounded-2xl inline-flex items-center justify-center shadow-inner min-h-[220px] min-w-[220px]"></div>
+            <div id="qrcode-container" class="bg-white p-3 rounded-2xl inline-flex items-center justify-center shadow-inner min-h-[220px] min-w-[220px]"></div>
             <button onclick="App.closeStudentQR()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-750 text-white font-bold text-xs rounded-xl transition">Cerrar</button>
         </div>
     </div>
@@ -1016,7 +1008,6 @@
                 const student = await this.getStudentById(this.selectedStudentIdForProfile);
                 let classes = (await this.getAll('classes')).filter(c => c.studentId === student.id);
 
-                // Estructura ultracompacta para evitar superar la capacidad física del QR
                 const compactData = {
                     t: 'EM_QR',
                     s: {
@@ -1026,10 +1017,10 @@
                         e: student.experience,
                         sk: student.skills || {}
                     },
-                    cl: classes.slice(-10).map(c => ({
+                    cl: classes.slice(-8).map(c => ({
                         t: c.type === 'Práctica' ? 'P' : 'E',
                         d: c.duration,
-                        n: (c.notes || '').substring(0, 50),
+                        n: (c.notes || '').substring(0, 40),
                         s: (c.skills || []).map(sName => SKILLS_LIST.indexOf(sName)).filter(idx => idx !== -1),
                         i: c.instructor || '',
                         dt: c.date ? c.date.substring(0, 10) : ''
@@ -1040,27 +1031,27 @@
 
                 document.getElementById('student-qr-modal').classList.remove('hidden');
                 const container = document.getElementById('qrcode-container');
-                container.innerHTML = '';
+                container.innerHTML = '<canvas id="qr-canvas"></canvas>';
 
                 try {
-                    new QRCode(container, {
-                        text: jsonString,
-                        width: 220,
-                        height: 220,
-                        colorDark: "#0f172a",
-                        colorLight: "#ffffff",
-                        correctLevel: QRCode.CorrectLevel.L
+                    new QRious({
+                        element: document.getElementById('qr-canvas'),
+                        value: jsonString,
+                        size: 210,
+                        background: '#ffffff',
+                        foreground: '#0f172a',
+                        level: 'L'
                     });
                 } catch (err) {
-                    // Si aún así sobrepasa el límite, enviamos únicamente los datos esenciales del alumno sin clases anteriores
+                    console.error("Error generando QR con clases, reintentando solo perfil:", err);
                     delete compactData.cl;
-                    new QRCode(container, {
-                        text: JSON.stringify(compactData),
-                        width: 220,
-                        height: 220,
-                        colorDark: "#0f172a",
-                        colorLight: "#ffffff",
-                        correctLevel: QRCode.CorrectLevel.L
+                    new QRious({
+                        element: document.getElementById('qr-canvas'),
+                        value: JSON.stringify(compactData),
+                        size: 210,
+                        background: '#ffffff',
+                        foreground: '#0f172a',
+                        level: 'L'
                     });
                 }
             }
@@ -1148,30 +1139,6 @@
 
                         await this.refreshData();
                         alert(`¡Ficha del alumno "${importedStudent.name}" importada exitosamente vía QR!`);
-                    } else if (data.type === 'single_student_export' && data.student) {
-                        // Compatibilidad con formato completo anterior
-                        const importedStudent = data.student;
-                        const allStudents = await this.getAll('students');
-                        
-                        let existingStudent = allStudents.find(s => 
-                            s.name.toLowerCase() === importedStudent.name.toLowerCase() && 
-                            (s.nickname || '').toLowerCase() === (importedStudent.nickname || '').toLowerCase()
-                        );
-
-                        let targetStudentId = existingStudent ? existingStudent.id : (importedStudent.id || Date.now());
-                        importedStudent.id = targetStudentId;
-
-                        await this.saveRecord('students', importedStudent);
-
-                        if (data.classes && Array.isArray(data.classes)) {
-                            for (const c of data.classes) {
-                                c.studentId = targetStudentId;
-                                await this.saveRecord('classes', c);
-                            }
-                        }
-
-                        await this.refreshData();
-                        alert(`¡Ficha del alumno "${importedStudent.name}" importada exitosamente!`);
                     } else {
                         alert('El código QR escaneado no corresponde a una ficha válida de Escuela Moderna.');
                     }
@@ -1226,80 +1193,6 @@
                     a.click();
                     URL.revokeObjectURL(url);
                 });
-            }
-
-            async exportSingleStudentJSON() {
-                if (!this.selectedStudentIdForProfile) return;
-                const student = await this.getStudentById(this.selectedStudentIdForProfile);
-                const classes = (await this.getAll('classes')).filter(c => c.studentId === student.id);
-                
-                const exportData = {
-                    type: 'single_student_export',
-                    schemaVersion: 8,
-                    exportedAt: new Date().toISOString(),
-                    student,
-                    classes
-                };
-
-                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `alumno_${student.name.replace(/\s+/g, '_')}.json`;
-                a.click();
-                URL.revokeObjectURL(url);
-            }
-
-            async importSingleStudentJSON(event) {
-                const file = event.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = async (e) => {
-                    try {
-                        const data = JSON.parse(e.target.result);
-                        if (data.type === 'single_student_export' && data.student) {
-                            const importedStudent = data.student;
-                            const allStudents = await this.getAll('students');
-                            
-                            let existingStudent = allStudents.find(s => 
-                                s.name.toLowerCase() === importedStudent.name.toLowerCase() && 
-                                (s.nickname || '').toLowerCase() === (importedStudent.nickname || '').toLowerCase()
-                            );
-
-                            let targetStudentId;
-
-                            if (existingStudent) {
-                                targetStudentId = existingStudent.id;
-                                importedStudent.id = targetStudentId;
-                                await this.saveRecord('students', importedStudent);
-                            } else {
-                                targetStudentId = importedStudent.id || Date.now();
-                                importedStudent.id = targetStudentId;
-                                await this.saveRecord('students', importedStudent);
-                            }
-
-                            if (data.classes && Array.isArray(data.classes)) {
-                                const existingClasses = await this.getAll('classes');
-                                for (const c of data.classes) {
-                                    c.studentId = targetStudentId;
-                                    const classExists = existingClasses.some(ec => ec.id === c.id);
-                                    if (!classExists) {
-                                        await this.saveRecord('classes', c);
-                                    }
-                                }
-                            }
-
-                            this.closeStudentModal();
-                            await this.refreshData();
-                            alert(`Ficha del alumno "${importedStudent.name}" importada y actualizada exitosamente.`);
-                        } else {
-                            alert('El archivo no corresponde a una ficha de alumno válida.');
-                        }
-                    } catch (err) {
-                        alert('Error al leer el archivo de la ficha.');
-                    }
-                };
-                reader.readAsText(file);
             }
 
             importJSON(event) {
