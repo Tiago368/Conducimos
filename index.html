@@ -3,19 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Escuela Moderna - MVP Alumnos & Instructores v1.1</title>
+    <title>Escuela Moderna - MVP Alumnos & Instructores v0.19</title>
+    
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- jsPDF para informes en PDF -->
+    <!-- Librerías JS de respaldo -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- QRious para generación limpia de códigos QR en Canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-    <!-- html5-qrcode para escanear códigos QR con la cámara -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+
     <meta name="theme-color" content="#0f172a">
-    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22Escuela%20Moderna%22%2C%22short_name%22%3A%22Escuela%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%230f172a%22%2C%22theme_color%22%3A%22%230f172a%22%2C%22icons%22%3A%5B%5D%7D">
+    
+    <!-- Estilos de Respaldo Integrados (Garantiza que NUNCA se rompa el diseño) -->
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+            background-color: #020617 !important;
+            color: #f8fafc !important;
+            margin: 0;
+            padding: 0;
+        }
+        .hidden { display: none !important; }
+        .fixed { position: fixed !important; }
+        .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+        .bg-slate-950\/95 { background-color: rgba(2, 6, 23, 0.95) !important; }
+        .bg-slate-900 { background-color: #0f172a !important; }
+        .bg-slate-800 { background-color: #1e293b !important; }
+        .border-slate-800 { border-color: #1e293b !important; }
+        .text-amber-400 { color: #fbbf24 !important; }
+        .bg-amber-500 { background-color: #f59e0b !important; color: #020617 !important; }
+        .bg-blue-600 { background-color: #2563eb !important; color: #ffffff !important; }
+        .rounded-3xl { border-radius: 1.5rem !important; }
+        .rounded-2xl { border-radius: 1rem !important; }
+        .rounded-xl { border-radius: 0.75rem !important; }
+        .p-4 { padding: 1rem !important; }
+        .p-6 { padding: 1.5rem !important; }
+        .p-8 { padding: 2rem !important; }
+        .space-y-3 > * + * { margin-top: 0.75rem !important; }
+        .space-y-4 > * + * { margin-top: 1rem !important; }
+        .space-y-5 > * + * { margin-top: 1.25rem !important; }
+        .w-full { width: 100% !important; }
+        .max-w-sm { max-width: 24rem !important; }
+        .max-w-2xl { max-width: 42rem !important; }
+        .mx-auto { margin-left: auto !important; margin-right: auto !important; }
+        button {
+            cursor: pointer;
+            border: none;
+            outline: none;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body class="h-full text-slate-100 flex flex-col antialiased selection:bg-amber-500 selection:text-slate-950">
 
@@ -106,19 +145,12 @@
         <!-- ================= VISTA: INSTRUCTOR ================= -->
         <section id="view-instructor" class="space-y-5 hidden">
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4 text-center">
-                <div class="flex justify-between items-center mb-2">
-                    <span id="instructor-status-badge" class="text-xs text-amber-400 font-bold bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20">Registrado como: No configurado</span>
-                    <button onclick="App.openInstructorProfileModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white text-xs rounded-xl font-bold border border-slate-700">
-                        <i class="fa-solid fa-gear"></i> Configurar Mis Datos
-                    </button>
-                </div>
-
                 <div class="w-12 h-12 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-xl">
                     <i class="fa-solid fa-chalkboard-user"></i>
                 </div>
                 <div>
                     <h2 class="text-lg font-bold text-white">Panel de Validación del Instructor</h2>
-                    <p class="text-xs text-slate-400 mt-1">Escanee el código QR que le muestra el alumno para revisar su clase y estampar su firma digital única.</p>
+                    <p class="text-xs text-slate-400 mt-1">Escanee el código QR que le muestra el alumno para revisar su clase y firmarla de forma rápida.</p>
                 </div>
                 <button onclick="App.openQRScanner('instructor')" class="w-full py-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 text-sm">
                     <i class="fa-solid fa-qrcode text-lg"></i> Escanear y Firmar Clase de Alumno
@@ -141,7 +173,7 @@
                 </div>
                 <div>
                     <h2 class="text-lg font-bold text-white">Auditoría y Control de Escuela</h2>
-                    <p class="text-xs text-slate-400 mt-1">Escanee el QR Maestro de cualquier alumno para revisar su historial completo de horas y firmas digitales verificadas.</p>
+                    <p class="text-xs text-slate-400 mt-1">Escanee el QR Maestro de cualquier alumno para revisar su historial completo de horas y firmas.</p>
                 </div>
                 <button onclick="App.openQRScanner('auditor')" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 text-sm">
                     <i class="fa-solid fa-qrcode text-lg"></i> Escanear Libreta Maestra de Alumno
@@ -158,7 +190,7 @@
 
     <!-- ================= MODALES AUXILIARES ================= -->
 
-    <!-- MODAL: PERFIL DE ALUMNO (Con Categorías Múltiples) -->
+    <!-- MODAL: PERFIL DE ALUMNO -->
     <div id="student-profile-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4">
             <div class="flex items-center justify-between">
@@ -196,33 +228,7 @@
         </div>
     </div>
 
-    <!-- MODAL: PERFIL / REGISTRO DE INSTRUCTOR -->
-    <div id="instructor-profile-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4">
-            <div class="flex items-center justify-between">
-                <h3 class="font-bold text-white text-base">Registro de Identidad del Instructor</h3>
-                <button onclick="App.closeInstructorProfileModal()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <p class="text-xs text-slate-400">Registre sus datos para generar su firma digital única en este dispositivo y evitar suplantaciones.</p>
-            <form id="instructor-profile-form" onsubmit="App.saveInstructorProfile(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Nombre Completo del Instructor *</label>
-                    <input type="text" id="ip-name" required placeholder="Ej. Juan Pérez" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">ID Único de Dispositivo (Generado)</label>
-                    <input type="text" id="ip-token" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-xs text-slate-400 font-mono">
-                </div>
-                <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition text-xs shadow-md">
-                    Registrar y Guardar Identidad
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL: REGISTRAR CLASE (Alumno) -->
+    <!-- MODAL: REGISTRAR CLASE -->
     <div id="new-class-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
             <div class="p-4 border-b border-slate-800 flex items-center justify-between">
@@ -252,7 +258,7 @@
 
                     <div>
                         <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Profesor que dictó la clase *</label>
-                        <input type="text" id="nc-instructor" required placeholder="Nombre exacto del profesor" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                        <input type="text" id="nc-instructor" required placeholder="Nombre del profesor" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
                     </div>
 
                     <div>
@@ -282,7 +288,7 @@
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <p id="qr-modal-desc" class="text-xs text-slate-400">Muestre este código al profesor para que estampe su firma digital.</p>
+            <p id="qr-modal-desc" class="text-xs text-slate-400">Muestre este código al profesor para que la firme.</p>
             <div id="qrcode-container" class="bg-white p-3 rounded-2xl inline-flex items-center justify-center shadow-inner min-h-[220px] min-w-[220px]"></div>
             <button onclick="App.closeQRDisplayModal()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-750 text-white font-bold text-xs rounded-xl transition">Cerrar</button>
         </div>
@@ -311,17 +317,18 @@
     <div id="instructor-sign-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4 hidden">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <div class="flex items-center justify-between">
-                <h3 class="font-bold text-white text-base">Validar Clase de Alumno</h3>
+                <h3 class="font-bold text-white text-base">Validar y Firmar Clase</h3>
                 <button onclick="App.closeInstructorSignModal()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             <div id="sign-modal-content" class="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-4 space-y-2 text-xs"></div>
-            <div id="instructor-warning-box" class="hidden p-3 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-xl text-xs">
-                ⚠️ Advertencia: El alumno indicó que el profesor asignado es <strong id="warning-prof-name"></strong>, pero su dispositivo está registrado a nombre de <strong id="warning-my-name"></strong>. Asegúrese de que sea correcto.
+            <div>
+                <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Su Nombre (Profesor que firma) *</label>
+                <input type="text" id="sign-instructor-name" required placeholder="Ej. Juan Pérez" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
             </div>
             <button onclick="App.approveAndSignClass()" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition text-xs shadow-lg shadow-amber-500/20">
-                Aprobar y Firmar Digitalmente
+                Aprobar y Generar QR de Confirmación
             </button>
         </div>
     </div>
@@ -351,7 +358,7 @@
 
             async initDB() {
                 return new Promise((resolve, reject) => {
-                    const request = indexedDB.open('EscuelaModernaMVP', 2);
+                    const request = indexedDB.open('EscuelaModernaMVP', 3);
                     request.onerror = () => reject(request.error);
                     request.onsuccess = () => {
                         this.db = request.result;
@@ -503,7 +510,7 @@
                                     <span class="font-bold text-white">${c.type} (${c.duration == 90 ? '2 horas' : '1 hora'})</span>
                                     ${statusBadge}
                                 </div>
-                                <p class="text-xs text-slate-300">Prof. asignado: <strong>${c.instructor}</strong></p>
+                                <p class="text-xs text-slate-300">Prof. indicado: <strong>${c.instructor}</strong></p>
                                 <div class="flex flex-wrap gap-1">${skillsBadges}</div>
                                 <p class="text-xs text-slate-400">${c.notes || 'Sin observaciones'}</p>
                                 <div class="flex items-center justify-between pt-2 border-t border-slate-800/60 text-[10px] text-slate-500">
@@ -579,8 +586,7 @@
                     notes: document.getElementById('nc-notes').value.trim(),
                     date: new Date().toISOString(),
                     status: 'Pendiente',
-                    signedBy: null,
-                    instructorId: null
+                    signedBy: null
                 };
 
                 await this.saveStoreRecord('student_classes', classObj);
@@ -655,18 +661,8 @@
                 document.getElementById('qrcode-container').innerHTML = '';
             }
 
-            // ================= DATOS INSTRUCTOR Y REGISTRO =================
+            // ================= DATOS INSTRUCTOR =================
             async loadInstructorData() {
-                let prof = await this.getSetting('instructor_profile_data');
-                const statusBadge = document.getElementById('instructor-status-badge');
-                if (!prof) {
-                    statusBadge.innerText = 'Registrado como: Sin configurar (¡Configure sus datos!)';
-                    statusBadge.className = 'text-xs text-rose-400 font-bold bg-rose-500/10 px-3 py-1 rounded-lg border border-rose-500/20';
-                } else {
-                    statusBadge.innerText = `Registrado como: ${prof.name}`;
-                    statusBadge.className = 'text-xs text-emerald-400 font-bold bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20';
-                }
-
                 const list = await this.getAllStore('instructor_signed');
                 const container = document.getElementById('instructor-signed-list');
                 if (!list || list.length === 0) {
@@ -682,35 +678,6 @@
                         </div>
                     `).join('');
                 }
-            }
-
-            async openInstructorProfileModal() {
-                let prof = await this.getSetting('instructor_profile_data');
-                if (!prof) {
-                    prof = {
-                        name: '',
-                        instructorId: 'INS_' + Math.random().toString(36).substr(2, 9).toUpperCase() + '_' + Date.now()
-                    };
-                }
-                document.getElementById('ip-name').value = prof.name || '';
-                document.getElementById('ip-token').value = prof.instructorId;
-                document.getElementById('instructor-profile-modal').classList.remove('hidden');
-            }
-
-            closeInstructorProfileModal() {
-                document.getElementById('instructor-profile-modal').classList.add('hidden');
-            }
-
-            async saveInstructorProfile(event) {
-                event.preventDefault();
-                const name = document.getElementById('ip-name').value.trim();
-                const instructorId = document.getElementById('ip-token').value;
-
-                const prof = { name, instructorId };
-                await this.setSetting('instructor_profile_data', prof);
-                this.closeInstructorProfileModal();
-                this.loadInstructorData();
-                alert('Identidad de instructor registrada con éxito en este dispositivo.');
             }
 
             // ================= ESCANEO Y CÁMARA =================
@@ -750,14 +717,8 @@
 
                     if (this.scannerMode === 'instructor') {
                         if (data.t === 'EM_PENDING_CLASS') {
-                            const instProf = await this.getSetting('instructor_profile_data');
-                            if (!instProf || !instProf.name) {
-                                alert('Debe registrar primero sus datos como instructor en "Configurar Mis Datos".');
-                                this.openInstructorProfileModal();
-                                return;
-                            }
                             this.pendingClassForSign = data;
-                            this.showInstructorSignModal(data, instProf);
+                            this.showInstructorSignModal(data);
                         } else if (data.t === 'EM_APPROVED_CLASS') {
                             await this.saveStoreRecord('student_classes', data.c);
                             alert('¡Clase firmada y aprobada guardada con éxito en tu libreta!');
@@ -777,28 +738,18 @@
                 }
             }
 
-            async showInstructorSignModal(data, instProf) {
+            showInstructorSignModal(data) {
                 const s = data.s;
                 const c = data.c;
                 const content = document.getElementById('sign-modal-content');
                 content.innerHTML = `
                     <p><strong>Alumno:</strong> ${s.name} (Doc: ${s.doc})</p>
                     <p><strong>Tipo:</strong> ${c.type} - ${c.duration} mins</p>
-                    <p><strong>Profesor solicitado por alumno:</strong> ${c.instructor}</p>
+                    <p><strong>Profesor indicado por alumno:</strong> ${c.instructor}</p>
                     <p><strong>Temas:</strong> ${(c.skills || []).join(', ') || 'Ninguno'}</p>
                     <p><strong>Notas:</strong> ${c.notes || 'Sin notas'}</p>
                 `;
-
-                const warningBox = document.getElementById('instructor-warning-box');
-                // Verificar si el nombre ingresado por el alumno coincide de forma aproximada con el instructor registrado
-                if (c.instructor.toLowerCase() !== instProf.name.toLowerCase()) {
-                    document.getElementById('warning-prof-name').innerText = c.instructor;
-                    document.getElementById('warning-my-name').innerText = instProf.name;
-                    warningBox.classList.remove('hidden');
-                } else {
-                    warningBox.classList.add('hidden');
-                }
-
+                document.getElementById('sign-instructor-name').value = c.instructor || '';
                 document.getElementById('instructor-sign-modal').classList.remove('hidden');
             }
 
@@ -808,9 +759,9 @@
             }
 
             async approveAndSignClass() {
-                const instProf = await this.getSetting('instructor_profile_data');
-                if (!instProf) {
-                    alert('Perfil de instructor no configurado.');
+                const instructorName = document.getElementById('sign-instructor-name').value.trim();
+                if (!instructorName) {
+                    alert('Por favor ingrese su nombre de instructor para firmar.');
                     return;
                 }
 
@@ -818,8 +769,7 @@
 
                 const data = this.pendingClassForSign;
                 data.c.status = 'Aprobada';
-                data.c.signedBy = instProf.name;
-                data.c.instructorId = instProf.instructorId;
+                data.c.signedBy = instructorName;
 
                 const responsePayload = {
                     t: 'EM_APPROVED_CLASS',
@@ -828,7 +778,6 @@
 
                 this.closeInstructorSignModal();
 
-                // Registrar en el historial firmado del instructor
                 const signedRecord = {
                     id: data.c.id,
                     studentName: data.s.name,
@@ -839,7 +788,7 @@
                 await this.saveStoreRecord('instructor_signed', signedRecord);
 
                 document.getElementById('qr-modal-title').innerText = 'Sello de Aprobación';
-                document.getElementById('qr-modal-desc').innerText = 'Haga que el alumno escanee este código para guardar su clase aprobada con su firma digital.';
+                document.getElementById('qr-modal-desc').innerText = 'Haga que el alumno escanee este código para guardar su clase aprobada.';
                 document.getElementById('qr-display-modal').classList.remove('hidden');
 
                 const container = document.getElementById('qrcode-container');
