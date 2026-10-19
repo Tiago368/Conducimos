@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Escuela Moderna - MVP Alumnos & Instructores v0.19</title>
+    <title>Escuela Moderna - MVP Alumnos & Instructores v0.20</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,7 +16,7 @@
 
     <meta name="theme-color" content="#0f172a">
     
-    <!-- Estilos de Respaldo Integrados (Garantiza que NUNCA se rompa el diseño) -->
+    <!-- Estilos de Respaldo Integrados -->
     <style>
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
@@ -35,6 +35,7 @@
         .text-amber-400 { color: #fbbf24 !important; }
         .bg-amber-500 { background-color: #f59e0b !important; color: #020617 !important; }
         .bg-blue-600 { background-color: #2563eb !important; color: #ffffff !important; }
+        .bg-emerald-600 { background-color: #059669 !important; color: #ffffff !important; }
         .rounded-3xl { border-radius: 1.5rem !important; }
         .rounded-2xl { border-radius: 1rem !important; }
         .rounded-xl { border-radius: 0.75rem !important; }
@@ -124,12 +125,19 @@
                     </div>
                 </div>
 
-                <div class="flex gap-2 pt-1">
-                    <button onclick="App.openNewClassModal()" class="flex-1 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition text-xs flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20">
-                        <i class="fa-solid fa-plus"></i> Registrar Mi Clase
-                    </button>
-                    <button onclick="App.showStudentMasterQR()" class="py-3 px-4 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-white font-bold rounded-xl transition text-xs flex items-center gap-2" title="Mostrar QR de Auditoría">
-                        <i class="fa-solid fa-qrcode text-amber-400"></i> QR Maestro
+                <!-- Botones Principales de Acción -->
+                <div class="space-y-2 pt-1">
+                    <div class="flex gap-2">
+                        <button onclick="App.openNewClassModal()" class="flex-1 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition text-xs flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20">
+                            <i class="fa-solid fa-plus"></i> Registrar Mi Clase
+                        </button>
+                        <button onclick="App.showStudentMasterQR()" class="py-3 px-4 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-white font-bold rounded-xl transition text-xs flex items-center gap-2" title="Mostrar QR de Auditoría">
+                            <i class="fa-solid fa-qrcode text-amber-400"></i> QR Maestro
+                        </button>
+                    </div>
+                    <!-- Botón para Escanear la Firma Digital que le muestra el Profesor -->
+                    <button onclick="App.openQRScanner('student')" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20">
+                        <i class="fa-solid fa-camera text-base"></i> Escanear Firma del Profesor (Aprobar)
                     </button>
                 </div>
             </div>
@@ -513,9 +521,14 @@
                                 <p class="text-xs text-slate-300">Prof. indicado: <strong>${c.instructor}</strong></p>
                                 <div class="flex flex-wrap gap-1">${skillsBadges}</div>
                                 <p class="text-xs text-slate-400">${c.notes || 'Sin observaciones'}</p>
-                                <div class="flex items-center justify-between pt-2 border-t border-slate-800/60 text-[10px] text-slate-500">
+                                <div class="flex items-center justify-between pt-2 border-t border-slate-800/60 text-[10px] text-slate-500 gap-2">
                                     <span>${new Date(c.date).toLocaleDateString()}</span>
-                                    ${c.status !== 'Aprobada' ? `<button onclick="App.showClassValidationQR(${c.id})" class="px-2.5 py-1 bg-amber-500 text-slate-950 font-bold rounded-lg"><i class="fa-solid fa-qrcode"></i> Mostrar QR para Firmar</button>` : ''}
+                                    ${c.status !== 'Aprobada' ? `
+                                        <div class="flex gap-1">
+                                            <button onclick="App.showClassValidationQR(${c.id})" class="px-2 py-1 bg-amber-500 text-slate-950 font-bold rounded-lg text-[10px] flex items-center gap-1"><i class="fa-solid fa-qrcode"></i> Mostrar QR</button>
+                                            <button onclick="App.openQRScanner('student')" class="px-2 py-1 bg-emerald-600 text-white font-bold rounded-lg text-[10px] flex items-center gap-1"><i class="fa-solid fa-camera"></i> Escanear Firma</button>
+                                        </div>
+                                    ` : ''}
                                 </div>
                             </div>
                         `;
@@ -715,14 +728,18 @@
                 try {
                     const data = JSON.parse(jsonString);
 
-                    if (this.scannerMode === 'instructor') {
-                        if (data.t === 'EM_PENDING_CLASS') {
-                            this.pendingClassForSign = data;
-                            this.showInstructorSignModal(data);
-                        } else if (data.t === 'EM_APPROVED_CLASS') {
+                    if (this.scannerMode === 'student') {
+                        if (data.t === 'EM_APPROVED_CLASS') {
                             await this.saveStoreRecord('student_classes', data.c);
                             alert('¡Clase firmada y aprobada guardada con éxito en tu libreta!');
                             this.loadStudentData();
+                        } else {
+                            alert('Código QR no corresponde a una firma de profesor.');
+                        }
+                    } else if (this.scannerMode === 'instructor') {
+                        if (data.t === 'EM_PENDING_CLASS') {
+                            this.pendingClassForSign = data;
+                            this.showInstructorSignModal(data);
                         } else {
                             alert('Código QR no válido para instructor.');
                         }
