@@ -3,20 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Escuela Moderna - MVP Alumnos & Instructores v0.24</title>
+    <title>Escuela Moderna - Sistema Académico Inteligente</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Librerías JS de respaldo -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+    
+    <!-- Firebase SDK (v9 Compat) - Descomenta cuando configures tu BD -->
+    <!-- <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script> -->
+    <!-- <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script> -->
 
     <meta name="theme-color" content="#0f172a">
     
-    <!-- Estilos de Respaldo y Adaptabilidad Móvil -->
     <style>
         * { box-sizing: border-box; }
         body {
@@ -29,68 +28,92 @@
             overflow-x: hidden;
         }
         .hidden { display: none !important; }
-        .fixed { position: fixed !important; }
-        .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
-        .bg-slate-950\/95 { background-color: rgba(2, 6, 23, 0.95) !important; }
-        .bg-slate-900 { background-color: #0f172a !important; }
-        .bg-slate-800 { background-color: #1e293b !important; }
-        .border-slate-800 { border-color: #1e293b !important; }
-        .text-amber-400 { color: #fbbf24 !important; }
-        .bg-amber-500 { background-color: #f59e0b !important; color: #020617 !important; }
-        .bg-blue-600 { background-color: #2563eb !important; color: #ffffff !important; }
-        .bg-emerald-600 { background-color: #059669 !important; color: #ffffff !important; }
-        .rounded-3xl { border-radius: 1.5rem !important; }
-        .rounded-2xl { border-radius: 1rem !important; }
-        .rounded-xl { border-radius: 0.75rem !important; }
-        .p-4 { padding: 1rem !important; }
-        .p-6 { padding: 1.5rem !important; }
-        .w-full { width: 100% !important; }
-        button {
-            cursor: pointer;
-            border: none;
-            outline: none;
-            font-weight: bold;
-        }
     </style>
 </head>
 <body class="h-full text-slate-100 flex flex-col antialiased selection:bg-amber-500 selection:text-slate-950">
 
-    <!-- MODAL: SELECTOR DE ROL INICIAL -->
-    <div id="role-selector-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center space-y-4">
-            <div class="w-14 h-14 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-xl shadow-inner">
-                <i class="fa-solid fa-id-card"></i>
-            </div>
-            <div>
+    <!-- ================= PORTAL DE ACCESO INTELIGENTE (LOGIN) ================= -->
+    <div id="auth-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-5">
+            <div class="text-center space-y-2">
+                <div class="w-14 h-14 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-xl shadow-inner">
+                    <i class="fa-solid fa-id-card-clip"></i>
+                </div>
                 <h2 class="text-lg font-bold text-white">Escuela de Conducción</h2>
-                <p class="text-slate-400 text-xs mt-1">Seleccione su rol para comenzar el MVP</p>
+                <p class="text-slate-400 text-xs">Inicie sesión para acceder a su panel</p>
             </div>
-            <div class="space-y-3">
-                <button onclick="App.setRole('student')" class="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition shadow-lg flex items-center justify-center gap-2 text-sm">
-                    <i class="fa-solid fa-user-graduate"></i> Soy Alumno
-                </button>
-                <button onclick="App.setRole('instructor')" class="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition shadow-lg flex items-center justify-center gap-2 text-sm">
-                    <i class="fa-solid fa-chalkboard-user"></i> Soy Instructor
-                </button>
-                <button onclick="App.setRole('auditor')" class="w-full py-3.5 bg-slate-800 border border-slate-700 text-white font-bold rounded-xl transition flex items-center justify-center gap-2 text-sm">
-                    <i class="fa-solid fa-shield-halved"></i> Escuela / Auditor
-                </button>
+
+            <!-- Pestañas de Selector de Rol en Login -->
+            <div class="grid grid-cols-3 gap-1 bg-slate-950 p-1 rounded-xl text-[11px] font-bold text-center">
+                <button type="button" onclick="App.switchAuthTab('student')" id="tab-student" class="py-2 rounded-lg bg-amber-500 text-slate-950 transition">Alumno</button>
+                <button type="button" onclick="App.switchAuthTab('instructor')" id="tab-instructor" class="py-2 rounded-lg text-slate-400 transition">Profesor</button>
+                <button type="button" onclick="App.switchAuthTab('school')" id="tab-school" class="py-2 rounded-lg text-slate-400 transition">Escuela</button>
             </div>
+
+            <!-- FORMULARIO ALUMNO -->
+            <form id="form-auth-student" onsubmit="App.loginStudent(event)" class="space-y-3">
+                <div class="flex gap-1.5 bg-slate-800/40 p-1 rounded-xl mb-2 text-xs">
+                    <button type="button" onclick="App.switchStudentMode('login')" id="sm-login" class="flex-1 py-1.5 rounded-lg bg-slate-700 text-white font-bold transition">Tengo Código</button>
+                    <button type="button" onclick="App.switchStudentMode('register')" id="sm-register" class="flex-1 py-1.5 rounded-lg text-slate-400 font-bold transition">Crear Cuenta</button>
+                </div>
+                
+                <div id="student-login-fields">
+                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Tu Código Alumno *</label>
+                    <input type="text" id="sa-code" placeholder="Ej. ALU-4821" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white uppercase font-mono tracking-wider">
+                </div>
+
+                <div id="student-register-fields" class="hidden space-y-3">
+                    <div>
+                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Nombre Completo *</label>
+                        <input type="text" id="sa-name" placeholder="Tu nombre" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition text-xs shadow-md">
+                    Entrar a mi Libreta
+                </button>
+            </form>
+
+            <!-- FORMULARIO PROFESOR -->
+            <form id="form-auth-instructor" onsubmit="App.loginInstructor(event)" class="space-y-3 hidden">
+                <div>
+                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Usuario de Profesor *</label>
+                    <input type="text" id="ins-user" placeholder="Ej. juan.perez" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Contraseña *</label>
+                    <input type="password" id="ins-pass" placeholder="••••••••" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                </div>
+                <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition text-xs shadow-md">
+                    Iniciar Sesión Profesor
+                </button>
+            </form>
+
+            <!-- FORMULARIO ESCUELA -->
+            <form id="form-auth-school" onsubmit="App.loginSchool(event)" class="space-y-3 hidden">
+                <div>
+                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Clave Maestra de Administrador *</label>
+                    <input type="password" id="sch-pass" placeholder="Clave de escuela" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                </div>
+                <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition text-xs shadow-md">
+                    Panel Directivo
+                </button>
+            </form>
         </div>
     </div>
 
-    <!-- Main Navigation Header -->
+    <!-- Header Principal (Adaptativo) -->
     <header class="bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center justify-between shrink-0">
         <div>
             <h1 id="app-title-header" class="font-bold text-white text-sm leading-tight">Escuela Moderna</h1>
-            <p id="user-role-badge" class="text-[11px] text-amber-400 font-medium">Rol: Seleccionando...</p>
+            <p id="user-role-badge" class="text-[11px] text-amber-400 font-medium">Conectando...</p>
         </div>
-        <button onclick="App.openRoleSelector()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-xl font-medium transition flex items-center gap-1">
-            <i class="fa-solid fa-rotate"></i> Rol
+        <button onclick="App.logout()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-xl font-medium transition flex items-center gap-1">
+            <i class="fa-solid fa-right-from-bracket"></i> Salir
         </button>
     </header>
 
-    <!-- App Content Container -->
+    <!-- Contenedor Principal de Paneles -->
     <main class="flex-1 overflow-y-auto pb-24 p-3 max-w-lg mx-auto w-full space-y-4">
         
         <!-- ================= VISTA: ALUMNO ================= -->
@@ -98,145 +121,125 @@
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h2 id="student-welcome-title" class="text-base font-bold text-white">Mi Libreta Digital</h2>
-                        <p class="text-[11px] text-slate-400">Tus registros de clases sin alteraciones.</p>
+                        <h2 id="st-name-display" class="text-base font-bold text-white">Estudiante</h2>
+                        <p class="text-[11px] text-slate-400">Tu Código Único:</p>
                     </div>
-                    <button onclick="App.openStudentProfileModal()" class="px-2.5 py-1.5 bg-slate-800 text-amber-400 rounded-xl text-xs font-bold border border-slate-700">
-                        <i class="fa-solid fa-user-pen"></i> Perfil
-                    </button>
+                    <div class="bg-slate-950 border border-amber-500/40 px-3 py-1.5 rounded-xl text-center">
+                        <span id="st-code-display" class="text-xs font-mono font-bold text-amber-400 tracking-wider">ALU-0000</span>
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2 pt-1">
                     <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-2.5 text-center">
                         <span class="text-[10px] uppercase font-bold text-slate-400 block">Horas Aprobadas</span>
-                        <span id="student-total-hours" class="text-lg font-black text-amber-400 mt-0.5 block">0 h</span>
+                        <span id="st-total-hours" class="text-lg font-black text-amber-400 mt-0.5 block">0 h</span>
                     </div>
                     <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-2.5 text-center">
-                        <span class="text-[10px] uppercase font-bold text-slate-400 block">Clases Vistas</span>
-                        <span id="student-total-classes" class="text-lg font-black text-white mt-0.5 block">0</span>
+                        <span class="text-[10px] uppercase font-bold text-slate-400 block">Clases Totales</span>
+                        <span id="st-total-classes" class="text-lg font-black text-white mt-0.5 block">0</span>
                     </div>
                 </div>
 
-                <div class="space-y-2 pt-1">
-                    <div class="flex gap-2">
-                        <button onclick="App.openNewClassModal()" class="flex-1 py-2.5 bg-amber-500 text-slate-950 font-bold rounded-xl transition text-xs flex items-center justify-center gap-1.5 shadow-md">
-                            <i class="fa-solid fa-plus"></i> Registrar Clase
-                        </button>
-                        <button onclick="App.showStudentMasterQR()" class="py-2.5 px-3 bg-slate-800 border border-slate-700 text-white font-bold rounded-xl transition text-xs flex items-center gap-1.5" title="QR Maestro">
-                            <i class="fa-solid fa-qrcode text-amber-400"></i> Maestro
-                        </button>
-                    </div>
-                    <button onclick="App.openQRScanner('student')" class="w-full py-2.5 bg-emerald-600 text-white font-bold rounded-xl transition text-xs flex items-center justify-center gap-2 shadow-md">
-                        <i class="fa-solid fa-camera"></i> Escanear Firma del Profesor
-                    </button>
-                </div>
+                <button onclick="App.openNewClassModal()" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition text-xs flex items-center justify-center gap-2 shadow-md">
+                    <i class="fa-solid fa-plus text-sm"></i> Registrar Nueva Clase
+                </button>
             </div>
 
             <div class="space-y-2">
                 <h3 class="font-bold text-slate-200 text-xs uppercase tracking-wider px-1">Historial de Mis Clases</h3>
-                <div id="student-classes-list" class="space-y-2">
-                    <p class="text-slate-500 text-xs italic text-center py-6">No has registrado clases todavía.</p>
+                <div id="st-classes-list" class="space-y-2">
+                    <p class="text-slate-500 text-xs italic text-center py-6">No hay clases registradas.</p>
                 </div>
             </div>
         </section>
 
-        <!-- ================= VISTA: INSTRUCTOR ================= -->
+        <!-- ================= VISTA: PROFESOR ================= -->
         <section id="view-instructor" class="space-y-4 hidden">
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3 text-center">
-                <div class="w-12 h-12 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-lg">
-                    <i class="fa-solid fa-chalkboard-user"></i>
+            <!-- Barra de búsqueda rápida para consultar alumno en cualquier momento -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-2">
+                <h3 class="font-bold text-white text-xs flex items-center gap-1.5">
+                    <i class="fa-solid fa-magnifying-glass text-amber-400"></i> Consultar Libreta de Alumno
+                </h3>
+                <div class="flex gap-2">
+                    <input type="text" id="ins-search-code" placeholder="Ingrese Código (ej. ALU-4821)" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white uppercase font-mono">
+                    <button onclick="App.instructorSearchStudent()" class="px-3.5 py-2 bg-amber-500 text-slate-950 font-bold rounded-xl text-xs">Buscar</button>
                 </div>
-                <div>
-                    <h2 class="text-base font-bold text-white">Panel del Instructor</h2>
-                    <p class="text-[11px] text-slate-400 mt-0.5">Escanee el código QR del alumno para revisar y firmar su clase.</p>
-                </div>
-                <button onclick="App.openQRScanner('instructor')" class="w-full py-3.5 bg-amber-500 text-slate-950 font-bold rounded-xl transition shadow-md flex items-center justify-center gap-2 text-xs">
-                    <i class="fa-solid fa-qrcode text-sm"></i> Escanear QR de Alumno
-                </button>
+                <div id="ins-search-result" class="pt-2 hidden space-y-2"></div>
             </div>
 
+            <!-- Bandeja de solicitudes pendientes de firmar -->
             <div class="space-y-2">
-                <h3 class="font-bold text-slate-200 text-xs uppercase tracking-wider px-1">Clases Firmadas Recientemente</h3>
-                <div id="instructor-signed-list" class="space-y-2">
-                    <p class="text-slate-500 text-xs italic text-center py-6">No ha firmado clases recientemente.</p>
+                <h3 class="font-bold text-slate-200 text-xs uppercase tracking-wider px-1">Clases Pendientes de Mis Alumnos</h3>
+                <div id="ins-pending-list" class="space-y-2">
+                    <p class="text-slate-500 text-xs italic text-center py-6">No hay solicitudes pendientes.</p>
                 </div>
             </div>
         </section>
 
-        <!-- ================= VISTA: ESCUELA / AUDITOR ================= -->
-        <section id="view-auditor" class="space-y-4 hidden">
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3 text-center">
-                <div class="w-12 h-12 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center mx-auto text-lg">
-                    <i class="fa-solid fa-shield-halved"></i>
-                </div>
-                <div>
-                    <h2 class="text-base font-bold text-white">Auditoría de Escuela</h2>
-                    <p class="text-[11px] text-slate-400 mt-0.5">Escanee el QR Maestro del alumno para auditar sus horas.</p>
-                </div>
-                <button onclick="App.openQRScanner('auditor')" class="w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl transition shadow-md flex items-center justify-center gap-2 text-xs">
-                    <i class="fa-solid fa-qrcode text-sm"></i> Escanear QR Maestro
-                </button>
+        <!-- ================= VISTA: ESCUELA (ADMIN) ================= -->
+        <section id="view-school" class="space-y-4 hidden">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+                <h3 class="font-bold text-white text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus text-blue-400"></i> Registrar Profesor
+                </h3>
+                <form onsubmit="App.saveNewInstructor(event)" class="space-y-2.5">
+                    <div>
+                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Nombre Completo *</label>
+                        <input type="text" id="sch-ins-name" required placeholder="Ej. Carlos Gómez" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Usuario *</label>
+                            <input type="text" id="sch-ins-user" required placeholder="carlos.g" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Contraseña *</label>
+                            <input type="text" id="sch-ins-pass" required placeholder="clave123" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Categorías Autorizadas *</label>
+                        <div class="grid grid-cols-4 gap-1.5 bg-slate-800/50 border border-slate-700/50 rounded-xl p-2.5 text-[11px]">
+                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sch-cat" value="A1" class="text-amber-500"> A1</label>
+                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sch-cat" value="A2" class="text-amber-500"> A2</label>
+                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sch-cat" value="B1" class="text-amber-500"> B1</label>
+                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sch-cat" value="B2" class="text-amber-500"> B2</label>
+                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sch-cat" value="C1" class="text-amber-500"> C1</label>
+                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sch-cat" value="C2" class="text-amber-500"> C2</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition text-xs shadow-md">
+                        Guardar Profesor
+                    </button>
+                </form>
             </div>
 
-            <div id="audit-result-container" class="space-y-2 hidden">
-                <h3 class="font-bold text-slate-200 text-xs uppercase tracking-wider px-1">Resultado de Auditoría</h3>
-                <div id="audit-card-content" class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2"></div>
+            <!-- Auditoría General de Alumnos para la Escuela -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-2">
+                <h3 class="font-bold text-white text-xs flex items-center gap-1.5">
+                    <i class="fa-solid fa-shield-halved text-blue-400"></i> Auditoría General de Alumnos
+                </h3>
+                <div class="flex gap-2">
+                    <input type="text" id="sch-search-code" placeholder="Código de Alumno (ej. ALU-4821)" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white uppercase font-mono">
+                    <button onclick="App.schoolSearchStudent()" class="px-3.5 py-2 bg-blue-600 text-white font-bold rounded-xl text-xs">Auditar</button>
+                </div>
+                <div id="sch-search-result" class="pt-2 hidden space-y-2"></div>
             </div>
         </section>
 
     </main>
 
-    <!-- ================= MODALES AUXILIARES ================= -->
-
-    <!-- MODAL: PERFIL DE ALUMNO -->
-    <div id="student-profile-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-3 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-3">
-            <div class="flex items-center justify-between">
-                <h3 class="font-bold text-white text-sm">Mi Perfil de Alumno</h3>
-                <button onclick="App.closeStudentProfileModal()" class="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <form id="student-profile-form" onsubmit="App.saveStudentProfile(event)" class="space-y-2.5">
-                <div>
-                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Nombre Completo *</label>
-                    <input type="text" id="sp-name" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Cédula / Documento *</label>
-                    <input type="text" id="sp-doc" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500" inputmode="numeric">
-                </div>
-                <div>
-                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Categoría(s) de Licencia *</label>
-                    <div class="grid grid-cols-4 gap-1.5 bg-slate-800/50 border border-slate-700/50 rounded-xl p-2.5 text-[11px]">
-                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sp-cat" value="A1" class="text-amber-500"> A1</label>
-                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sp-cat" value="A2" class="text-amber-500"> A2</label>
-                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sp-cat" value="B1" class="text-amber-500"> B1</label>
-                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sp-cat" value="B2" class="text-amber-500"> B2</label>
-                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sp-cat" value="B3" class="text-amber-500"> B3</label>
-                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sp-cat" value="C1" class="text-amber-500"> C1</label>
-                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sp-cat" value="C2" class="text-amber-500"> C2</label>
-                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sp-cat" value="C3" class="text-amber-500"> C3</label>
-                    </div>
-                </div>
-                <button type="submit" class="w-full py-2.5 bg-amber-500 text-slate-950 font-bold rounded-xl transition text-xs shadow-md">
-                    Guardar Mis Datos
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL: REGISTRAR CLASE -->
-    <div id="new-class-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-3 hidden">
+    <!-- MODAL: REGISTRAR CLASE (ALUMNO) -->
+    <div id="modal-new-class" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-3 hidden">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
             <div class="p-3 border-b border-slate-800 flex items-center justify-between">
-                <h3 class="font-bold text-white text-sm">Registrar Mi Clase</h3>
+                <h3 class="font-bold text-white text-sm">Registrar Informe de Clase</h3>
                 <button onclick="App.closeNewClassModal()" class="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             <div class="p-4 overflow-y-auto space-y-3 flex-1">
-                <form id="new-class-form" onsubmit="App.saveNewClass(event)" class="space-y-2.5">
+                <form id="form-new-class" onsubmit="App.submitNewClass(event)" class="space-y-2.5">
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Tipo</label>
@@ -255,603 +258,370 @@
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Profesor que dictó la clase *</label>
-                        <input type="text" id="nc-instructor" required placeholder="Nombre del profesor" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Categoría de la Clase *</label>
+                        <select id="nc-category" onchange="App.filterProfessorsByCategory()" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                            <option value="A1">A1</option>
+                            <option value="A2">A2</option>
+                            <option value="B1">B1</option>
+                            <option value="B2">B2</option>
+                            <option value="C1">C1</option>
+                            <option value="C2">C2</option>
+                        </select>
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Habilidades practicadas</label>
-                        <div id="nc-skills-list" class="grid grid-cols-1 gap-1 bg-slate-800/50 border border-slate-700/50 rounded-xl p-2 max-h-32 overflow-y-auto text-[11px]"></div>
+                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Seleccionar Profesor (Filtrado) *</label>
+                        <select id="nc-instructor" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                            <option value="">Seleccione categoría primero...</option>
+                        </select>
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Observaciones</label>
+                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Observaciones / Vía practicada</label>
                         <textarea id="nc-notes" rows="2" placeholder="¿Qué practicó hoy?" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white"></textarea>
                     </div>
 
                     <button type="submit" class="w-full py-3 bg-amber-500 text-slate-950 font-bold rounded-xl transition text-xs shadow-md">
-                        Guardar y Generar QR
+                        Enviar para Firma del Profesor
                     </button>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: MOSTRAR QR -->
-    <div id="qr-display-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-3 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-5 shadow-2xl text-center space-y-3">
-            <div class="flex items-center justify-between">
-                <h3 id="qr-modal-title" class="font-bold text-white text-sm">Código QR</h3>
-                <button onclick="App.closeQRDisplayModal()" class="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <p id="qr-modal-desc" class="text-[11px] text-slate-400">Muestre este código.</p>
-            <div id="qrcode-container" class="bg-white p-2.5 rounded-2xl inline-flex items-center justify-center shadow-inner min-h-[190px] min-w-[190px]"></div>
-            <button onclick="App.closeQRDisplayModal()" class="w-full py-2 bg-slate-800 text-white font-bold text-xs rounded-xl transition">Cerrar</button>
-        </div>
-    </div>
-
-    <!-- MODAL: CÁMARA ESCANEO QR OPTIMIZADA -->
-    <div id="qr-scanner-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-3 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-3 flex flex-col">
-            <div class="flex items-center justify-between">
-                <h3 class="font-bold text-white text-sm flex items-center gap-1.5">
-                    <i class="fa-solid fa-camera text-amber-500"></i> Escanear Código QR
-                </h3>
-                <button onclick="App.closeQRScanner()" class="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <p class="text-[11px] text-slate-400 text-center">Apunte la cámara hacia el código QR para leerlo al instante.</p>
-            
-            <!-- Contenedor optimizado para la cámara -->
-            <div id="qr-reader" class="w-full overflow-hidden rounded-2xl bg-slate-950 border border-slate-800 min-h-[220px]"></div>
-
-            <button onclick="App.closeQRScanner()" class="w-full py-2.5 bg-rose-500/10 border border-rose-500/30 text-rose-400 font-bold text-xs rounded-xl transition">
-                Cerrar Cámara
-            </button>
-        </div>
-    </div>
-
-    <!-- MODAL: REVISAR Y FIRMAR CLASE (Instructor) -->
-    <div id="instructor-sign-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-3 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-3">
-            <div class="flex items-center justify-between">
-                <h3 class="font-bold text-white text-sm">Validar y Firmar Clase</h3>
-                <button onclick="App.closeInstructorSignModal()" class="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            <div id="sign-modal-content" class="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-3 space-y-1 text-xs"></div>
-            <div>
-                <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Su Nombre (Profesor) *</label>
-                <input type="text" id="sign-instructor-name" required placeholder="Ej. Juan Pérez" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
-            </div>
-            <button onclick="App.approveAndSignClass()" class="w-full py-3 bg-amber-500 text-slate-950 font-bold rounded-xl transition text-xs shadow-md">
-                Aprobar y Generar QR de Confirmación
-            </button>
-        </div>
-    </div>
-
-    <!-- JavaScript Core Logic -->
+    <!-- Lógica de la Aplicación (JavaScript) -->
     <script>
-        const SKILLS_LIST = [
-            "Inspección preoperacional",           
-            "Posición de manejo y espejos",
-            "Uso de embrague y caja de cambios",
-            "Control de dirección y trazada",
-            "Conducción en vía rápida / Adelantamientos",
-            "Frenado de emergencia",
-            "Parqueo en línea (Reversa)",
-            "Parqueo en paralelo / Garaje",
-            "Arranque en pendiente / Loma"
-        ];
-
-        class DrivingAppMVP {
+        class DrivingApp {
             constructor() {
-                this.db = null;
-                this.currentRole = null;
-                this.html5QrCode = null;
-                this.pendingClassForSign = null;
-                this.initDB();
+                // Estado inicial utilizando LocalStorage (Simulando la BD en la nube mientras configuras Firebase)
+                this.currentUser = JSON.parse(localStorage.getItem('em_current_user')) || null;
+                this.initApp();
             }
 
-            async initDB() {
-                return new Promise((resolve, reject) => {
-                    const request = indexedDB.open('EscuelaModernaMVP', 7);
-                    request.onerror = () => reject(request.error);
-                    request.onsuccess = () => {
-                        this.db = request.result;
-                        this.initApp();
-                        resolve(this.db);
-                    };
-                    request.onupgradeneeded = (event) => {
-                        const db = event.target.result;
-                        if (!db.objectStoreNames.contains('student_profile')) db.createObjectStore('student_profile', { keyPath: 'id' });
-                        if (!db.objectStoreNames.contains('student_classes')) db.createObjectStore('student_classes', { keyPath: 'id' });
-                        if (!db.objectStoreNames.contains('settings')) db.createObjectStore('settings', { keyPath: 'key' });
-                        if (!db.objectStoreNames.contains('instructor_signed')) db.createObjectStore('instructor_signed', { keyPath: 'id' });
-                    };
-                });
-            }
-
-            async initApp() {
-                this.renderSkillsCheckboxes();
-                const savedRole = await this.getSetting('current_role');
-                if (savedRole) {
-                    this.setRole(savedRole, false);
-                } else {
-                    this.openRoleSelector();
-                }
-            }
-
-            openRoleSelector() {
-                document.getElementById('role-selector-modal').classList.remove('hidden');
-            }
-
-            async setRole(role, save = true) {
-                this.currentRole = role;
-                if (save) await this.setSetting('current_role', role);
-                document.getElementById('role-selector-modal').classList.add('hidden');
-
-                document.getElementById('view-student').classList.add('hidden');
-                document.getElementById('view-instructor').classList.add('hidden');
-                document.getElementById('view-auditor').classList.add('hidden');
-
-                const badge = document.getElementById('user-role-badge');
-                const title = document.getElementById('app-title-header');
-
-                if (role === 'student') {
-                    document.getElementById('view-student').classList.remove('hidden');
-                    badge.innerText = 'Rol: Alumno';
-                    title.innerText = 'Mi Libreta de Conducción';
-                    this.loadStudentData();
-                } else if (role === 'instructor') {
-                    document.getElementById('view-instructor').classList.remove('hidden');
-                    badge.innerText = 'Rol: Instructor';
-                    title.innerText = 'Validación y Firma';
-                    this.loadInstructorData();
-                } else if (role === 'auditor') {
-                    document.getElementById('view-auditor').classList.remove('hidden');
-                    badge.innerText = 'Rol: Escuela / Auditor';
-                    title.innerText = 'Control Académico';
-                }
-            }
-
-            renderSkillsCheckboxes() {
-                const container = document.getElementById('nc-skills-list');
-                container.innerHTML = SKILLS_LIST.map(skill => `
-                    <label class="flex items-center gap-1.5 cursor-pointer p-1 rounded hover:bg-slate-800">
-                        <input type="checkbox" name="nc-skill" value="${skill}" class="rounded bg-slate-700 text-amber-500 w-3 h-3">
-                        <span class="text-slate-200">${skill}</span>
-                    </label>
-                `).join('');
-            }
-
-            async getSetting(key) {
-                return new Promise((resolve) => {
-                    const tx = this.db.transaction('settings', 'readonly');
-                    const store = tx.objectStore('settings');
-                    const req = store.get(key);
-                    req.onsuccess = () => resolve(req.result ? req.result.value : null);
-                    req.onerror = () => resolve(null);
-                });
-            }
-
-            async setSetting(key, value) {
-                return new Promise((resolve) => {
-                    const tx = this.db.transaction('settings', 'readwrite');
-                    const store = tx.objectStore('settings');
-                    store.put({ key, value });
-                    tx.oncomplete = () => resolve(true);
-                });
-            }
-
-            async getAllStore(storeName) {
-                return new Promise((resolve) => {
-                    if (!this.db.objectStoreNames.contains(storeName)) return resolve([]);
-                    const tx = this.db.transaction(storeName, 'readonly');
-                    const store = tx.objectStore(storeName);
-                    const req = store.getAll();
-                    req.onsuccess = () => resolve(req.result || []);
-                    req.onerror = () => resolve([]);
-                });
-            }
-
-            async saveStoreRecord(storeName, data) {
-                return new Promise((resolve, reject) => {
-                    const tx = this.db.transaction(storeName, 'readwrite');
-                    const store = tx.objectStore(storeName);
-                    const req = store.put(data);
-                    req.onsuccess = () => resolve(req.result);
-                    req.onerror = () => reject(req.error);
-                });
-            }
-
-            async loadStudentData() {
-                const profile = await this.getSetting('student_profile_data');
-                if (!profile) {
-                    this.openStudentProfileModal();
-                } else {
-                    const cats = (profile.categories || []).join(', ') || 'Sin categoría';
-                    document.getElementById('student-welcome-title').innerText = `${profile.name} [Cat: ${cats}]`;
-                }
-
-                const classes = await this.getAllStore('student_classes');
-                const approvedClasses = classes.filter(c => c.status === 'Aprobada');
-
-                const totalHours = approvedClasses.reduce((acc, c) => acc + (Number(c.duration) === 90 ? 2 : 1), 0);
-                document.getElementById('student-total-hours').innerText = `${totalHours} h`;
-                document.getElementById('student-total-classes').innerText = classes.length;
-
-                const listContainer = document.getElementById('student-classes-list');
-                if (classes.length === 0) {
-                    listContainer.innerHTML = `<p class="text-slate-500 text-xs italic text-center py-6">No has registrado clases todavía.</p>`;
-                } else {
-                    listContainer.innerHTML = classes.reverse().map(c => {
-                        const statusBadge = c.status === 'Aprobada' 
-                            ? `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] px-2 py-0.5 rounded-md font-bold">✅ Aprobada por Prof. ${c.signedBy || 'N/A'}</span>`
-                            : `<span class="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] px-2 py-0.5 rounded-md font-bold">⏳ Pendiente de Firma</span>`;
-                        
-                        const skillsBadges = (c.skills || []).map(s => `<span class="bg-slate-800 text-slate-300 text-[10px] px-1.5 py-0.5 rounded">${s}</span>`).join(' ');
-
-                        return `
-                            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2">
-                                <div class="flex items-center justify-between text-xs">
-                                    <span class="font-bold text-white">${c.type} (${c.duration == 90 ? '2 horas' : '1 hora'})</span>
-                                    ${statusBadge}
-                                </div>
-                                <p class="text-xs text-slate-300">Prof. indicado: <strong>${c.instructor}</strong></p>
-                                <div class="flex flex-wrap gap-1">${skillsBadges}</div>
-                                <p class="text-xs text-slate-400">${c.notes || 'Sin observaciones'}</p>
-                                <div class="flex items-center justify-between pt-2 border-t border-slate-800/60 text-[10px] text-slate-500 gap-1">
-                                    <span>${new Date(c.date).toLocaleDateString()}</span>
-                                    ${c.status !== 'Aprobada' ? `
-                                        <div class="flex gap-1">
-                                            <button onclick="App.showClassValidationQR(${c.id})" class="px-2 py-1 bg-amber-500 text-slate-950 font-bold rounded-lg text-[10px]"><i class="fa-solid fa-qrcode"></i> QR</button>
-                                            <button onclick="App.openQRScanner('student')" class="px-2 py-1 bg-emerald-600 text-white font-bold rounded-lg text-[10px]"><i class="fa-solid fa-camera"></i> Escanear</button>
-                                        </div>
-                                    ` : ''}
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                }
-            }
-
-            openStudentProfileModal() {
-                this.getSetting('student_profile_data').then(p => {
-                    if (p) {
-                        document.getElementById('sp-name').value = p.name || '';
-                        document.getElementById('sp-doc').value = p.doc || '';
-                        const savedCats = p.categories || [];
-                        document.querySelectorAll('input[name="sp-cat"]').forEach(cb => {
-                            cb.checked = savedCats.includes(cb.value);
-                        });
-                    }
-                    document.getElementById('student-profile-modal').classList.remove('hidden');
-                });
-            }
-
-            closeStudentProfileModal() {
-                document.getElementById('student-profile-modal').classList.add('hidden');
-            }
-
-            async saveStudentProfile(event) {
-                event.preventDefault();
-                const selectedCats = [];
-                document.querySelectorAll('input[name="sp-cat"]:checked').forEach(cb => selectedCats.push(cb.value));
-
-                if (selectedCats.length === 0) {
-                    alert('Debe seleccionar al menos una categoría.');
+            initApp() {
+                if (!this.currentUser) {
+                    document.getElementById('auth-modal').classList.remove('hidden');
                     return;
                 }
+                document.getElementById('auth-modal').classList.add('hidden');
+                this.renderRoleView();
+            }
 
-                const profile = {
-                    id: 1,
-                    name: document.getElementById('sp-name').value.trim(),
-                    doc: document.getElementById('sp-doc').value.trim(),
-                    categories: selectedCats
-                };
-                await this.setSetting('student_profile_data', profile);
-                this.closeStudentProfileModal();
-                this.loadStudentData();
-                alert('Perfil guardado correctamente.');
+            // ================= GESTIÓN DE AUTENTICACIÓN =================
+            switchAuthTab(role) {
+                ['student', 'instructor', 'school'].forEach(r => {
+                    document.getElementById(`form-auth-${r}`).classList.add('hidden');
+                    document.getElementById(`tab-${r}`).className = "py-2 rounded-lg text-slate-400 transition";
+                });
+                document.getElementById(`form-auth-${role}`).classList.remove('hidden');
+                document.getElementById(`tab-${role}`).className = "py-2 rounded-lg bg-amber-500 text-slate-950 font-bold transition";
+            }
+
+            switchStudentMode(mode) {
+                if (mode === 'login') {
+                    document.getElementById('student-login-fields').classList.remove('hidden');
+                    document.getElementById('student-register-fields').classList.add('hidden');
+                    document.getElementById('sm-login').className = "flex-1 py-1.5 rounded-lg bg-slate-700 text-white font-bold transition";
+                    document.getElementById('sm-register').className = "flex-1 py-1.5 rounded-lg text-slate-400 font-bold transition";
+                } else {
+                    document.getElementById('student-login-fields').classList.add('hidden');
+                    document.getElementById('student-register-fields').classList.remove('hidden');
+                    document.getElementById('sm-login').className = "flex-1 py-1.5 rounded-lg text-slate-400 font-bold transition";
+                    document.getElementById('sm-register').className = "flex-1 py-1.5 rounded-lg bg-slate-700 text-white font-bold transition";
+                }
+            }
+
+            loginStudent(event) {
+                event.preventDefault();
+                const isRegister = !document.getElementById('student-register-fields').classList.contains('hidden');
+
+                if (isRegister) {
+                    const name = document.getElementById('sa-name').value.trim();
+                    if (!name) return alert('Ingrese su nombre.');
+
+                    // Generar código aleatorio automático y único, ej: ALU-4821
+                    const randomCode = 'ALU-' + Math.floor(1000 + Math.random() * 9000);
+                    const student = { role: 'student', code: randomCode, name: name };
+
+                    // Guardar perfil en la base de datos simulada
+                    let students = JSON.parse(localStorage.getItem('em_db_students')) || {};
+                    students[randomCode] = student;
+                    localStorage.setItem('em_db_students', JSON.stringify(students));
+
+                    this.currentUser = student;
+                    localStorage.setItem('em_current_user', JSON.stringify(student));
+                    alert(`¡Cuenta creada con éxito!\nSu código único es: ${randomCode}\nGuárdelo para iniciar sesión.`);
+                    this.initApp();
+                } else {
+                    const code = document.getElementById('sa-code').value.trim().toUpperCase();
+                    let students = JSON.parse(localStorage.getItem('em_db_students')) || {};
+                    
+                    if (students[code]) {
+                        this.currentUser = students[code];
+                        localStorage.setItem('em_current_user', JSON.stringify(this.currentUser));
+                        this.initApp();
+                    } else {
+                        alert('Código de alumno no encontrado. Verifique o cree una cuenta.');
+                    }
+                }
+            }
+
+            loginInstructor(event) {
+                event.preventDefault();
+                const user = document.getElementById('ins-user').value.trim();
+                const pass = document.getElementById('ins-pass').value.trim();
+
+                let instructors = JSON.parse(localStorage.getItem('em_db_instructors')) || [];
+                const found = instructors.find(i => i.user === user && i.pass === pass);
+
+                if (found) {
+                    this.currentUser = { role: 'instructor', ...found };
+                    localStorage.setItem('em_current_user', JSON.stringify(this.currentUser));
+                    this.initApp();
+                } else {
+                    alert('Usuario o contraseña de profesor incorrectos.');
+                }
+            }
+
+            loginSchool(event) {
+                event.preventDefault();
+                const pass = document.getElementById('sch-pass').value.trim();
+                if (pass === 'ADMIN2026') { // Clave maestra de la escuela
+                    this.currentUser = { role: 'school', name: 'Escuela Principal' };
+                    localStorage.setItem('em_current_user', JSON.stringify(this.currentUser));
+                    this.initApp();
+                } else {
+                    alert('Clave maestra incorrecta.');
+                }
+            }
+
+            logout() {
+                localStorage.removeItem('em_current_user');
+                this.currentUser = null;
+                window.location.reload();
+            }
+
+            // ================= RENDERIZADO DE VISTAS ADAPTATIVAS =================
+            renderRoleView() {
+                ['student', 'instructor', 'school'].forEach(r => {
+                    document.getElementById(`view-${r}`).classList.add('hidden');
+                });
+
+                const badge = document.getElementById('user-role-badge');
+                const role = this.currentUser.role;
+
+                document.getElementById(`view-${role}`).classList.remove('hidden');
+
+                if (role === 'student') {
+                    badge.innerText = `Rol: Alumno (${this.currentUser.name})`;
+                    document.getElementById('st-name-display').innerText = this.currentUser.name;
+                    document.getElementById('st-code-display').innerText = this.currentUser.code;
+                    this.loadStudentClasses();
+                } else if (role === 'instructor') {
+                    badge.innerText = `Rol: Profesor (${this.currentUser.name})`;
+                    this.loadInstructorPendingClasses();
+                } else if (role === 'school') {
+                    badge.innerText = `Rol: Escuela (Administración)`;
+                }
+            }
+
+            // ================= FUNCIONES DEL ALUMNO =================
+            loadStudentClasses() {
+                const classes = JSON.parse(localStorage.getItem('em_db_classes')) || [];
+                const myClasses = classes.filter(c => c.studentCode === this.currentUser.code);
+                const approved = myClasses.filter(c => c.status === 'Aprobada');
+
+                const totalHours = approved.reduce((acc, c) => acc + (Number(c.duration) === 90 ? 2 : 1), 0);
+                document.getElementById('st-total-hours').innerText = `${totalHours} h`;
+                document.getElementById('st-total-classes').innerText = myClasses.length;
+
+                const container = document.getElementById('st-classes-list');
+                if (myClasses.length === 0) {
+                    container.innerHTML = `<p class="text-slate-500 text-xs italic text-center py-6">No has registrado clases todavía.</p>`;
+                } else {
+                    container.innerHTML = myClasses.reverse().map(c => `
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-1.5 text-xs">
+                            <div class="flex items-center justify-between font-bold text-white">
+                                <span>${c.type} (${c.duration == 90 ? '2 horas' : '1 hora'}) [Cat: ${c.category}]</span>
+                                ${c.status === 'Aprobada' 
+                                    ? `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] px-2 py-0.5 rounded-md font-bold">✅ Firmada por ${c.signedBy}</span>` 
+                                    : `<span class="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] px-2 py-0.5 rounded-md font-bold">⏳ Pendiente de Firma</span>`}
+                            </div>
+                            <p class="text-slate-300">Profesor asignado: <strong>${c.instructorName}</strong></p>
+                            <p class="text-slate-400">${c.notes || 'Sin observaciones'}</p>
+                            <span class="text-[10px] text-slate-500 block text-right">${new Date(c.date).toLocaleDateString()}</span>
+                        </div>
+                    `).join('');
+                }
             }
 
             openNewClassModal() {
-                document.getElementById('new-class-form').reset();
-                document.getElementById('new-class-modal').classList.remove('hidden');
+                document.getElementById('form-new-class').reset();
+                this.filterProfessorsByCategory(); // Cargar profes iniciales según categoría por defecto
+                document.getElementById('modal-new-class').classList.remove('hidden');
             }
 
             closeNewClassModal() {
-                document.getElementById('new-class-modal').classList.add('hidden');
+                document.getElementById('modal-new-class').classList.add('hidden');
             }
 
-            async saveNewClass(event) {
-                event.preventDefault();
-                const selectedSkills = [];
-                document.querySelectorAll('input[name="nc-skill"]:checked').forEach(cb => selectedSkills.push(cb.value));
+            filterProfessorsByCategory() {
+                const selectedCat = document.getElementById('nc-category').value;
+                const instructors = JSON.parse(localStorage.getItem('em_db_instructors')) || [];
+                const select = document.getElementById('nc-instructor');
 
-                const classObj = {
+                // Filtrar profesores que tengan autorizada la categoría seleccionada
+                const filtered = instructors.filter(i => (i.categories || []).includes(selectedCat));
+
+                if (filtered.length === 0) {
+                    select.innerHTML = `<option value="">No hay profesores disponibles para ${selectedCat}</option>`;
+                } else {
+                    select.innerHTML = filtered.map(i => `<option value="${i.name}">${i.name} (Cat: ${i.categories.join(', ')})</option>`).join('');
+                }
+            }
+
+            submitNewClass(event) {
+                event.preventDefault();
+                const newClass = {
                     id: Date.now(),
+                    studentCode: this.currentUser.code,
+                    studentName: this.currentUser.name,
                     type: document.getElementById('nc-type').value,
                     duration: Number(document.getElementById('nc-duration').value),
-                    instructor: document.getElementById('nc-instructor').value.trim(),
-                    skills: selectedSkills,
+                    category: document.getElementById('nc-category').value,
+                    instructorName: document.getElementById('nc-instructor').value,
                     notes: document.getElementById('nc-notes').value.trim(),
                     date: new Date().toISOString(),
                     status: 'Pendiente',
                     signedBy: null
                 };
 
-                await this.saveStoreRecord('student_classes', classObj);
+                let classes = JSON.parse(localStorage.getItem('em_db_classes')) || [];
+                classes.push(newClass);
+                localStorage.setItem('em_db_classes', JSON.stringify(classes));
+
                 this.closeNewClassModal();
-                this.loadStudentData();
-                this.showClassValidationQR(classObj.id);
+                this.loadStudentClasses();
+                alert('¡Clase enviada al profesor correctamente!');
             }
 
-            async showClassValidationQR(classId) {
-                const classes = await this.getAllStore('student_classes');
-                const classData = classes.find(c => c.id === classId);
-                const profile = await this.getSetting('student_profile_data');
+            // ================= FUNCIONES DEL PROFESOR =================
+            loadInstructorPendingClasses() {
+                const classes = JSON.parse(localStorage.getItem('em_db_classes')) || [];
+                // Filtrar pendientes asignadas a este profesor
+                const pending = classes.filter(c => c.instructorName === this.currentUser.name && c.status === 'Pendiente');
 
-                if (!classData || !profile) return;
-
-                const payload = {
-                    t: 'EM_PENDING_CLASS',
-                    s: profile,
-                    c: classData
-                };
-
-                document.getElementById('qr-modal-title').innerText = 'QR de Validación';
-                document.getElementById('qr-modal-desc').innerText = 'Muestre este código al profesor.';
-                document.getElementById('qr-display-modal').classList.remove('hidden');
-                
-                const container = document.getElementById('qrcode-container');
-                container.innerHTML = '<canvas id="qr-canvas"></canvas>';
-                new QRious({
-                    element: document.getElementById('qr-canvas'),
-                    value: JSON.stringify(payload),
-                    size: 200,
-                    background: '#ffffff',
-                    foreground: '#0f172a',
-                    level: 'L'
-                });
-            }
-
-            async showStudentMasterQR() {
-                const profile = await this.getSetting('student_profile_data');
-                const classes = await this.getAllStore('student_classes');
-
-                if (!profile) {
-                    alert('Configure su perfil primero.');
-                    this.openStudentProfileModal();
-                    return;
-                }
-
-                const payload = {
-                    t: 'EM_MASTER_LIBRETA',
-                    s: profile,
-                    classes: classes
-                };
-
-                document.getElementById('qr-modal-title').innerText = 'QR Maestro de Auditoría';
-                document.getElementById('qr-modal-desc').innerText = 'Muestre este código al auditor.';
-                document.getElementById('qr-display-modal').classList.remove('hidden');
-
-                const container = document.getElementById('qrcode-container');
-                container.innerHTML = '<canvas id="qr-canvas"></canvas>';
-                new QRious({
-                    element: document.getElementById('qr-canvas'),
-                    value: JSON.stringify(payload),
-                    size: 200,
-                    background: '#ffffff',
-                    foreground: '#0f172a',
-                    level: 'L'
-                });
-            }
-
-            closeQRDisplayModal() {
-                document.getElementById('qr-display-modal').classList.add('hidden');
-                document.getElementById('qrcode-container').innerHTML = '';
-            }
-
-            async loadInstructorData() {
-                const list = await this.getAllStore('instructor_signed');
-                const container = document.getElementById('instructor-signed-list');
-                if (!list || list.length === 0) {
-                    container.innerHTML = `<p class="text-slate-500 text-xs italic text-center py-6">No ha firmado clases recientemente.</p>`;
+                const container = document.getElementById('ins-pending-list');
+                if (pending.length === 0) {
+                    container.innerHTML = `<p class="text-slate-500 text-xs italic text-center py-6">No hay solicitudes pendientes.</p>`;
                 } else {
-                    container.innerHTML = list.slice(-5).reverse().map(c => `
-                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 text-xs space-y-1">
+                    container.innerHTML = pending.map(c => `
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2 text-xs">
                             <div class="flex justify-between font-bold text-white">
-                                <span>Alumno: ${c.studentName}</span>
-                                <span class="text-emerald-400">Firmada</span>
+                                <span>Alumno: ${c.studentName} (${c.studentCode})</span>
+                                <span class="text-amber-400">⏳ Pendiente</span>
                             </div>
-                            <p class="text-slate-400">Clase: ${c.type} (${c.duration}m) - ${new Date(c.date).toLocaleDateString()}</p>
+                            <p class="text-slate-300">Clase: ${c.type} (${c.duration == 90 ? '2h' : '1h'}) • Cat: ${c.category}</p>
+                            <p class="text-slate-400">${c.notes || 'Sin notas'}</p>
+                            <button onclick="App.approveClass(${c.id})" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-md transition">
+                                Aprobar y Firmar Clase
+                            </button>
                         </div>
                     `).join('');
                 }
             }
 
-            // ================= CÁMARA OPTIMIZADA =================
-            openQRScanner(mode) {
-                this.scannerMode = mode;
-                document.getElementById('qr-scanner-modal').classList.remove('hidden');
-
-                if (!this.html5QrCode) {
-                    this.html5QrCode = new Html5Qrcode("qr-reader");
-                }
-
-                // Configuración optimizada para enfoque rápido y detección en cualquier celular
-                const config = { 
-                    fps: 15, 
-                    qrbox: { width: 250, height: 250 },
-                    aspectRatio: 1.0
-                };
-
-                this.html5QrCode.start(
-                    { facingMode: "environment" },
-                    config,
-                    (decodedText) => {
-                        this.handleScannedData(decodedText);
-                    },
-                    (errorMessage) => {}
-                ).catch(err => {
-                    console.error("Error al iniciar cámara:", err);
-                    alert("No se pudo acceder a la cámara. Verifique los permisos del navegador.");
-                    this.closeQRScanner();
-                });
-            }
-
-            closeQRScanner() {
-                if (this.html5QrCode && this.html5QrCode.isScanning) {
-                    this.html5QrCode.stop().then(() => {}).catch(e => {});
-                }
-                document.getElementById('qr-scanner-modal').classList.add('hidden');
-            }
-
-            async handleScannedData(jsonString) {
-                this.closeQRScanner();
-                try {
-                    const data = JSON.parse(jsonString);
-
-                    if (this.scannerMode === 'student') {
-                        if (data.t === 'EM_APPROVED_CLASS') {
-                            await this.saveStoreRecord('student_classes', data.c);
-                            alert('¡Clase firmada y guardada con éxito en tu libreta!');
-                            this.loadStudentData();
-                        } else {
-                            alert('Este código QR no corresponde a una firma válida de profesor.');
-                        }
-                    } else if (this.scannerMode === 'instructor') {
-                        if (data.t === 'EM_PENDING_CLASS') {
-                            this.pendingClassForSign = data;
-                            this.showInstructorSignModal(data);
-                        } else {
-                            alert('Este código QR no corresponde a una clase pendiente de alumno.');
-                        }
-                    } else if (this.scannerMode === 'auditor') {
-                        if (data.t === 'EM_MASTER_LIBRETA') {
-                            this.showAuditResult(data);
-                        } else {
-                            alert('Este código no corresponde a una Libreta Maestra.');
-                        }
-                    }
-                } catch (e) {
-                    alert('El código QR escaneado no es válido para este sistema.');
+            approveClass(classId) {
+                let classes = JSON.parse(localStorage.getItem('em_db_classes')) || [];
+                const idx = classes.findIndex(c => c.id === classId);
+                if (idx !== -1) {
+                    classes[idx].status = 'Aprobada';
+                    classes[idx].signedBy = this.currentUser.name;
+                    localStorage.setItem('em_db_classes', JSON.stringify(classes));
+                    alert('¡Clase firmada con éxito!');
+                    this.loadInstructorPendingClasses();
                 }
             }
 
-            showInstructorSignModal(data) {
-                const s = data.s;
-                const c = data.c;
-                const content = document.getElementById('sign-modal-content');
-                content.innerHTML = `
-                    <p><strong>Alumno:</strong> ${s.name} (Doc: ${s.doc})</p>
-                    <p><strong>Tipo:</strong> ${c.type} - ${c.duration}m</p>
-                    <p><strong>Profesor indicado:</strong> ${c.instructor}</p>
-                    <p><strong>Notas:</strong> ${c.notes || 'Ninguna'}</p>
-                `;
-                document.getElementById('sign-instructor-name').value = c.instructor || '';
-                document.getElementById('instructor-sign-modal').classList.remove('hidden');
+            instructorSearchStudent() {
+                const code = document.getElementById('ins-search-code').value.trim().toUpperCase();
+                this.renderStudentAuditCard(code, 'ins-search-result');
             }
 
-            closeInstructorSignModal() {
-                document.getElementById('instructor-sign-modal').classList.add('hidden');
-                this.pendingClassForSign = null;
+            // ================= FUNCIONES DE LA ESCUELA =================
+            saveNewInstructor(event) {
+                event.preventDefault();
+                const name = document.getElementById('sch-ins-name').value.trim();
+                const user = document.getElementById('sch-ins-user').value.trim();
+                const pass = document.getElementById('sch-ins-pass').value.trim();
+                
+                const cats = [];
+                document.querySelectorAll('input[name="sch-cat"]:checked').forEach(cb => cats.push(cb.value));
+
+                if (cats.length === 0) return alert('Seleccione al menos una categoría autorizada para el profesor.');
+
+                let instructors = JSON.parse(localStorage.getItem('em_db_instructors')) || [];
+                instructors.push({ name, user, pass, categories: cats });
+                localStorage.setItem('em_db_instructors', JSON.stringify(instructors));
+
+                event.target.reset();
+                alert(`Profesor ${name} registrado correctamente.`);
             }
 
-            async approveAndSignClass() {
-                const instructorName = document.getElementById('sign-instructor-name').value.trim();
-                if (!instructorName) {
-                    alert('Ingrese su nombre para firmar.');
+            schoolSearchStudent() {
+                const code = document.getElementById('sch-search-code').value.trim().toUpperCase();
+                this.renderStudentAuditCard(code, 'sch-search-result');
+            }
+
+            // ================= COMPONENTE COMPARTIDO: AUDITORÍA DE LIBRETA =================
+            renderStudentAuditCard(studentCode, containerId) {
+                const container = document.getElementById(containerId);
+                container.classList.remove('hidden');
+
+                const students = JSON.parse(localStorage.getItem('em_db_students')) || {};
+                const student = students[studentCode];
+
+                if (!student) {
+                    container.innerHTML = `<p class="text-rose-400 text-xs italic text-center py-3">No se encontró ningún alumno con el código ${studentCode}.</p>`;
                     return;
                 }
 
-                if (!this.pendingClassForSign) return;
-
-                const data = this.pendingClassForSign;
-                data.c.status = 'Aprobada';
-                data.c.signedBy = instructorName;
-
-                const responsePayload = {
-                    t: 'EM_APPROVED_CLASS',
-                    c: data.c
-                };
-
-                this.closeInstructorSignModal();
-
-                const signedRecord = {
-                    id: data.c.id,
-                    studentName: data.s.name,
-                    type: data.c.type,
-                    duration: data.c.duration,
-                    date: data.c.date
-                };
-                await this.saveStoreRecord('instructor_signed', signedRecord);
-
-                document.getElementById('qr-modal-title').innerText = 'Sello de Aprobación';
-                document.getElementById('qr-modal-desc').innerText = 'Haga que el alumno escanee este código.';
-                document.getElementById('qr-display-modal').classList.remove('hidden');
-
-                const container = document.getElementById('qrcode-container');
-                container.innerHTML = '<canvas id="qr-canvas"></canvas>';
-                new QRious({
-                    element: document.getElementById('qr-canvas'),
-                    value: JSON.stringify(responsePayload),
-                    size: 200,
-                    background: '#ffffff',
-                    foreground: '#0f172a',
-                    level: 'L'
-                });
-
-                this.loadInstructorData();
-            }
-
-            showAuditResult(data) {
-                const s = data.s;
-                const classes = data.classes || [];
-                const approved = classes.filter(c => c.status === 'Aprobada');
+                const classes = JSON.parse(localStorage.getItem('em_db_classes')) || [];
+                const studentClasses = classes.filter(c => c.studentCode === studentCode);
+                const approved = studentClasses.filter(c => c.status === 'Aprobada');
                 const totalHours = approved.reduce((acc, c) => acc + (Number(c.duration) === 90 ? 2 : 1), 0);
-                const cats = (s.categories || []).join(', ') || 'N/A';
 
-                const container = document.getElementById('audit-card-content');
                 container.innerHTML = `
-                    <div class="space-y-1">
-                        <h4 class="font-bold text-white text-sm">${s.name}</h4>
-                        <p class="text-[11px] text-slate-400">Doc: ${s.doc} • Cat: ${cats}</p>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 pt-1">
-                        <div class="bg-slate-800 p-2 rounded-xl text-center">
-                            <span class="text-[9px] text-slate-400 uppercase font-bold">Total Horas</span>
-                            <p class="text-base font-black text-amber-400">${totalHours} h</p>
-                        </div>
-                        <div class="bg-slate-800 p-2 rounded-xl text-center">
-                            <span class="text-[9px] text-slate-400 uppercase font-bold">Aprobadas</span>
-                            <p class="text-base font-black text-emerald-400">${approved.length} / ${classes.length}</p>
-                        </div>
-                    </div>
-                    <div class="space-y-1.5 pt-1 max-h-40 overflow-y-auto">
-                        ${classes.map(c => `
-                            <div class="bg-slate-800/60 p-2 rounded-xl text-[11px] space-y-0.5">
-                                <div class="flex justify-between font-bold text-white">
-                                    <span>${c.type} (${c.duration}m)</span>
-                                    <span>${c.status === 'Aprobada' ? '✅ ' + c.signedBy : '⏳ Pendiente'}</span>
-                                </div>
-                                <p class="text-slate-300">Prof: ${c.instructor}</p>
+                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-3 space-y-2 text-xs">
+                        <div class="border-b border-slate-700 pb-1.5 flex justify-between items-center">
+                            <div>
+                                <h4 class="font-bold text-white text-sm">${student.name}</h4>
+                                <span class="text-amber-400 font-mono">Código: ${student.code}</span>
                             </div>
-                        `).join('')}
+                            <div class="text-right">
+                                <span class="text-amber-400 font-black text-sm">${totalHours} Horas</span>
+                                <span class="text-[10px] text-slate-400 block">${approved.length} clases aprobadas</span>
+                            </div>
+                        </div>
+                        <div class="space-y-1.5 max-h-48 overflow-y-auto pt-1">
+                            ${studentClasses.length === 0 ? '<p class="text-slate-500 italic text-center">Sin clases registradas aún.</p>' : 
+                                studentClasses.map(c => `
+                                    <div class="bg-slate-900 p-2 rounded-xl space-y-0.5">
+                                        <div class="flex justify-between font-bold text-white">
+                                            <span>${c.type} (${c.duration == 90 ? '2h' : '1h'}) [Cat:${c.category}]</span>
+                                            <span>${c.status === 'Aprobada' ? '✅ ' + c.signedBy : '⏳ Pendiente'}</span>
+                                        </div>
+                                        <p class="text-slate-300">Prof: ${c.instructorName}</p>
+                                        <p class="text-slate-400">${c.notes || 'Sin notas'}</p>
+                                    </div>
+                                `).join('')}
+                        </div>
                     </div>
                 `;
-
-                document.getElementById('audit-result-container').classList.remove('hidden');
             }
         }
 
-        const App = new DrivingAppMVP();
+        const App = new DrivingApp();
     </script>
 </body>
 </html>
