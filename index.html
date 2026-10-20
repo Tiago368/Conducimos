@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Escuela Moderna - MVP Alumnos & Instructores v0.21</title>
+    <title>Escuela Moderna - MVP Alumnos & Instructores v0.22</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -99,7 +99,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h2 id="student-welcome-title" class="text-base font-bold text-white">Mi Libreta Digital</h2>
-                        <p class="text-[11px] text-slate-400">Tus registros de clases sin alteraciones.</p>
+                        <p class="text-[11px] text-slate-400">Tus registros de clases sin alterations.</p>
                     </div>
                     <button onclick="App.openStudentProfileModal()" class="px-2.5 py-1.5 bg-slate-800 text-amber-400 rounded-xl text-xs font-bold border border-slate-700">
                         <i class="fa-solid fa-user-pen"></i> Perfil
@@ -277,7 +277,7 @@
         </div>
     </div>
 
-    <!-- MODAL: MOSTRAR QR -->
+    <!-- MODAL: MOSTRAR QR + PIN CORTO DE 4 DÍGITOS -->
     <div id="qr-display-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-3 hidden">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-5 shadow-2xl text-center space-y-3">
             <div class="flex items-center justify-between">
@@ -289,17 +289,17 @@
             <p id="qr-modal-desc" class="text-[11px] text-slate-400">Muestre este código.</p>
             <div id="qrcode-container" class="bg-white p-2.5 rounded-2xl inline-flex items-center justify-center shadow-inner min-h-[190px] min-w-[190px]"></div>
             
-            <!-- PLAN B: Copiar código texto por si la cámara no lee el QR -->
-            <div class="space-y-1 pt-1">
-                <span class="text-[10px] text-slate-400 block">Si el QR no escanea, copia este código de texto:</span>
-                <input type="text" id="qr-fallback-text" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2 py-1.5 text-[10px] text-amber-400 font-mono text-center select-all" onclick="this.select()">
+            <!-- PLAN B: PIN CORTO DE 4 DÍGITOS -->
+            <div class="bg-slate-800/60 border border-slate-700/50 rounded-xl p-2.5 space-y-1">
+                <span class="text-[10px] text-slate-400 block">Si la cámara no lee el QR, dicta este PIN corto:</span>
+                <span id="qr-pin-code" class="text-xl font-black text-amber-400 tracking-widest block font-mono">----</span>
             </div>
 
             <button onclick="App.closeQRDisplayModal()" class="w-full py-2 bg-slate-800 text-white font-bold text-xs rounded-xl transition">Cerrar</button>
         </div>
     </div>
 
-    <!-- MODAL: CÁMARA ESCANEO QR CON PLAN B (Texto Manual) -->
+    <!-- MODAL: CÁMARA ESCANEO QR CON PLAN B (Ingreso de PIN de 4 Dígitos) -->
     <div id="qr-scanner-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-3 hidden">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-3 flex flex-col">
             <div class="flex items-center justify-between">
@@ -310,16 +310,16 @@
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <p class="text-[11px] text-slate-400 text-center">Apunte con la cámara o use el Plan B abajo.</p>
+            <p class="text-[11px] text-slate-400 text-center">Apunte con la cámara o ingrese el PIN abajo.</p>
             
             <div id="qr-reader" class="w-full overflow-hidden rounded-2xl bg-slate-950 border border-slate-800 min-h-[200px]"></div>
             
-            <!-- PLAN B: ENTRADA MANUAL POR SI LA CÁMARA FALLA -->
+            <!-- PLAN B: INGRESO DE PIN CORTO DE 4 DÍGITOS -->
             <div class="bg-slate-800/60 border border-slate-700/50 rounded-xl p-2.5 space-y-1.5">
-                <span class="text-[10px] font-bold text-amber-400 block"><i class="fa-solid fa-triangle-exclamation"></i> ¿La cámara no lee el QR? Plan B:</span>
+                <span class="text-[10px] font-bold text-amber-400 block"><i class="fa-solid fa-key"></i> ¿La cámara no lee el QR? Plan B:</span>
                 <div class="flex gap-1.5">
-                    <input type="text" id="manual-payload-input" placeholder="Pegue o escriba el código aquí..." class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-[11px] text-white">
-                    <button onclick="App.processManualPayload()" class="px-3 py-1.5 bg-amber-500 text-slate-950 font-bold rounded-lg text-[11px]">Procesar</button>
+                    <input type="text" id="manual-pin-input" maxlength="4" placeholder="PIN de 4 dígitos" inputmode="numeric" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white text-center font-mono tracking-widest uppercase">
+                    <button onclick="App.processManualPin()" class="px-3 py-1.5 bg-amber-500 text-slate-950 font-bold rounded-lg text-[11px]">Validar PIN</button>
                 </div>
             </div>
 
@@ -370,12 +370,13 @@
                 this.html5QrCode = null;
                 this.pendingClassForSign = null;
                 this.lastGeneratedPayload = '';
+                this.activePinMap = new Map(); // Guarda los PINs de 4 dígitos activos
                 this.initDB();
             }
 
             async initDB() {
                 return new Promise((resolve, reject) => {
-                    const request = indexedDB.open('EscuelaModernaMVP', 4);
+                    const request = indexedDB.open('EscuelaModernaMVP', 5);
                     request.onerror = () => reject(request.error);
                     request.onsuccess = () => {
                         this.db = request.result;
@@ -608,6 +609,14 @@
                 this.showClassValidationQR(classObj.id);
             }
 
+            // Generador de PIN corto de 4 dígitos
+            generateShortPin(payload) {
+                const pin = Math.floor(1000 + Math.random() * 9000).toString();
+                // Guardar PIN en localStorage o en memoria con el payload
+                localStorage.setItem('pin_' + pin, JSON.stringify(payload));
+                return pin;
+            }
+
             async showClassValidationQR(classId) {
                 const classes = await this.getAllStore('student_classes');
                 const classData = classes.find(c => c.id === classId);
@@ -622,10 +631,11 @@
                 };
 
                 this.lastGeneratedPayload = JSON.stringify(payload);
+                const pinCode = this.generateShortPin(payload);
 
                 document.getElementById('qr-modal-title').innerText = 'QR de Validación';
                 document.getElementById('qr-modal-desc').innerText = 'Muestre este código al profesor.';
-                document.getElementById('qr-fallback-text').value = this.lastGeneratedPayload;
+                document.getElementById('qr-pin-code').innerText = pinCode;
                 document.getElementById('qr-display-modal').classList.remove('hidden');
                 
                 const container = document.getElementById('qrcode-container');
@@ -657,10 +667,11 @@
                 };
 
                 this.lastGeneratedPayload = JSON.stringify(payload);
+                const pinCode = this.generateShortPin(payload);
 
                 document.getElementById('qr-modal-title').innerText = 'QR Maestro de Auditoría';
                 document.getElementById('qr-modal-desc').innerText = 'Muestre este código al auditor.';
-                document.getElementById('qr-fallback-text').value = this.lastGeneratedPayload;
+                document.getElementById('qr-pin-code').innerText = pinCode;
                 document.getElementById('qr-display-modal').classList.remove('hidden');
 
                 const container = document.getElementById('qrcode-container');
@@ -700,7 +711,7 @@
 
             openQRScanner(mode) {
                 this.scannerMode = mode;
-                document.getElementById('manual-payload-input').value = '';
+                document.getElementById('manual-pin-input').value = '';
                 document.getElementById('qr-scanner-modal').classList.remove('hidden');
 
                 if (!this.html5QrCode) {
@@ -726,13 +737,20 @@
                 document.getElementById('qr-scanner-modal').classList.add('hidden');
             }
 
-            processManualPayload() {
-                const val = document.getElementById('manual-payload-input').value.trim();
-                if (!val) {
-                    alert('Por favor ingrese o pegue el código de texto.');
+            processManualPin() {
+                const pin = document.getElementById('manual-pin-input').value.trim();
+                if (!pin || pin.length !== 4) {
+                    alert('Por favor ingrese el PIN de 4 dígitos exactos.');
                     return;
                 }
-                this.handleScannedData(val);
+
+                const savedPayload = localStorage.getItem('pin_' + pin);
+                if (!savedPayload) {
+                    alert('El PIN ingresado es incorrecto o ha caducado.');
+                    return;
+                }
+
+                this.handleScannedData(savedPayload);
             }
 
             async handleScannedData(jsonString) {
@@ -816,10 +834,11 @@
                 await this.saveStoreRecord('instructor_signed', signedRecord);
 
                 this.lastGeneratedPayload = JSON.stringify(responsePayload);
+                const pinCode = this.generateShortPin(responsePayload);
 
                 document.getElementById('qr-modal-title').innerText = 'Sello de Aprobación';
-                document.getElementById('qr-modal-desc').innerText = 'Haga que el alumno escanee este código o copie el texto.';
-                document.getElementById('qr-fallback-text').value = this.lastGeneratedPayload;
+                document.getElementById('qr-modal-desc').innerText = 'Haga que el alumno escanee el QR o pídale digitar este PIN.';
+                document.getElementById('qr-pin-code').innerText = pinCode;
                 document.getElementById('qr-display-modal').classList.remove('hidden');
 
                 const container = document.getElementById('qrcode-container');
