@@ -57,7 +57,7 @@
                     <button type="button" onclick="App.switchStudentMode('register')" id="sm-register" class="flex-1 py-1.5 rounded-lg text-slate-400 font-bold transition">Crear Cuenta</button>
                 </div>
                 
-                <!-- Modo Ingreso (Solo número, prefijo ALU- automático) -->
+                <!-- Modo Ingreso (Solo número) -->
                 <div id="student-login-fields" class="space-y-2">
                     <label class="block text-[10px] font-semibold uppercase text-slate-400">Tu Código Alumno *</label>
                     <div class="flex">
@@ -69,24 +69,24 @@
                     </div>
                 </div>
 
-                <!-- Modo Registro (Nombre + Categoría) -->
+                <!-- Modo Registro (Nombre + Multiselección de Categorías) -->
                 <div id="student-register-fields" class="hidden space-y-2.5">
                     <div>
                         <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Nombre Completo *</label>
                         <input type="text" id="sa-name" placeholder="Ej. Juan Pérez" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Categoría a la que aplica *</label>
-                        <select id="sa-category" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
-                            <option value="A1">A1</option>
-                            <option value="A2">A2</option>
-                            <option value="B1">B1</option>
-                            <option value="B2">B2</option>
-                            <option value="B3">B3</option>
-                            <option value="C1">C1</option>
-                            <option value="C2">C2</option>
-                            <option value="C3">C3</option>
-                        </select>
+                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Categorías a las que aplica *</label>
+                        <div class="grid grid-cols-4 gap-1.5 bg-slate-800/50 border border-slate-700/50 rounded-xl p-2.5 text-[11px]">
+                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sa-cat" value="A1" class="text-amber-500"> A1</label>
+                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sa-cat" value="A2" class="text-amber-500"> A2</label>
+                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sa-cat" value="B1" class="text-amber-500"> B1</label>
+                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sa-cat" value="B2" class="text-amber-500"> B2</label>
+                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sa-cat" value="B3" class="text-amber-500"> B3</label>
+                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sa-cat" value="C1" class="text-amber-500"> C1</label>
+                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sa-cat" value="C2" class="text-amber-500"> C2</label>
+                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sa-cat" value="C3" class="text-amber-500"> C3</label>
+                        </div>
                     </div>
                 </div>
 
@@ -143,7 +143,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h2 id="st-name-display" class="text-base font-bold text-white">Estudiante</h2>
-                        <p id="st-category-display" class="text-[11px] text-amber-400 font-medium">Categoría: A1</p>
+                        <p id="st-category-display" class="text-[11px] text-amber-400 font-medium">Categorías: A1, A2</p>
                     </div>
                     <div class="bg-slate-950 border border-amber-500/40 px-3 py-1.5 rounded-xl text-center">
                         <span id="st-code-display" class="text-xs font-mono font-bold text-amber-400 tracking-wider">ALU-0000</span>
@@ -203,9 +203,9 @@
                 <button onclick="App.switchSchoolSubTab('register')" id="sch-tab-register" class="py-2 rounded-lg text-slate-400 transition">Registrar Profesor</button>
             </div>
 
-            <!-- SUB-TAB 1: GESTIÓN CON FILTROS PARA MUCHOS ALUMNOS -->
+            <!-- SUB-TAB 1: GESTIÓN CON APERTURA DIRECTA DE LIBRETA -->
             <div id="sch-subtab-manage" class="space-y-4">
-                <!-- Buscador / Auditoría General -->
+                <!-- Buscador Manual por Código -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-2">
                     <h3 class="font-bold text-white text-xs flex items-center gap-1.5">
                         <i class="fa-solid fa-magnifying-glass text-blue-400"></i> Auditar Alumno por Código
@@ -228,7 +228,7 @@
                     </div>
                 </div>
 
-                <!-- Lista de Alumnos con Filtro en Vivo -->
+                <!-- Lista de Alumnos (Hacer clic abre el historial académico al instante) -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
                     <div class="flex items-center justify-between">
                         <h3 class="font-bold text-white text-xs flex items-center gap-1.5">
@@ -236,7 +236,7 @@
                         </h3>
                         <span id="sch-stud-count" class="text-[10px] bg-slate-800 px-2 py-0.5 rounded-full text-slate-400">0</span>
                     </div>
-                    <!-- Filtro rápido para encontrar alumnos fácilmente -->
+                    <p class="text-[10px] text-slate-400 italic">💡 Haz clic sobre cualquier alumno para abrir su historial completo.</p>
                     <div>
                         <input type="text" id="sch-student-filter" oninput="App.filterSchoolStudentsList()" placeholder="Filtrar por nombre o código..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
                     </div>
@@ -339,14 +339,7 @@
                     <div>
                         <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Categoría de la Clase *</label>
                         <select id="nc-category" onchange="App.filterProfessorsByCategory()" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
-                            <option value="A1">A1</option>
-                            <option value="A2">A2</option>
-                            <option value="B1">B1</option>
-                            <option value="B2">B2</option>
-                            <option value="B3">B3</option>
-                            <option value="C1">C1</option>
-                            <option value="C2">C2</option>
-                            <option value="C3"</option>
+                            <!-- Opciones cargadas dinámicamente según lo que tiene registrado el alumno -->
                         </select>
                     </div>
 
@@ -429,12 +422,17 @@
                     <input type="text" id="edit-stud-name" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Categoría *</label>
-                    <select id="edit-stud-category" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
-                        <option value="A1">A1</option><option value="A2">A2</option>
-                        <option value="B1">B1</option><option value="B2">B2</option><option value="B3">B3</option>
-                        <option value="C1">C1</option><option value="C2">C2</option><option value="C3">C3</option>
-                    </select>
+                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Categorías Registradas *</label>
+                    <div class="grid grid-cols-4 gap-1.5 bg-slate-800/50 border border-slate-700/50 rounded-xl p-2.5 text-[11px]">
+                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-stud-cat" value="A1" class="text-amber-500"> A1</label>
+                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-stud-cat" value="A2" class="text-amber-500"> A2</label>
+                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-stud-cat" value="B1" class="text-amber-500"> B1</label>
+                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-stud-cat" value="B2" class="text-amber-500"> B2</label>
+                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-stud-cat" value="B3" class="text-amber-500"> B3</label>
+                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-stud-cat" value="C1" class="text-amber-500"> C1</label>
+                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-stud-cat" value="C2" class="text-amber-500"> C2</label>
+                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-stud-cat" value="C3" class="text-amber-500"> C3</label>
+                    </div>
                 </div>
                 <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition text-xs shadow-md">
                     Guardar Cambios
@@ -450,12 +448,12 @@
         // =========================================================================
         const firebaseConfig = {
             apiKey: "AIzaSyCEQ9Ec1d-PfpAXg88Xner-mOVCr3k4HFM",
-  authDomain: "conducimos-7660b.firebaseapp.com",
-  databaseURL: "https://conducimos-7660b-default-rtdb.firebaseio.com",
-  projectId: "conducimos-7660b",
-  storageBucket: "conducimos-7660b.firebasestorage.app",
-  messagingSenderId: "718716977434",
-  appId: "1:718716977434:web:99c43e1c5a1ad37af1aca3"
+            authDomain: "conducimos-7660b.firebaseapp.com",
+            databaseURL: "https://conducimos-7660b-default-rtdb.firebaseio.com",
+            projectId: "conducimos-7660b",
+            storageBucket: "conducimos-7660b.firebasestorage.app",
+            messagingSenderId: "718716977434",
+            appId: "1:718716977434:web:99c43e1c5a1ad37af1aca3"
         };
 
         let db = null;
@@ -474,7 +472,7 @@
         class DrivingApp {
             constructor() {
                 this.currentUser = JSON.parse(localStorage.getItem('em_current_user')) || null;
-                this.cachedStudents = {}; // Almacena alumnos para el filtro de la escuela
+                this.cachedStudents = {};
                 this.initApp();
             }
 
@@ -561,7 +559,7 @@
                                 <div class="bg-slate-900 p-2 rounded-lg flex justify-between items-center">
                                     <div>
                                         <p class="text-white font-bold">${s.name}</p>
-                                        <p class="text-[10px] text-slate-400">Cat: ${s.category || 'N/A'}</p>
+                                        <p class="text-[10px] text-slate-400">Cats: ${Array.isArray(s.categories) ? s.categories.join(', ') : (s.category || 'N/A')}</p>
                                     </div>
                                     <span class="text-amber-400 font-mono font-bold">${s.code}</span>
                                 </div>
@@ -580,12 +578,15 @@
 
                 if (isRegister) {
                     const name = document.getElementById('sa-name').value.trim();
-                    const category = document.getElementById('sa-category').value;
+                    const cats = [];
+                    document.querySelectorAll('input[name="sa-cat"]:checked').forEach(cb => cats.push(cb.value));
+
                     if (!name) return alert('Ingrese su nombre completo.');
+                    if (cats.length === 0) return alert('Seleccione al menos una categoría a la que aplica.');
 
                     const randomNum = Math.floor(1000 + Math.random() * 9000);
                     const randomCode = 'ALU-' + randomNum;
-                    const studentData = { role: 'student', code: randomCode, name: name, category: category };
+                    const studentData = { role: 'student', code: randomCode, name: name, categories: cats };
 
                     await db.ref('alumnos/' + randomCode).set(studentData);
 
@@ -659,7 +660,9 @@
                 if (role === 'student') {
                     badge.innerText = `Rol: Alumno (${this.currentUser.name})`;
                     document.getElementById('st-name-display').innerText = this.currentUser.name;
-                    document.getElementById('st-category-display').innerText = `Categoría: ${this.currentUser.category || 'A1'}`;
+                    
+                    const catsStr = Array.isArray(this.currentUser.categories) ? this.currentUser.categories.join(', ') : (this.currentUser.category || 'A1');
+                    document.getElementById('st-category-display').innerText = `Categorías: ${catsStr}`;
                     document.getElementById('st-code-display').innerText = this.currentUser.code;
                     this.listenStudentClasses();
                 } else if (role === 'instructor') {
@@ -705,7 +708,11 @@
 
             openNewClassModal() {
                 document.getElementById('form-new-class').reset();
-                document.getElementById('nc-category').value = this.currentUser.category || 'A1';
+                const catSelect = document.getElementById('nc-category');
+                
+                const userCats = Array.isArray(this.currentUser.categories) ? this.currentUser.categories : [this.currentUser.category || 'A1'];
+                catSelect.innerHTML = userCats.map(c => `<option value="${c}">${c}</option>`).join('');
+
                 this.filterProfessorsByCategory();
                 document.getElementById('modal-new-class').classList.remove('hidden');
             }
@@ -837,7 +844,7 @@
                     }
                 });
 
-                // Escuchar Alumnos (con caché para filtro rápido)
+                // Escuchar Alumnos (Con tarjeta clickeable)
                 db.ref('alumnos').on('value', snapshot => {
                     this.cachedStudents = snapshot.val() || {};
                     this.renderSchoolStudentsList(this.cachedStudents);
@@ -852,32 +859,41 @@
                 if (studList.length === 0) {
                     container.innerHTML = `<p class="text-slate-500 text-xs italic text-center py-4">No hay alumnos registrados.</p>`;
                 } else {
-                    container.innerHTML = studList.map(([code, s]) => `
-                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between text-xs">
-                            <div>
-                                <h4 class="font-bold text-white">${s.name}</h4>
-                                <span class="text-[10px] text-amber-400 font-mono">Código: ${s.code} • Cat: ${s.category || 'A1'}</span>
+                    container.innerHTML = studList.map(([code, s]) => {
+                        const catsStr = Array.isArray(s.categories) ? s.categories.join(', ') : (s.category || 'A1');
+                        return `
+                            <div class="bg-slate-950 hover:bg-slate-800/80 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between text-xs cursor-pointer transition" onclick="App.quickAuditStudent('${s.code}')">
+                                <div>
+                                    <h4 class="font-bold text-white hover:text-amber-400 transition">${s.name}</h4>
+                                    <span class="text-[10px] text-amber-400 font-mono">Código: ${s.code} • Cats: ${catsStr}</span>
+                                </div>
+                                <div class="flex gap-1" onclick="event.stopPropagation()">
+                                    <button onclick="App.openEditStudModal('${s.code}', '${s.name}', '${catsStr}')" class="p-1.5 bg-blue-600/20 text-blue-400 rounded-lg text-[10px] hover:bg-blue-600/40 transition">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button onclick="App.deleteStud('${s.code}')" class="p-1.5 bg-rose-600/20 text-rose-400 rounded-lg text-[10px] hover:bg-rose-600/40 transition">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
-                            <div class="flex gap-1">
-                                <button onclick="App.openEditStudModal('${s.code}', '${s.name}', '${s.category || 'A1'}')" class="p-1.5 bg-blue-600/20 text-blue-400 rounded-lg text-[10px] hover:bg-blue-600/40 transition">
-                                    <i class="fa-solid fa-pen"></i>
-                                </button>
-                                <button onclick="App.deleteStud('${s.code}')" class="p-1.5 bg-rose-600/20 text-rose-400 rounded-lg text-[10px] hover:bg-rose-600/40 transition">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    `).join('');
+                        `;
+                    }).join('');
                 }
             }
 
-            // FILTRO EN VIVO DE ALUMNOS (Para cuando hay muchos)
+            quickAuditStudent(studentCode) {
+                document.getElementById('sch-search-code').value = studentCode;
+                this.renderStudentAuditCard(studentCode, 'sch-search-result');
+                document.getElementById('sch-search-result').scrollIntoView({ behavior: 'smooth' });
+            }
+
             filterSchoolStudentsList() {
                 const query = document.getElementById('sch-student-filter').value.trim().toLowerCase();
                 const filtered = {};
                 
                 for (const [code, student] of Object.entries(this.cachedStudents)) {
-                    if (student.name.toLowerCase().includes(query) || student.code.toLowerCase().includes(query)) {
+                    const catsStr = Array.isArray(student.categories) ? student.categories.join(' ') : (student.category || '');
+                    if (student.name.toLowerCase().includes(query) || student.code.toLowerCase().includes(query) || catsStr.toLowerCase().includes(query)) {
                         filtered[code] = student;
                     }
                 }
@@ -950,11 +966,16 @@
                 }
             }
 
-            openEditStudModal(code, name, category) {
+            openEditStudModal(code, name, catsStr) {
                 document.getElementById('edit-stud-code').value = code;
                 document.getElementById('edit-stud-code-disp').value = code;
                 document.getElementById('edit-stud-name').value = name;
-                document.getElementById('edit-stud-category').value = category || 'A1';
+
+                const catsList = catsStr ? catsStr.split(',').map(c => c.trim()) : [];
+                document.querySelectorAll('input[name="edit-stud-cat"]').forEach(cb => {
+                    cb.checked = catsList.includes(cb.value);
+                });
+
                 document.getElementById('modal-edit-stud').classList.remove('hidden');
             }
 
@@ -968,9 +989,13 @@
 
                 const code = document.getElementById('edit-stud-code').value;
                 const name = document.getElementById('edit-stud-name').value.trim();
-                const category = document.getElementById('edit-stud-category').value;
 
-                await db.ref('alumnos/' + code).update({ name: name, category: category });
+                const cats = [];
+                document.querySelectorAll('input[name="edit-stud-cat"]:checked').forEach(cb => cats.push(cb.value));
+
+                if (cats.length === 0) return alert('Seleccione al menos una categoría.');
+
+                await db.ref('alumnos/' + code).update({ name: name, categories: cats });
                 alert('Datos del alumno actualizados.');
                 this.closeEditStudModal();
             }
@@ -1007,12 +1032,14 @@
                 const approved = studentClasses.filter(c => c.status === 'Aprobada');
                 const totalHours = approved.reduce((acc, c) => acc + (Number(c.duration) === 90 ? 2 : 1), 0);
 
+                const catsStr = Array.isArray(student.categories) ? student.categories.join(', ') : (student.category || 'A1');
+
                 container.innerHTML = `
                     <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-3 space-y-2 text-xs">
                         <div class="border-b border-slate-700 pb-1.5 flex justify-between items-center">
                             <div>
                                 <h4 class="font-bold text-white text-sm">${student.name}</h4>
-                                <span class="text-amber-400 font-mono">Código: ${student.code} • Cat: ${student.category || 'A1'}</span>
+                                <span class="text-amber-400 font-mono">Código: ${student.code} • Cats: ${catsStr}</span>
                             </div>
                             <div class="text-right">
                                 <span class="text-amber-400 font-black text-sm">${totalHours} Horas</span>
