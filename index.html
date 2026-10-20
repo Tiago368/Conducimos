@@ -182,7 +182,7 @@
                 <button onclick="App.switchSchoolSubTab('register')" id="sch-tab-register" class="py-2 rounded-lg text-slate-400 transition">Registrar Profesor</button>
             </div>
 
-            <!-- SUB-TAB 1: GESTIÓN Y EDICIÓN DE PROFESORES Y ALUMNO -->
+            <!-- SUB-TAB 1: GESTIÓN Y EDICIÓN DE PROFESORES Y ALUMNOS -->
             <div id="sch-subtab-manage" class="space-y-4">
                 <!-- Buscador / Auditoría General -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-2">
@@ -240,14 +240,16 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Categorías Autorizadas *</label>
+                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Categorías Autorizadas (A1 a C3) *</label>
                         <div class="grid grid-cols-4 gap-1.5 bg-slate-800/50 border border-slate-700/50 rounded-xl p-2.5 text-[11px]">
                             <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sch-cat" value="A1" class="text-amber-500"> A1</label>
                             <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sch-cat" value="A2" class="text-amber-500"> A2</label>
                             <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sch-cat" value="B1" class="text-amber-500"> B1</label>
                             <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sch-cat" value="B2" class="text-amber-500"> B2</label>
+                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sch-cat" value="B3" class="text-amber-500"> B3</label>
                             <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sch-cat" value="C1" class="text-amber-500"> C1</label>
                             <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sch-cat" value="C2" class="text-amber-500"> C2</label>
+                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sch-cat" value="C3" class="text-amber-500"> C3</label>
                         </div>
                     </div>
                     <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition text-xs shadow-md">
@@ -294,8 +296,10 @@
                             <option value="A2">A2</option>
                             <option value="B1">B1</option>
                             <option value="B2">B2</option>
+                            <option value="B3">B3</option>
                             <option value="C1">C1</option>
                             <option value="C2">C2</option>
+                            <option value="C3">C3</option>
                         </select>
                     </div>
 
@@ -340,13 +344,15 @@
                 </div>
                 <div>
                     <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Categorías Autorizadas *</label>
-                    <div class="grid grid-cols-3 gap-1.5 bg-slate-800/50 border border-slate-700/50 rounded-xl p-2.5 text-[11px]">
+                    <div class="grid grid-cols-4 gap-1.5 bg-slate-800/50 border border-slate-700/50 rounded-xl p-2.5 text-[11px]">
                         <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-prof-cat" value="A1" class="text-amber-500"> A1</label>
                         <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-prof-cat" value="A2" class="text-amber-500"> A2</label>
                         <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-prof-cat" value="B1" class="text-amber-500"> B1</label>
                         <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-prof-cat" value="B2" class="text-amber-500"> B2</label>
+                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-prof-cat" value="B3" class="text-amber-500"> B3</label>
                         <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-prof-cat" value="C1" class="text-amber-500"> C1</label>
                         <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-prof-cat" value="C2" class="text-amber-500"> C2</label>
+                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-prof-cat" value="C3" class="text-amber-500"> C3</label>
                     </div>
                 </div>
                 <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition text-xs shadow-md">
@@ -397,11 +403,18 @@
             appId: "1:718716977434:web:99c43e1c5a1ad37af1aca3"
         };
 
-        // Inicializar Firebase
+        // Inicializar Firebase de forma segura
         let db = null;
-        if (typeof firebase !== 'undefined' && firebaseConfig.apiKey !== "PEGA_AQUI_TU_API_KEY") {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.database();
+        try {
+            if (typeof firebase !== 'undefined' && firebaseConfig.apiKey !== "PEGA_AQUI_TU_API_KEY") {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+                console.log("Firebase conectado exitosamente.");
+            } else {
+                console.warn("Firebase no está configurado. Las credenciales siguen con los valores por defecto.");
+            }
+        } catch (error) {
+            console.error("Error al inicializar Firebase:", error);
         }
 
         // =========================================================================
@@ -465,6 +478,8 @@
             // AUTENTICACIÓN
             async loginStudent(event) {
                 event.preventDefault();
+                if (!db) return alert('⚠️ Error: Firebase no está configurado en el código.');
+
                 const isRegister = !document.getElementById('student-register-fields').classList.contains('hidden');
 
                 if (isRegister) {
@@ -474,9 +489,7 @@
                     const randomCode = 'ALU-' + Math.floor(1000 + Math.random() * 9000);
                     const studentData = { role: 'student', code: randomCode, name: name };
 
-                    if (db) {
-                        await db.ref('alumnos/' + randomCode).set(studentData);
-                    }
+                    await db.ref('alumnos/' + randomCode).set(studentData);
 
                     this.currentUser = studentData;
                     localStorage.setItem('em_current_user', JSON.stringify(studentData));
@@ -484,41 +497,35 @@
                     this.initApp();
                 } else {
                     const code = document.getElementById('sa-code').value.trim().toUpperCase();
+                    const snapshot = await db.ref('alumnos/' + code).once('value');
                     
-                    if (db) {
-                        const snapshot = await db.ref('alumnos/' + code).once('value');
-                        if (snapshot.exists()) {
-                            this.currentUser = snapshot.val();
-                            localStorage.setItem('em_current_user', JSON.stringify(this.currentUser));
-                            this.initApp();
-                        } else {
-                            alert('Código de alumno no encontrado.');
-                        }
+                    if (snapshot.exists()) {
+                        this.currentUser = snapshot.val();
+                        localStorage.setItem('em_current_user', JSON.stringify(this.currentUser));
+                        this.initApp();
                     } else {
-                        alert('Por favor configure las credenciales de Firebase.');
+                        alert('Código de alumno no encontrado.');
                     }
                 }
             }
 
             async loginInstructor(event) {
                 event.preventDefault();
+                if (!db) return alert('⚠️ Error: Firebase no está configurado en el código.');
+
                 const user = document.getElementById('ins-user').value.trim();
                 const pass = document.getElementById('ins-pass').value.trim();
 
-                if (db) {
-                    const snapshot = await db.ref('profesores').once('value');
-                    const instructors = snapshot.val() || {};
-                    const found = Object.values(instructors).find(i => i.user === user && i.pass === pass);
+                const snapshot = await db.ref('profesores').once('value');
+                const instructors = snapshot.val() || {};
+                const found = Object.values(instructors).find(i => i.user === user && i.pass === pass);
 
-                    if (found) {
-                        this.currentUser = { role: 'instructor', ...found };
-                        localStorage.setItem('em_current_user', JSON.stringify(this.currentUser));
-                        this.initApp();
-                    } else {
-                        alert('Usuario o contraseña de profesor incorrectos.');
-                    }
+                if (found) {
+                    this.currentUser = { role: 'instructor', ...found };
+                    localStorage.setItem('em_current_user', JSON.stringify(this.currentUser));
+                    this.initApp();
                 } else {
-                    alert('Por favor configure las credenciales de Firebase.');
+                    alert('Usuario o contraseña de profesor incorrectos.');
                 }
             }
 
@@ -612,21 +619,26 @@
                 const selectedCat = document.getElementById('nc-category').value;
                 const select = document.getElementById('nc-instructor');
 
-                if (db) {
-                    const snapshot = await db.ref('profesores').once('value');
-                    const instructors = snapshot.val() || {};
-                    const filtered = Object.values(instructors).filter(i => (i.categories || []).includes(selectedCat));
+                if (!db) {
+                    select.innerHTML = `<option value="">⚠️ Firebase no configurado</option>`;
+                    return;
+                }
 
-                    if (filtered.length === 0) {
-                        select.innerHTML = `<option value="">No hay profesores disponibles para ${selectedCat}</option>`;
-                    } else {
-                        select.innerHTML = filtered.map(i => `<option value="${i.name}">${i.name} (Cat: ${i.categories.join(', ')})</option>`).join('');
-                    }
+                const snapshot = await db.ref('profesores').once('value');
+                const instructors = snapshot.val() || {};
+                const filtered = Object.values(instructors).filter(i => (i.categories || []).includes(selectedCat));
+
+                if (filtered.length === 0) {
+                    select.innerHTML = `<option value="">No hay profesores disponibles para ${selectedCat}</option>`;
+                } else {
+                    select.innerHTML = filtered.map(i => `<option value="${i.name}">${i.name} (Cat: ${i.categories.join(', ')})</option>`).join('');
                 }
             }
 
             async submitNewClass(event) {
                 event.preventDefault();
+                if (!db) return alert('⚠️ Firebase no configurado.');
+
                 const classId = Date.now().toString();
                 const newClass = {
                     id: classId,
@@ -642,10 +654,7 @@
                     signedBy: null
                 };
 
-                if (db) {
-                    await db.ref('clases/' + classId).set(newClass);
-                }
-
+                await db.ref('clases/' + classId).set(newClass);
                 this.closeNewClassModal();
                 alert('¡Clase enviada en tiempo real al profesor!');
             }
@@ -679,13 +688,12 @@
             }
 
             async approveClass(classId) {
-                if (db) {
-                    await db.ref('clases/' + classId).update({
-                        status: 'Aprobada',
-                        signedBy: this.currentUser.name
-                    });
-                    alert('¡Clase firmada con éxito!');
-                }
+                if (!db) return alert('⚠️ Firebase no configurado.');
+                await db.ref('clases/' + classId).update({
+                    status: 'Aprobada',
+                    signedBy: this.currentUser.name
+                });
+                alert('¡Clase firmada con éxito!');
             }
 
             instructorSearchStudent() {
@@ -695,7 +703,11 @@
 
             // GESTIÓN Y EDICIÓN EN LA ESCUELA
             loadSchoolManagementData() {
-                if (!db) return;
+                if (!db) {
+                    document.getElementById('sch-professors-list').innerHTML = `<p class="text-rose-400 text-xs italic text-center py-4">⚠️ Firebase no configurado o sin conexión.</p>`;
+                    document.getElementById('sch-students-list').innerHTML = `<p class="text-rose-400 text-xs italic text-center py-4">⚠️ Firebase no configurado o sin conexión.</p>`;
+                    return;
+                }
 
                 // Escuchar Profesores
                 db.ref('profesores').on('value', snapshot => {
@@ -759,6 +771,8 @@
             // REGISTRAR PROFESOR NUEVO
             async saveNewInstructor(event) {
                 event.preventDefault();
+                if (!db) return alert('⚠️ Firebase no configurado.');
+
                 const name = document.getElementById('sch-ins-name').value.trim();
                 const user = document.getElementById('sch-ins-user').value.trim();
                 const pass = document.getElementById('sch-ins-pass').value.trim();
@@ -771,9 +785,7 @@
                 const instructorId = user.replace(/[^a-zA-Z0-9]/g, '_');
                 const instructorData = { name, user, pass, categories: cats };
 
-                if (db) {
-                    await db.ref('profesores/' + instructorId).set(instructorData);
-                }
+                await db.ref('profesores/' + instructorId).set(instructorData);
 
                 event.target.reset();
                 alert(`Profesor ${name} registrado con éxito.`);
@@ -800,6 +812,8 @@
 
             async saveEditedProf(event) {
                 event.preventDefault();
+                if (!db) return alert('⚠️ Firebase no configurado.');
+
                 const id = document.getElementById('edit-prof-id').value;
                 const name = document.getElementById('edit-prof-name').value.trim();
                 const pass = document.getElementById('edit-prof-pass').value.trim();
@@ -809,19 +823,16 @@
 
                 if (cats.length === 0) return alert('Seleccione al menos una categoría.');
 
-                if (db) {
-                    await db.ref('profesores/' + id).update({ name, pass, categories: cats });
-                    alert('Datos de profesor actualizados.');
-                    this.closeEditProfModal();
-                }
+                await db.ref('profesores/' + id).update({ name, pass, categories: cats });
+                alert('Datos de profesor actualizados.');
+                this.closeEditProfModal();
             }
 
             async deleteProf(id) {
-                if (confirm('¿Está seguro de eliminar este profesor? El usuario ya no podrá ingresar.')) {
-                    if (db) {
-                        await db.ref('profesores/' + id).remove();
-                        alert('Profesor eliminado.');
-                    }
+                if (!db) return alert('⚠️ Firebase no configurado.');
+                if (confirm('¿Está seguro de eliminar este profesor?')) {
+                    await db.ref('profesores/' + id).remove();
+                    alert('Profesor eliminado.');
                 }
             }
 
@@ -839,22 +850,21 @@
 
             async saveEditedStud(event) {
                 event.preventDefault();
+                if (!db) return alert('⚠️ Firebase no configurado.');
+
                 const code = document.getElementById('edit-stud-code').value;
                 const name = document.getElementById('edit-stud-name').value.trim();
 
-                if (db) {
-                    await db.ref('alumnos/' + code).update({ name: name });
-                    alert('Nombre del alumno actualizado.');
-                    this.closeEditStudModal();
-                }
+                await db.ref('alumnos/' + code).update({ name: name });
+                alert('Nombre del alumno actualizado.');
+                this.closeEditStudModal();
             }
 
             async deleteStud(code) {
-                if (confirm(`¿Está seguro de eliminar la cuenta ${code}? Esta acción eliminará al alumno de la base de datos.`)) {
-                    if (db) {
-                        await db.ref('alumnos/' + code).remove();
-                        alert('Alumno eliminado.');
-                    }
+                if (!db) return alert('⚠️ Firebase no configurado.');
+                if (confirm(`¿Está seguro de eliminar la cuenta ${code}?`)) {
+                    await db.ref('alumnos/' + code).remove();
+                    alert('Alumno eliminado.');
                 }
             }
 
@@ -868,7 +878,7 @@
                 const container = document.getElementById(containerId);
                 container.classList.remove('hidden');
 
-                if (!db) return;
+                if (!db) return alert('⚠️ Firebase no configurado.');
 
                 const studentSnap = await db.ref('alumnos/' + studentCode).once('value');
                 if (!studentSnap.exists()) {
@@ -899,7 +909,7 @@
                                 studentClasses.map(c => `
                                     <div class="bg-slate-900 p-2 rounded-xl space-y-0.5">
                                         <div class="flex justify-between font-bold text-white">
-                                            <span>${c.type} (${c.duration == 90 ? '2h' : '1h'}) [Cat:${c.category}]</span>
+                                            <span>${c.type} (${c.duration == 90 ? '2h' : '1h'}) [Cat: ${c.category}]</span>
                                             <span>${c.status === 'Aprobada' ? '✅ ' + c.signedBy : '⏳ Pendiente'}</span>
                                         </div>
                                         <p class="text-slate-300">Prof: ${c.instructorName}</p>
