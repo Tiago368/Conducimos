@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Escuela Moderna - MVP Alumnos & Instructores v0.20</title>
+    <title>Escuela Moderna - MVP Alumnos & Instructores v0.21</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -16,14 +16,17 @@
 
     <meta name="theme-color" content="#0f172a">
     
-    <!-- Estilos de Respaldo Integrados -->
+    <!-- Estilos de Respaldo y Adaptabilidad Móvil -->
     <style>
+        * { box-sizing: border-box; }
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
             background-color: #020617 !important;
             color: #f8fafc !important;
             margin: 0;
             padding: 0;
+            width: 100vw;
+            overflow-x: hidden;
         }
         .hidden { display: none !important; }
         .fixed { position: fixed !important; }
@@ -41,14 +44,7 @@
         .rounded-xl { border-radius: 0.75rem !important; }
         .p-4 { padding: 1rem !important; }
         .p-6 { padding: 1.5rem !important; }
-        .p-8 { padding: 2rem !important; }
-        .space-y-3 > * + * { margin-top: 0.75rem !important; }
-        .space-y-4 > * + * { margin-top: 1rem !important; }
-        .space-y-5 > * + * { margin-top: 1.25rem !important; }
         .w-full { width: 100% !important; }
-        .max-w-sm { max-width: 24rem !important; }
-        .max-w-2xl { max-width: 42rem !important; }
-        .mx-auto { margin-left: auto !important; margin-right: auto !important; }
         button {
             cursor: pointer;
             border: none;
@@ -60,23 +56,23 @@
 <body class="h-full text-slate-100 flex flex-col antialiased selection:bg-amber-500 selection:text-slate-950">
 
     <!-- MODAL: SELECTOR DE ROL INICIAL -->
-    <div id="role-selector-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-sm w-full shadow-2xl text-center space-y-6">
-            <div class="w-16 h-16 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-inner">
+    <div id="role-selector-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl text-center space-y-4">
+            <div class="w-14 h-14 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-xl shadow-inner">
                 <i class="fa-solid fa-id-card"></i>
             </div>
             <div>
-                <h2 class="text-xl font-bold text-white">Escuela de Conducción</h2>
-                <p class="text-slate-400 text-xs mt-1">Seleccione su rol para comenzar a utilizar el sistema MVP</p>
+                <h2 class="text-lg font-bold text-white">Escuela de Conducción</h2>
+                <p class="text-slate-400 text-xs mt-1">Seleccione su rol para comenzar el MVP</p>
             </div>
             <div class="space-y-3">
-                <button onclick="App.setRole('student')" class="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 text-sm">
+                <button onclick="App.setRole('student')" class="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition shadow-lg flex items-center justify-center gap-2 text-sm">
                     <i class="fa-solid fa-user-graduate"></i> Soy Alumno
                 </button>
-                <button onclick="App.setRole('instructor')" class="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 text-sm">
+                <button onclick="App.setRole('instructor')" class="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition shadow-lg flex items-center justify-center gap-2 text-sm">
                     <i class="fa-solid fa-chalkboard-user"></i> Soy Instructor
                 </button>
-                <button onclick="App.setRole('auditor')" class="w-full py-3.5 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-white font-bold rounded-xl transition flex items-center justify-center gap-2 text-sm">
+                <button onclick="App.setRole('auditor')" class="w-full py-3.5 bg-slate-800 border border-slate-700 text-white font-bold rounded-xl transition flex items-center justify-center gap-2 text-sm">
                     <i class="fa-solid fa-shield-halved"></i> Escuela / Auditor
                 </button>
             </div>
@@ -85,112 +81,106 @@
 
     <!-- Main Navigation Header -->
     <header class="bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center justify-between shrink-0">
-        <div class="flex items-center gap-3">
-            <div>
-                <h1 id="app-title-header" class="font-bold text-white text-base leading-tight">Escuela Moderna</h1>
-                <p id="user-role-badge" class="text-xs text-amber-400 font-medium">Rol: Seleccionando...</p>
-            </div>
+        <div>
+            <h1 id="app-title-header" class="font-bold text-white text-sm leading-tight">Escuela Moderna</h1>
+            <p id="user-role-badge" class="text-[11px] text-amber-400 font-medium">Rol: Seleccionando...</p>
         </div>
-        <div class="flex items-center gap-2">
-            <button onclick="App.openRoleSelector()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-xl font-medium transition flex items-center gap-1.5">
-                <i class="fa-solid fa-rotate"></i> Cambiar Rol
-            </button>
-        </div>
+        <button onclick="App.openRoleSelector()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-xl font-medium transition flex items-center gap-1">
+            <i class="fa-solid fa-rotate"></i> Rol
+        </button>
     </header>
 
     <!-- App Content Container -->
-    <main class="flex-1 overflow-y-auto pb-24 p-4 max-w-2xl mx-auto w-full">
+    <main class="flex-1 overflow-y-auto pb-24 p-3 max-w-lg mx-auto w-full space-y-4">
         
         <!-- ================= VISTA: ALUMNO ================= -->
-        <section id="view-student" class="space-y-5 hidden">
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+        <section id="view-student" class="space-y-4 hidden">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
                 <div class="flex items-center justify-between">
                     <div>
-                        <h2 id="student-welcome-title" class="text-lg font-bold text-white">Mi Libreta Digital</h2>
-                        <p class="text-xs text-slate-400">Tus registros de clases sin alteraciones.</p>
+                        <h2 id="student-welcome-title" class="text-base font-bold text-white">Mi Libreta Digital</h2>
+                        <p class="text-[11px] text-slate-400">Tus registros de clases sin alteraciones.</p>
                     </div>
-                    <button onclick="App.openStudentProfileModal()" class="px-3 py-2 bg-slate-800 hover:bg-slate-750 text-amber-400 rounded-xl text-xs font-bold border border-slate-700">
-                        <i class="fa-solid fa-user-pen"></i> Mi Perfil
+                    <button onclick="App.openStudentProfileModal()" class="px-2.5 py-1.5 bg-slate-800 text-amber-400 rounded-xl text-xs font-bold border border-slate-700">
+                        <i class="fa-solid fa-user-pen"></i> Perfil
                     </button>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3 pt-2">
-                    <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-3 text-center">
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-2.5 text-center">
                         <span class="text-[10px] uppercase font-bold text-slate-400 block">Horas Aprobadas</span>
-                        <span id="student-total-hours" class="text-xl font-black text-amber-400 mt-1 block">0 h</span>
+                        <span id="student-total-hours" class="text-lg font-black text-amber-400 mt-0.5 block">0 h</span>
                     </div>
-                    <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-3 text-center">
+                    <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-2.5 text-center">
                         <span class="text-[10px] uppercase font-bold text-slate-400 block">Clases Vistas</span>
-                        <span id="student-total-classes" class="text-xl font-black text-white mt-1 block">0</span>
+                        <span id="student-total-classes" class="text-lg font-black text-white mt-0.5 block">0</span>
                     </div>
                 </div>
 
-                <!-- Botones Principales de Acción -->
                 <div class="space-y-2 pt-1">
                     <div class="flex gap-2">
-                        <button onclick="App.openNewClassModal()" class="flex-1 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition text-xs flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20">
-                            <i class="fa-solid fa-plus"></i> Registrar Mi Clase
+                        <button onclick="App.openNewClassModal()" class="flex-1 py-2.5 bg-amber-500 text-slate-950 font-bold rounded-xl transition text-xs flex items-center justify-center gap-1.5 shadow-md">
+                            <i class="fa-solid fa-plus"></i> Registrar Clase
                         </button>
-                        <button onclick="App.showStudentMasterQR()" class="py-3 px-4 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-white font-bold rounded-xl transition text-xs flex items-center gap-2" title="Mostrar QR de Auditoría">
-                            <i class="fa-solid fa-qrcode text-amber-400"></i> QR Maestro
+                        <button onclick="App.showStudentMasterQR()" class="py-2.5 px-3 bg-slate-800 border border-slate-700 text-white font-bold rounded-xl transition text-xs flex items-center gap-1.5" title="QR Maestro">
+                            <i class="fa-solid fa-qrcode text-amber-400"></i> Maestro
                         </button>
                     </div>
-                    <!-- Botón para Escanear la Firma Digital que le muestra el Profesor -->
-                    <button onclick="App.openQRScanner('student')" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20">
-                        <i class="fa-solid fa-camera text-base"></i> Escanear Firma del Profesor (Aprobar)
+                    <button onclick="App.openQRScanner('student')" class="w-full py-2.5 bg-emerald-600 text-white font-bold rounded-xl transition text-xs flex items-center justify-center gap-2 shadow-md">
+                        <i class="fa-solid fa-camera"></i> Escanear Firma del Profesor
                     </button>
                 </div>
             </div>
 
-            <div class="space-y-3">
-                <h3 class="font-bold text-slate-200 text-sm uppercase tracking-wider">Historial de Mis Clases</h3>
+            <div class="space-y-2">
+                <h3 class="font-bold text-slate-200 text-xs uppercase tracking-wider px-1">Historial de Mis Clases</h3>
                 <div id="student-classes-list" class="space-y-2">
-                    <p class="text-slate-500 text-sm italic text-center py-6">No has registrado clases todavía.</p>
+                    <p class="text-slate-500 text-xs italic text-center py-6">No has registrado clases todavía.</p>
                 </div>
             </div>
         </section>
 
         <!-- ================= VISTA: INSTRUCTOR ================= -->
-        <section id="view-instructor" class="space-y-5 hidden">
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4 text-center">
-                <div class="w-12 h-12 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-xl">
+        <section id="view-instructor" class="space-y-4 hidden">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3 text-center">
+                <div class="w-12 h-12 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-lg">
                     <i class="fa-solid fa-chalkboard-user"></i>
                 </div>
                 <div>
-                    <h2 class="text-lg font-bold text-white">Panel de Validación del Instructor</h2>
-                    <p class="text-xs text-slate-400 mt-1">Escanee el código QR que le muestra el alumno para revisar su clase y firmarla de forma rápida.</p>
+                    <h2 class="text-base font-bold text-white">Panel del Instructor</h2>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Escanee el código QR del alumno para revisar y firmar su clase.</p>
                 </div>
-                <button onclick="App.openQRScanner('instructor')" class="w-full py-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2 text-sm">
-                    <i class="fa-solid fa-qrcode text-lg"></i> Escanear y Firmar Clase de Alumno
+                <button onclick="App.openQRScanner('instructor')" class="w-full py-3.5 bg-amber-500 text-slate-950 font-bold rounded-xl transition shadow-md flex items-center justify-center gap-2 text-xs">
+                    <i class="fa-solid fa-qrcode text-sm"></i> Escanear QR de Alumno
                 </button>
             </div>
 
-            <div class="space-y-3">
-                <h3 class="font-bold text-slate-200 text-sm uppercase tracking-wider">Clases Firmadas Recientemente</h3>
+            <div class="space-y-2">
+                <h3 class="font-bold text-slate-200 text-xs uppercase tracking-wider px-1">Clases Firmadas Recientemente</h3>
                 <div id="instructor-signed-list" class="space-y-2">
-                    <p class="text-slate-500 text-sm italic text-center py-6">No ha firmado clases recientemente.</p>
+                    <p class="text-slate-500 text-xs italic text-center py-6">No ha firmado clases recientemente.</p>
                 </div>
             </div>
         </section>
 
         <!-- ================= VISTA: ESCUELA / AUDITOR ================= -->
-        <section id="view-auditor" class="space-y-5 hidden">
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4 text-center">
-                <div class="w-12 h-12 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center mx-auto text-xl">
+        <section id="view-auditor" class="space-y-4 hidden">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3 text-center">
+                <div class="w-12 h-12 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center mx-auto text-lg">
                     <i class="fa-solid fa-shield-halved"></i>
                 </div>
                 <div>
-                    <h2 class="text-lg font-bold text-white">Auditoría y Control de Escuela</h2>
-                    <p class="text-xs text-slate-400 mt-1">Escanee el QR Maestro de cualquier alumno para revisar su historial completo de horas y firmas.</p>
+                    <h2 class="text-base font-bold text-white">Auditoría de Escuela</h2>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Escanee el QR Maestro del alumno para auditar sus horas.</p>
                 </div>
-                <button onclick="App.openQRScanner('auditor')" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 text-sm">
-                    <i class="fa-solid fa-qrcode text-lg"></i> Escanear Libreta Maestra de Alumno
+                <button onclick="App.openQRScanner('auditor')" class="w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl transition shadow-md flex items-center justify-center gap-2 text-xs">
+                    <i class="fa-solid fa-qrcode text-sm"></i> Escanear QR Maestro
                 </button>
             </div>
 
-            <div id="audit-result-container" class="space-y-3 hidden">
-                <h3 class="font-bold text-slate-200 text-sm uppercase tracking-wider">Resultado de Auditoría</h3>
-                <div id="audit-card-content" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3"></div>
+            <div id="audit-result-container" class="space-y-2 hidden">
+                <h3 class="font-bold text-slate-200 text-xs uppercase tracking-wider px-1">Resultado de Auditoría</h3>
+                <div id="audit-card-content" class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2"></div>
             </div>
         </section>
 
@@ -199,37 +189,37 @@
     <!-- ================= MODALES AUXILIARES ================= -->
 
     <!-- MODAL: PERFIL DE ALUMNO -->
-    <div id="student-profile-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+    <div id="student-profile-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-3 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-3">
             <div class="flex items-center justify-between">
-                <h3 class="font-bold text-white text-base">Mi Perfil de Alumno</h3>
-                <button onclick="App.closeStudentProfileModal()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white">
+                <h3 class="font-bold text-white text-sm">Mi Perfil de Alumno</h3>
+                <button onclick="App.closeStudentProfileModal()" class="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <form id="student-profile-form" onsubmit="App.saveStudentProfile(event)" class="space-y-3">
+            <form id="student-profile-form" onsubmit="App.saveStudentProfile(event)" class="space-y-2.5">
                 <div>
-                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Nombre Completo *</label>
-                    <input type="text" id="sp-name" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Nombre Completo *</label>
+                    <input type="text" id="sp-name" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Cédula / Documento *</label>
-                    <input type="text" id="sp-doc" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500" inputmode="numeric">
+                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Cédula / Documento *</label>
+                    <input type="text" id="sp-doc" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500" inputmode="numeric">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1.5">Categoría(s) de Licencia *</label>
-                    <div class="grid grid-cols-4 gap-2 bg-slate-800/50 border border-slate-700/50 rounded-xl p-3 text-xs">
-                        <label class="flex items-center gap-1.5 text-slate-300 cursor-pointer"><input type="checkbox" name="sp-cat" value="A1" class="rounded bg-slate-700 text-amber-500"> A1</label>
-                        <label class="flex items-center gap-1.5 text-slate-300 cursor-pointer"><input type="checkbox" name="sp-cat" value="A2" class="rounded bg-slate-700 text-amber-500"> A2</label>
-                        <label class="flex items-center gap-1.5 text-slate-300 cursor-pointer"><input type="checkbox" name="sp-cat" value="B1" class="rounded bg-slate-700 text-amber-500"> B1</label>
-                        <label class="flex items-center gap-1.5 text-slate-300 cursor-pointer"><input type="checkbox" name="sp-cat" value="B2" class="rounded bg-slate-700 text-amber-500"> B2</label>
-                        <label class="flex items-center gap-1.5 text-slate-300 cursor-pointer"><input type="checkbox" name="sp-cat" value="B3" class="rounded bg-slate-700 text-amber-500"> B3</label>
-                        <label class="flex items-center gap-1.5 text-slate-300 cursor-pointer"><input type="checkbox" name="sp-cat" value="C1" class="rounded bg-slate-700 text-amber-500"> C1</label>
-                        <label class="flex items-center gap-1.5 text-slate-300 cursor-pointer"><input type="checkbox" name="sp-cat" value="C2" class="rounded bg-slate-700 text-amber-500"> C2</label>
-                        <label class="flex items-center gap-1.5 text-slate-300 cursor-pointer"><input type="checkbox" name="sp-cat" value="C3" class="rounded bg-slate-700 text-amber-500"> C3</label>
+                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Categoría(s) de Licencia *</label>
+                    <div class="grid grid-cols-4 gap-1.5 bg-slate-800/50 border border-slate-700/50 rounded-xl p-2.5 text-[11px]">
+                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sp-cat" value="A1" class="text-amber-500"> A1</label>
+                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sp-cat" value="A2" class="text-amber-500"> A2</label>
+                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sp-cat" value="B1" class="text-amber-500"> B1</label>
+                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sp-cat" value="B2" class="text-amber-500"> B2</label>
+                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sp-cat" value="B3" class="text-amber-500"> B3</label>
+                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sp-cat" value="C1" class="text-amber-500"> C1</label>
+                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sp-cat" value="C2" class="text-amber-500"> C2</label>
+                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sp-cat" value="C3" class="text-amber-500"> C3</label>
                     </div>
                 </div>
-                <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition text-xs shadow-md">
+                <button type="submit" class="w-full py-2.5 bg-amber-500 text-slate-950 font-bold rounded-xl transition text-xs shadow-md">
                     Guardar Mis Datos
                 </button>
             </form>
@@ -237,27 +227,27 @@
     </div>
 
     <!-- MODAL: REGISTRAR CLASE -->
-    <div id="new-class-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
-            <div class="p-4 border-b border-slate-800 flex items-center justify-between">
-                <h3 class="font-bold text-white text-base">Registrar Mi Clase</h3>
-                <button onclick="App.closeNewClassModal()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white">
+    <div id="new-class-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-3 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-3 border-b border-slate-800 flex items-center justify-between">
+                <h3 class="font-bold text-white text-sm">Registrar Mi Clase</h3>
+                <button onclick="App.closeNewClassModal()" class="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="p-5 overflow-y-auto space-y-4 flex-1">
-                <form id="new-class-form" onsubmit="App.saveNewClass(event)" class="space-y-3">
+            <div class="p-4 overflow-y-auto space-y-3 flex-1">
+                <form id="new-class-form" onsubmit="App.saveNewClass(event)" class="space-y-2.5">
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Tipo de Clase</label>
-                            <select id="nc-type" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                            <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Tipo</label>
+                            <select id="nc-type" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white">
                                 <option value="Práctica">Práctica</option>
                                 <option value="Evaluación">Evaluación</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Duración *</label>
-                            <select id="nc-duration" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                            <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Duración</label>
+                            <select id="nc-duration" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white">
                                 <option value="90">2 Horas</option>
                                 <option value="45">1 Hora</option>
                             </select>
@@ -265,22 +255,22 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Profesor que dictó la clase *</label>
-                        <input type="text" id="nc-instructor" required placeholder="Nombre del profesor" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Profesor que dictó la clase *</label>
+                        <input type="text" id="nc-instructor" required placeholder="Nombre del profesor" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Temas / Habilidades practicadas</label>
-                        <div id="nc-skills-list" class="grid grid-cols-1 gap-1.5 bg-slate-800/50 border border-slate-700/50 rounded-xl p-2.5 max-h-36 overflow-y-auto text-xs"></div>
+                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Habilidades practicadas</label>
+                        <div id="nc-skills-list" class="grid grid-cols-1 gap-1 bg-slate-800/50 border border-slate-700/50 rounded-xl p-2 max-h-32 overflow-y-auto text-[11px]"></div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Observaciones o notas del alumno</label>
-                        <textarea id="nc-notes" rows="2" placeholder="¿Qué practicó hoy en la vía?" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-amber-500"></textarea>
+                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Observaciones</label>
+                        <textarea id="nc-notes" rows="2" placeholder="¿Qué practicó hoy?" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white"></textarea>
                     </div>
 
-                    <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition text-xs shadow-md">
-                        Guardar y Solicitar Validación QR
+                    <button type="submit" class="w-full py-3 bg-amber-500 text-slate-950 font-bold rounded-xl transition text-xs shadow-md">
+                        Guardar y Generar QR
                     </button>
                 </form>
             </div>
@@ -288,54 +278,72 @@
     </div>
 
     <!-- MODAL: MOSTRAR QR -->
-    <div id="qr-display-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-4">
+    <div id="qr-display-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-3 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-5 shadow-2xl text-center space-y-3">
             <div class="flex items-center justify-between">
-                <h3 id="qr-modal-title" class="font-bold text-white text-base">Código QR</h3>
-                <button onclick="App.closeQRDisplayModal()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white">
+                <h3 id="qr-modal-title" class="font-bold text-white text-sm">Código QR</h3>
+                <button onclick="App.closeQRDisplayModal()" class="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <p id="qr-modal-desc" class="text-xs text-slate-400">Muestre este código al profesor para que la firme.</p>
-            <div id="qrcode-container" class="bg-white p-3 rounded-2xl inline-flex items-center justify-center shadow-inner min-h-[220px] min-w-[220px]"></div>
-            <button onclick="App.closeQRDisplayModal()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-750 text-white font-bold text-xs rounded-xl transition">Cerrar</button>
+            <p id="qr-modal-desc" class="text-[11px] text-slate-400">Muestre este código.</p>
+            <div id="qrcode-container" class="bg-white p-2.5 rounded-2xl inline-flex items-center justify-center shadow-inner min-h-[190px] min-w-[190px]"></div>
+            
+            <!-- PLAN B: Copiar código texto por si la cámara no lee el QR -->
+            <div class="space-y-1 pt-1">
+                <span class="text-[10px] text-slate-400 block">Si el QR no escanea, copia este código de texto:</span>
+                <input type="text" id="qr-fallback-text" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl px-2 py-1.5 text-[10px] text-amber-400 font-mono text-center select-all" onclick="this.select()">
+            </div>
+
+            <button onclick="App.closeQRDisplayModal()" class="w-full py-2 bg-slate-800 text-white font-bold text-xs rounded-xl transition">Cerrar</button>
         </div>
     </div>
 
-    <!-- MODAL: CÁMARA ESCANEO QR -->
-    <div id="qr-scanner-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 flex flex-col">
+    <!-- MODAL: CÁMARA ESCANEO QR CON PLAN B (Texto Manual) -->
+    <div id="qr-scanner-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-3 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-3 flex flex-col">
             <div class="flex items-center justify-between">
-                <h3 class="font-bold text-white text-base flex items-center gap-2">
+                <h3 class="font-bold text-white text-sm flex items-center gap-1.5">
                     <i class="fa-solid fa-camera text-amber-500"></i> Escanear Código QR
                 </h3>
-                <button onclick="App.closeQRScanner()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white">
+                <button onclick="App.closeQRScanner()" class="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <p class="text-xs text-slate-400 text-center">Apunte con la cámara hacia el código QR correspondiente.</p>
-            <div id="qr-reader" class="w-full overflow-hidden rounded-2xl bg-slate-950 border border-slate-800"></div>
-            <button onclick="App.closeQRScanner()" class="w-full py-3 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 font-bold text-xs rounded-xl transition">
-                Cancelar / Cerrar Cámara
+            <p class="text-[11px] text-slate-400 text-center">Apunte con la cámara o use el Plan B abajo.</p>
+            
+            <div id="qr-reader" class="w-full overflow-hidden rounded-2xl bg-slate-950 border border-slate-800 min-h-[200px]"></div>
+            
+            <!-- PLAN B: ENTRADA MANUAL POR SI LA CÁMARA FALLA -->
+            <div class="bg-slate-800/60 border border-slate-700/50 rounded-xl p-2.5 space-y-1.5">
+                <span class="text-[10px] font-bold text-amber-400 block"><i class="fa-solid fa-triangle-exclamation"></i> ¿La cámara no lee el QR? Plan B:</span>
+                <div class="flex gap-1.5">
+                    <input type="text" id="manual-payload-input" placeholder="Pegue o escriba el código aquí..." class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-[11px] text-white">
+                    <button onclick="App.processManualPayload()" class="px-3 py-1.5 bg-amber-500 text-slate-950 font-bold rounded-lg text-[11px]">Procesar</button>
+                </div>
+            </div>
+
+            <button onclick="App.closeQRScanner()" class="w-full py-2.5 bg-rose-500/10 border border-rose-500/30 text-rose-400 font-bold text-xs rounded-xl transition">
+                Cerrar Cámara
             </button>
         </div>
     </div>
 
     <!-- MODAL: REVISAR Y FIRMAR CLASE (Instructor) -->
-    <div id="instructor-sign-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+    <div id="instructor-sign-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-3 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-3">
             <div class="flex items-center justify-between">
-                <h3 class="font-bold text-white text-base">Validar y Firmar Clase</h3>
-                <button onclick="App.closeInstructorSignModal()" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 hover:text-white">
+                <h3 class="font-bold text-white text-sm">Validar y Firmar Clase</h3>
+                <button onclick="App.closeInstructorSignModal()" class="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div id="sign-modal-content" class="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-4 space-y-2 text-xs"></div>
+            <div id="sign-modal-content" class="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-3 space-y-1 text-xs"></div>
             <div>
-                <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Su Nombre (Profesor que firma) *</label>
-                <input type="text" id="sign-instructor-name" required placeholder="Ej. Juan Pérez" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Su Nombre (Profesor) *</label>
+                <input type="text" id="sign-instructor-name" required placeholder="Ej. Juan Pérez" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
             </div>
-            <button onclick="App.approveAndSignClass()" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition text-xs shadow-lg shadow-amber-500/20">
+            <button onclick="App.approveAndSignClass()" class="w-full py-3 bg-amber-500 text-slate-950 font-bold rounded-xl transition text-xs shadow-md">
                 Aprobar y Generar QR de Confirmación
             </button>
         </div>
@@ -361,12 +369,13 @@
                 this.currentRole = null;
                 this.html5QrCode = null;
                 this.pendingClassForSign = null;
+                this.lastGeneratedPayload = '';
                 this.initDB();
             }
 
             async initDB() {
                 return new Promise((resolve, reject) => {
-                    const request = indexedDB.open('EscuelaModernaMVP', 3);
+                    const request = indexedDB.open('EscuelaModernaMVP', 4);
                     request.onerror = () => reject(request.error);
                     request.onsuccess = () => {
                         this.db = request.result;
@@ -375,18 +384,10 @@
                     };
                     request.onupgradeneeded = (event) => {
                         const db = event.target.result;
-                        if (!db.objectStoreNames.contains('student_profile')) {
-                            db.createObjectStore('student_profile', { keyPath: 'id' });
-                        }
-                        if (!db.objectStoreNames.contains('student_classes')) {
-                            db.createObjectStore('student_classes', { keyPath: 'id' });
-                        }
-                        if (!db.objectStoreNames.contains('settings')) {
-                            db.createObjectStore('settings', { keyPath: 'key' });
-                        }
-                        if (!db.objectStoreNames.contains('instructor_signed')) {
-                            db.createObjectStore('instructor_signed', { keyPath: 'id' });
-                        }
+                        if (!db.objectStoreNames.contains('student_profile')) db.createObjectStore('student_profile', { keyPath: 'id' });
+                        if (!db.objectStoreNames.contains('student_classes')) db.createObjectStore('student_classes', { keyPath: 'id' });
+                        if (!db.objectStoreNames.contains('settings')) db.createObjectStore('settings', { keyPath: 'key' });
+                        if (!db.objectStoreNames.contains('instructor_signed')) db.createObjectStore('instructor_signed', { keyPath: 'id' });
                     };
                 });
             }
@@ -437,8 +438,8 @@
             renderSkillsCheckboxes() {
                 const container = document.getElementById('nc-skills-list');
                 container.innerHTML = SKILLS_LIST.map(skill => `
-                    <label class="flex items-center gap-2 cursor-pointer p-1 rounded hover:bg-slate-800">
-                        <input type="checkbox" name="nc-skill" value="${skill}" class="rounded bg-slate-700 text-amber-500 w-3.5 h-3.5">
+                    <label class="flex items-center gap-1.5 cursor-pointer p-1 rounded hover:bg-slate-800">
+                        <input type="checkbox" name="nc-skill" value="${skill}" class="rounded bg-slate-700 text-amber-500 w-3 h-3">
                         <span class="text-slate-200">${skill}</span>
                     </label>
                 `).join('');
@@ -484,7 +485,6 @@
                 });
             }
 
-            // ================= DATOS ALUMNO =================
             async loadStudentData() {
                 const profile = await this.getSetting('student_profile_data');
                 if (!profile) {
@@ -503,17 +503,17 @@
 
                 const listContainer = document.getElementById('student-classes-list');
                 if (classes.length === 0) {
-                    listContainer.innerHTML = `<p class="text-slate-500 text-sm italic text-center py-6">No has registrado clases todavía.</p>`;
+                    listContainer.innerHTML = `<p class="text-slate-500 text-xs italic text-center py-6">No has registrado clases todavía.</p>`;
                 } else {
                     listContainer.innerHTML = classes.reverse().map(c => {
                         const statusBadge = c.status === 'Aprobada' 
                             ? `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] px-2 py-0.5 rounded-md font-bold">✅ Aprobada por Prof. ${c.signedBy || 'N/A'}</span>`
                             : `<span class="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] px-2 py-0.5 rounded-md font-bold">⏳ Pendiente de Firma</span>`;
                         
-                        const skillsBadges = (c.skills || []).map(s => `<span class="bg-slate-800 text-slate-300 text-[10px] px-2 py-0.5 rounded">${s}</span>`).join(' ');
+                        const skillsBadges = (c.skills || []).map(s => `<span class="bg-slate-800 text-slate-300 text-[10px] px-1.5 py-0.5 rounded">${s}</span>`).join(' ');
 
                         return `
-                            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2">
+                            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2">
                                 <div class="flex items-center justify-between text-xs">
                                     <span class="font-bold text-white">${c.type} (${c.duration == 90 ? '2 horas' : '1 hora'})</span>
                                     ${statusBadge}
@@ -521,12 +521,12 @@
                                 <p class="text-xs text-slate-300">Prof. indicado: <strong>${c.instructor}</strong></p>
                                 <div class="flex flex-wrap gap-1">${skillsBadges}</div>
                                 <p class="text-xs text-slate-400">${c.notes || 'Sin observaciones'}</p>
-                                <div class="flex items-center justify-between pt-2 border-t border-slate-800/60 text-[10px] text-slate-500 gap-2">
+                                <div class="flex items-center justify-between pt-2 border-t border-slate-800/60 text-[10px] text-slate-500 gap-1">
                                     <span>${new Date(c.date).toLocaleDateString()}</span>
                                     ${c.status !== 'Aprobada' ? `
                                         <div class="flex gap-1">
-                                            <button onclick="App.showClassValidationQR(${c.id})" class="px-2 py-1 bg-amber-500 text-slate-950 font-bold rounded-lg text-[10px] flex items-center gap-1"><i class="fa-solid fa-qrcode"></i> Mostrar QR</button>
-                                            <button onclick="App.openQRScanner('student')" class="px-2 py-1 bg-emerald-600 text-white font-bold rounded-lg text-[10px] flex items-center gap-1"><i class="fa-solid fa-camera"></i> Escanear Firma</button>
+                                            <button onclick="App.showClassValidationQR(${c.id})" class="px-2 py-1 bg-amber-500 text-slate-950 font-bold rounded-lg text-[10px]"><i class="fa-solid fa-qrcode"></i> QR</button>
+                                            <button onclick="App.openQRScanner('student')" class="px-2 py-1 bg-emerald-600 text-white font-bold rounded-lg text-[10px]"><i class="fa-solid fa-camera"></i> Escanear</button>
                                         </div>
                                     ` : ''}
                                 </div>
@@ -560,7 +560,7 @@
                 document.querySelectorAll('input[name="sp-cat"]:checked').forEach(cb => selectedCats.push(cb.value));
 
                 if (selectedCats.length === 0) {
-                    alert('Debe seleccionar al menos una categoría de licencia.');
+                    alert('Debe seleccionar al menos una categoría.');
                     return;
                 }
 
@@ -621,16 +621,19 @@
                     c: classData
                 };
 
-                document.getElementById('qr-modal-title').innerText = 'QR de Validación de Clase';
-                document.getElementById('qr-modal-desc').innerText = 'Muestre este código al profesor para que lo escanee y firme.';
+                this.lastGeneratedPayload = JSON.stringify(payload);
+
+                document.getElementById('qr-modal-title').innerText = 'QR de Validación';
+                document.getElementById('qr-modal-desc').innerText = 'Muestre este código al profesor.';
+                document.getElementById('qr-fallback-text').value = this.lastGeneratedPayload;
                 document.getElementById('qr-display-modal').classList.remove('hidden');
                 
                 const container = document.getElementById('qrcode-container');
                 container.innerHTML = '<canvas id="qr-canvas"></canvas>';
                 new QRious({
                     element: document.getElementById('qr-canvas'),
-                    value: JSON.stringify(payload),
-                    size: 210,
+                    value: this.lastGeneratedPayload,
+                    size: 190,
                     background: '#ffffff',
                     foreground: '#0f172a',
                     level: 'L'
@@ -642,7 +645,7 @@
                 const classes = await this.getAllStore('student_classes');
 
                 if (!profile) {
-                    alert('Por favor configure su perfil de alumno primero.');
+                    alert('Configure su perfil primero.');
                     this.openStudentProfileModal();
                     return;
                 }
@@ -653,16 +656,19 @@
                     classes: classes
                 };
 
+                this.lastGeneratedPayload = JSON.stringify(payload);
+
                 document.getElementById('qr-modal-title').innerText = 'QR Maestro de Auditoría';
-                document.getElementById('qr-modal-desc').innerText = 'Muestre este código a la escuela o auditor para verificar sus horas.';
+                document.getElementById('qr-modal-desc').innerText = 'Muestre este código al auditor.';
+                document.getElementById('qr-fallback-text').value = this.lastGeneratedPayload;
                 document.getElementById('qr-display-modal').classList.remove('hidden');
 
                 const container = document.getElementById('qrcode-container');
                 container.innerHTML = '<canvas id="qr-canvas"></canvas>';
                 new QRious({
                     element: document.getElementById('qr-canvas'),
-                    value: JSON.stringify(payload),
-                    size: 210,
+                    value: this.lastGeneratedPayload,
+                    size: 190,
                     background: '#ffffff',
                     foreground: '#0f172a',
                     level: 'L'
@@ -674,12 +680,11 @@
                 document.getElementById('qrcode-container').innerHTML = '';
             }
 
-            // ================= DATOS INSTRUCTOR =================
             async loadInstructorData() {
                 const list = await this.getAllStore('instructor_signed');
                 const container = document.getElementById('instructor-signed-list');
                 if (!list || list.length === 0) {
-                    container.innerHTML = `<p class="text-slate-500 text-sm italic text-center py-6">No ha firmado clases recientemente.</p>`;
+                    container.innerHTML = `<p class="text-slate-500 text-xs italic text-center py-6">No ha firmado clases recientemente.</p>`;
                 } else {
                     container.innerHTML = list.slice(-5).reverse().map(c => `
                         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 text-xs space-y-1">
@@ -687,15 +692,15 @@
                                 <span>Alumno: ${c.studentName}</span>
                                 <span class="text-emerald-400">Firmada</span>
                             </div>
-                            <p class="text-slate-400">Clase: ${c.type} (${c.duration} mins) - ${new Date(c.date).toLocaleDateString()}</p>
+                            <p class="text-slate-400">Clase: ${c.type} (${c.duration}m) - ${new Date(c.date).toLocaleDateString()}</p>
                         </div>
                     `).join('');
                 }
             }
 
-            // ================= ESCANEO Y CÁMARA =================
             openQRScanner(mode) {
                 this.scannerMode = mode;
+                document.getElementById('manual-payload-input').value = '';
                 document.getElementById('qr-scanner-modal').classList.remove('hidden');
 
                 if (!this.html5QrCode) {
@@ -704,15 +709,13 @@
 
                 this.html5QrCode.start(
                     { facingMode: "environment" },
-                    { fps: 10, qrbox: { width: 220, height: 220 } },
+                    { fps: 10, qrbox: { width: 200, height: 200 } },
                     (decodedText) => {
                         this.handleScannedData(decodedText);
                     },
                     (errorMessage) => {}
                 ).catch(err => {
-                    console.error("Error cámara:", err);
-                    alert("No se pudo iniciar la cámara.");
-                    this.closeQRScanner();
+                    console.error("Cámara no iniciada:", err);
                 });
             }
 
@@ -723,6 +726,15 @@
                 document.getElementById('qr-scanner-modal').classList.add('hidden');
             }
 
+            processManualPayload() {
+                const val = document.getElementById('manual-payload-input').value.trim();
+                if (!val) {
+                    alert('Por favor ingrese o pegue el código de texto.');
+                    return;
+                }
+                this.handleScannedData(val);
+            }
+
             async handleScannedData(jsonString) {
                 this.closeQRScanner();
                 try {
@@ -731,27 +743,27 @@
                     if (this.scannerMode === 'student') {
                         if (data.t === 'EM_APPROVED_CLASS') {
                             await this.saveStoreRecord('student_classes', data.c);
-                            alert('¡Clase firmada y aprobada guardada con éxito en tu libreta!');
+                            alert('¡Clase firmada y guardada con éxito!');
                             this.loadStudentData();
                         } else {
-                            alert('Código QR no corresponde a una firma de profesor.');
+                            alert('Este código no corresponde a una firma válida de profesor.');
                         }
                     } else if (this.scannerMode === 'instructor') {
                         if (data.t === 'EM_PENDING_CLASS') {
                             this.pendingClassForSign = data;
                             this.showInstructorSignModal(data);
                         } else {
-                            alert('Código QR no válido para instructor.');
+                            alert('Este código no corresponde a una clase pendiente de alumno.');
                         }
                     } else if (this.scannerMode === 'auditor') {
                         if (data.t === 'EM_MASTER_LIBRETA') {
                             this.showAuditResult(data);
                         } else {
-                            alert('Este código no corresponde a una Libreta Maestra de Alumno.');
+                            alert('Este código no corresponde a una Libreta Maestra.');
                         }
                     }
                 } catch (e) {
-                    alert('Error al procesar el código QR.');
+                    alert('El código ingresado no es válido o está incompleto.');
                 }
             }
 
@@ -761,10 +773,9 @@
                 const content = document.getElementById('sign-modal-content');
                 content.innerHTML = `
                     <p><strong>Alumno:</strong> ${s.name} (Doc: ${s.doc})</p>
-                    <p><strong>Tipo:</strong> ${c.type} - ${c.duration} mins</p>
-                    <p><strong>Profesor indicado por alumno:</strong> ${c.instructor}</p>
-                    <p><strong>Temas:</strong> ${(c.skills || []).join(', ') || 'Ninguno'}</p>
-                    <p><strong>Notas:</strong> ${c.notes || 'Sin notas'}</p>
+                    <p><strong>Tipo:</strong> ${c.type} - ${c.duration}m</p>
+                    <p><strong>Profesor indicado:</strong> ${c.instructor}</p>
+                    <p><strong>Notas:</strong> ${c.notes || 'Ninguna'}</p>
                 `;
                 document.getElementById('sign-instructor-name').value = c.instructor || '';
                 document.getElementById('instructor-sign-modal').classList.remove('hidden');
@@ -778,7 +789,7 @@
             async approveAndSignClass() {
                 const instructorName = document.getElementById('sign-instructor-name').value.trim();
                 if (!instructorName) {
-                    alert('Por favor ingrese su nombre de instructor para firmar.');
+                    alert('Ingrese su nombre para firmar.');
                     return;
                 }
 
@@ -804,16 +815,19 @@
                 };
                 await this.saveStoreRecord('instructor_signed', signedRecord);
 
+                this.lastGeneratedPayload = JSON.stringify(responsePayload);
+
                 document.getElementById('qr-modal-title').innerText = 'Sello de Aprobación';
-                document.getElementById('qr-modal-desc').innerText = 'Haga que el alumno escanee este código para guardar su clase aprobada.';
+                document.getElementById('qr-modal-desc').innerText = 'Haga que el alumno escanee este código o copie el texto.';
+                document.getElementById('qr-fallback-text').value = this.lastGeneratedPayload;
                 document.getElementById('qr-display-modal').classList.remove('hidden');
 
                 const container = document.getElementById('qrcode-container');
                 container.innerHTML = '<canvas id="qr-canvas"></canvas>';
                 new QRious({
                     element: document.getElementById('qr-canvas'),
-                    value: JSON.stringify(responsePayload),
-                    size: 210,
+                    value: this.lastGeneratedPayload,
+                    size: 190,
                     background: '#ffffff',
                     foreground: '#0f172a',
                     level: 'L'
@@ -822,7 +836,6 @@
                 this.loadInstructorData();
             }
 
-            // ================= AUDITORÍA ESCUELA =================
             showAuditResult(data) {
                 const s = data.s;
                 const classes = data.classes || [];
@@ -833,27 +846,27 @@
                 const container = document.getElementById('audit-card-content');
                 container.innerHTML = `
                     <div class="space-y-1">
-                        <h4 class="font-bold text-white text-base">${s.name}</h4>
-                        <p class="text-xs text-slate-400">Documento: ${s.doc} • Cat: ${cats}</p>
+                        <h4 class="font-bold text-white text-sm">${s.name}</h4>
+                        <p class="text-[11px] text-slate-400">Doc: ${s.doc} • Cat: ${cats}</p>
                     </div>
-                    <div class="grid grid-cols-2 gap-2 pt-2">
-                        <div class="bg-slate-800 p-2.5 rounded-xl text-center">
-                            <span class="text-[10px] text-slate-400 uppercase font-bold">Total Horas</span>
-                            <p class="text-lg font-black text-amber-400">${totalHours} h</p>
+                    <div class="grid grid-cols-2 gap-2 pt-1">
+                        <div class="bg-slate-800 p-2 rounded-xl text-center">
+                            <span class="text-[9px] text-slate-400 uppercase font-bold">Total Horas</span>
+                            <p class="text-base font-black text-amber-400">${totalHours} h</p>
                         </div>
-                        <div class="bg-slate-800 p-2.5 rounded-xl text-center">
-                            <span class="text-[10px] text-slate-400 uppercase font-bold">Clases Aprobadas</span>
-                            <p class="text-lg font-black text-emerald-400">${approved.length} / ${classes.length}</p>
+                        <div class="bg-slate-800 p-2 rounded-xl text-center">
+                            <span class="text-[9px] text-slate-400 uppercase font-bold">Aprobadas</span>
+                            <p class="text-base font-black text-emerald-400">${approved.length} / ${classes.length}</p>
                         </div>
                     </div>
-                    <div class="space-y-2 pt-2 max-h-48 overflow-y-auto">
+                    <div class="space-y-1.5 pt-1 max-h-40 overflow-y-auto">
                         ${classes.map(c => `
-                            <div class="bg-slate-800/60 p-2.5 rounded-xl text-xs space-y-1">
+                            <div class="bg-slate-800/60 p-2 rounded-xl text-[11px] space-y-0.5">
                                 <div class="flex justify-between font-bold text-white">
                                     <span>${c.type} (${c.duration}m)</span>
                                     <span>${c.status === 'Aprobada' ? '✅ ' + c.signedBy : '⏳ Pendiente'}</span>
                                 </div>
-                                <p class="text-slate-300">Prof: ${c.instructor} \vert{}${(c.skills||[]).join(', ')}</p>
+                                <p class="text-slate-300">Prof: ${c.instructor}</p>
                             </div>
                         `).join('')}
                     </div>
