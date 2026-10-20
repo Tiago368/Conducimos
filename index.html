@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-slate-950">
+<html lang="es" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Escuela Moderna - Sistema Académico Inteligente</title>
+    <title>Escuela Moderna de Conducción - Sistema Académico</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,83 +14,110 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
-    <meta name="theme-color" content="#0f172a">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            bg: '#0a4348',       /* Verde turquesa muy oscuro */
+                            surface: '#0d535a',  /* Verde turquesa oscuro tarjetas */
+                            card: '#11636c',     /* Verde de contraste */
+                            gold: '#f3a661',     /* Dorado / Naranja marca */
+                            goldHover: '#e5954e',
+                            textLight: '#e2f1f3'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <meta name="theme-color" content="#0a4348">
     
     <style>
         * { box-sizing: border-box; }
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-            background-color: #020617 !important;
-            color: #f8fafc !important;
+            background-color: #0a4348 !important;
+            color: #e2f1f3 !important;
             margin: 0;
             padding: 0;
             width: 100vw;
             overflow-x: hidden;
         }
         .hidden { display: none !important; }
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #0d535a; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #f3a661; rounded-radius: 4px; }
     </style>
 </head>
-<body class="h-full text-slate-100 flex flex-col antialiased selection:bg-amber-500 selection:text-slate-950">
+<body class="h-full text-brand-textLight flex flex-col antialiased selection:bg-brand-gold selection:text-slate-950">
 
     <!-- ================= PORTAL DE ACCESO INTELIGENTE (LOGIN) ================= -->
-    <div id="auth-modal" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-5">
+    <div id="auth-modal" class="fixed inset-0 z-50 bg-brand-bg/95 backdrop-blur-md flex flex-col items-center justify-center p-4">
+        <div class="bg-brand-surface border border-brand-card/60 rounded-3xl p-6 max-w-sm w-full shadow-2xl space-y-5">
+            
+            <!-- Logo Marca Escuela Moderna -->
             <div class="text-center space-y-2">
-                <div class="w-14 h-14 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-xl shadow-inner">
-                    <i class="fa-solid fa-id-card-clip"></i>
+                <div class="w-16 h-16 bg-brand-gold/10 text-brand-gold rounded-2xl flex items-center justify-center mx-auto text-3xl shadow-inner border border-brand-gold/20">
+                    <i class="fa-solid fa-dove"></i>
                 </div>
-                <h2 class="text-lg font-bold text-white">Escuela de Conducción</h2>
-                <p class="text-slate-400 text-xs">Inicie sesión para acceder a su panel</p>
+                <div>
+                    <h2 class="text-xl font-black text-brand-gold uppercase tracking-wider leading-none">Escuela Moderna</h2>
+                    <span class="text-[10px] font-bold text-brand-textLight/80 tracking-widest uppercase block mt-1">De Conducción</span>
+                </div>
+                <p class="text-brand-textLight/60 text-xs pt-1">Inicie sesión para acceder a su panel</p>
             </div>
 
             <!-- Selector de Rol en Login -->
-            <div class="grid grid-cols-3 gap-1 bg-slate-950 p-1 rounded-xl text-[11px] font-bold text-center">
-                <button type="button" onclick="App.switchAuthTab('student')" id="tab-student" class="py-2 rounded-lg bg-amber-500 text-slate-950 transition">Alumno</button>
-                <button type="button" onclick="App.switchAuthTab('instructor')" id="tab-instructor" class="py-2 rounded-lg text-slate-400 transition">Profesor</button>
-                <button type="button" onclick="App.switchAuthTab('school')" id="tab-school" class="py-2 rounded-lg text-slate-400 transition">Escuela</button>
+            <div class="grid grid-cols-3 gap-1 bg-brand-bg p-1 rounded-xl text-[11px] font-bold text-center border border-brand-card/40">
+                <button type="button" onclick="App.switchAuthTab('student')" id="tab-student" class="py-2 rounded-lg bg-brand-gold text-slate-950 transition font-black">Alumno</button>
+                <button type="button" onclick="App.switchAuthTab('instructor')" id="tab-instructor" class="py-2 rounded-lg text-brand-textLight/70 transition">Profesor</button>
+                <button type="button" onclick="App.switchAuthTab('school')" id="tab-school" class="py-2 rounded-lg text-brand-textLight/70 transition">Escuela</button>
             </div>
 
             <!-- FORMULARIO ALUMNO -->
             <form id="form-auth-student" onsubmit="App.loginStudent(event)" class="space-y-3">
-                <div class="flex gap-1.5 bg-slate-800/40 p-1 rounded-xl mb-2 text-xs">
-                    <button type="button" onclick="App.switchStudentMode('login')" id="sm-login" class="flex-1 py-1.5 rounded-lg bg-slate-700 text-white font-bold transition">Tengo Código</button>
-                    <button type="button" onclick="App.switchStudentMode('register')" id="sm-register" class="flex-1 py-1.5 rounded-lg text-slate-400 font-bold transition">Crear Cuenta</button>
+                <div class="flex gap-1.5 bg-brand-bg/60 p-1 rounded-xl mb-2 text-xs border border-brand-card/30">
+                    <button type="button" onclick="App.switchStudentMode('login')" id="sm-login" class="flex-1 py-1.5 rounded-lg bg-brand-card text-white font-bold transition">Tengo Código</button>
+                    <button type="button" onclick="App.switchStudentMode('register')" id="sm-register" class="flex-1 py-1.5 rounded-lg text-brand-textLight/60 font-bold transition">Crear Cuenta</button>
                 </div>
                 
-                <!-- Modo Ingreso (Solo número) -->
+                <!-- Modo Ingreso -->
                 <div id="student-login-fields" class="space-y-2">
-                    <label class="block text-[10px] font-semibold uppercase text-slate-400">Tu Código Alumno *</label>
+                    <label class="block text-[10px] font-bold uppercase text-brand-gold tracking-wider">Tu Código Alumno *</label>
                     <div class="flex">
-                        <span class="bg-slate-800 border border-r-0 border-slate-700 rounded-l-xl px-3 py-2.5 text-xs text-amber-400 font-mono font-bold flex items-center">ALU-</span>
-                        <input type="text" id="sa-num-code" placeholder="4821" inputmode="numeric" class="w-full bg-slate-800 border border-slate-700 rounded-r-xl px-3 py-2.5 text-xs text-white font-mono tracking-wider">
+                        <span class="bg-brand-bg border border-r-0 border-brand-card/60 rounded-l-xl px-3 py-2.5 text-xs text-brand-gold font-mono font-bold flex items-center">ALU-</span>
+                        <input type="text" id="sa-num-code" placeholder="4821" inputmode="numeric" class="w-full bg-brand-bg border border-brand-card/60 rounded-r-xl px-3 py-2.5 text-xs text-white font-mono tracking-wider focus:outline-none focus:border-brand-gold">
                     </div>
                     <div class="text-right">
-                        <button type="button" onclick="App.openRecoveryModal()" class="text-[11px] text-amber-400 hover:underline">¿Olvidaste tu código?</button>
+                        <button type="button" onclick="App.openRecoveryModal()" class="text-[11px] text-brand-gold hover:underline">¿Olvidaste tu código?</button>
                     </div>
                 </div>
 
-                <!-- Modo Registro (Nombre + Multiselección de Categorías) -->
+                <!-- Modo Registro -->
                 <div id="student-register-fields" class="hidden space-y-2.5">
                     <div>
-                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Nombre Completo *</label>
-                        <input type="text" id="sa-name" placeholder="Ej. Juan Pérez" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                        <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Nombre Completo *</label>
+                        <input type="text" id="sa-name" placeholder="Ej. Juan Pérez" class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-gold">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Categorías a las que aplica *</label>
-                        <div class="grid grid-cols-4 gap-1.5 bg-slate-800/50 border border-slate-700/50 rounded-xl p-2.5 text-[11px]">
-                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sa-cat" value="A1" class="text-amber-500"> A1</label>
-                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sa-cat" value="A2" class="text-amber-500"> A2</label>
-                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sa-cat" value="B1" class="text-amber-500"> B1</label>
-                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sa-cat" value="B2" class="text-amber-500"> B2</label>
-                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sa-cat" value="B3" class="text-amber-500"> B3</label>
-                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sa-cat" value="C1" class="text-amber-500"> C1</label>
-                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sa-cat" value="C2" class="text-amber-500"> C2</label>
-                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sa-cat" value="C3" class="text-amber-500"> C3</label>
+                        <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Categorías a las que aplica *</label>
+                        <div class="grid grid-cols-4 gap-1.5 bg-brand-bg/80 border border-brand-card/60 rounded-xl p-2.5 text-[11px]">
+                            <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="sa-cat" value="A1" class="accent-brand-gold"> A1</label>
+                            <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="sa-cat" value="A2" class="accent-brand-gold"> A2</label>
+                            <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="sa-cat" value="B1" class="accent-brand-gold"> B1</label>
+                            <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="sa-cat" value="B2" class="accent-brand-gold"> B2</label>
+                            <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="sa-cat" value="B3" class="accent-brand-gold"> B3</label>
+                            <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="sa-cat" value="C1" class="accent-brand-gold"> C1</label>
+                            <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="sa-cat" value="C2" class="accent-brand-gold"> C2</label>
+                            <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="sa-cat" value="C3" class="accent-brand-gold"> C3</label>
                         </div>
                     </div>
                 </div>
 
-                <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition text-xs shadow-md">
+                <button type="submit" class="w-full py-3 bg-brand-gold hover:bg-brand-goldHover text-slate-950 font-black uppercase tracking-wider rounded-xl transition text-xs shadow-lg mt-2">
                     Entrar a mi Libreta
                 </button>
             </form>
@@ -98,14 +125,14 @@
             <!-- FORMULARIO PROFESOR -->
             <form id="form-auth-instructor" onsubmit="App.loginInstructor(event)" class="space-y-3 hidden">
                 <div>
-                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Usuario de Profesor *</label>
-                    <input type="text" id="ins-user" placeholder="Ej. juan.perez" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                    <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Usuario de Profesor *</label>
+                    <input type="text" id="ins-user" placeholder="Ej. juan.perez" class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-gold">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Contraseña *</label>
-                    <input type="password" id="ins-pass" placeholder="••••••••" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                    <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Contraseña *</label>
+                    <input type="password" id="ins-pass" placeholder="••••••••" class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-gold">
                 </div>
-                <button type="submit" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition text-xs shadow-md">
+                <button type="submit" class="w-full py-3 bg-brand-gold hover:bg-brand-goldHover text-slate-950 font-black uppercase tracking-wider rounded-xl transition text-xs shadow-lg mt-2">
                     Iniciar Sesión Profesor
                 </button>
             </form>
@@ -113,10 +140,10 @@
             <!-- FORMULARIO ESCUELA -->
             <form id="form-auth-school" onsubmit="App.loginSchool(event)" class="space-y-3 hidden">
                 <div>
-                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Clave Maestra de Administrador *</label>
-                    <input type="password" id="sch-pass" placeholder="Clave de escuela" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                    <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Clave Maestra de Administrador *</label>
+                    <input type="password" id="sch-pass" placeholder="Clave de escuela" class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-gold">
                 </div>
-                <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition text-xs shadow-md">
+                <button type="submit" class="w-full py-3 bg-brand-gold hover:bg-brand-goldHover text-slate-950 font-black uppercase tracking-wider rounded-xl transition text-xs shadow-lg mt-2">
                     Panel Directivo
                 </button>
             </form>
@@ -124,73 +151,78 @@
     </div>
 
     <!-- Header Principal -->
-    <header class="bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center justify-between shrink-0">
-        <div>
-            <h1 id="app-title-header" class="font-bold text-white text-sm leading-tight">Escuela Moderna</h1>
-            <p id="user-role-badge" class="text-[11px] text-amber-400 font-medium">Conectando...</p>
+    <header class="bg-brand-surface border-b border-brand-card/60 px-4 py-3 flex items-center justify-between shrink-0 shadow-md">
+        <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 bg-brand-gold/15 text-brand-gold rounded-xl flex items-center justify-center text-lg border border-brand-gold/30 shrink-0">
+                <i class="fa-solid fa-dove"></i>
+            </div>
+            <div>
+                <h1 id="app-title-header" class="font-black text-brand-gold text-xs uppercase tracking-wider leading-tight">Escuela Moderna</h1>
+                <p id="user-role-badge" class="text-[10px] text-brand-textLight/80 font-medium">Conectando...</p>
+            </div>
         </div>
-        <button onclick="App.logout()" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-xl font-medium transition flex items-center gap-1">
+        <button onclick="App.logout()" class="px-3 py-1.5 bg-brand-bg hover:bg-brand-card/80 text-brand-gold text-xs rounded-xl font-bold transition flex items-center gap-1.5 border border-brand-card/60 shadow">
             <i class="fa-solid fa-right-from-bracket"></i> Salir
         </button>
     </header>
 
     <!-- Contenedor Principal de Paneles -->
-    <main class="flex-1 overflow-y-auto pb-24 p-3 max-w-lg mx-auto w-full space-y-4">
+    <main class="flex-1 overflow-y-auto pb-24 p-3 max-w-lg mx-auto w-full space-y-4 custom-scroll">
         
         <!-- ================= VISTA: ALUMNO ================= -->
         <section id="view-student" class="space-y-4 hidden">
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+            <div class="bg-brand-surface border border-brand-card/60 rounded-2xl p-4 shadow-xl space-y-3">
                 <div class="flex items-center justify-between">
                     <div>
                         <h2 id="st-name-display" class="text-base font-bold text-white">Estudiante</h2>
-                        <p id="st-category-display" class="text-[11px] text-amber-400 font-medium">Categorías: A1, A2</p>
+                        <p id="st-category-display" class="text-[11px] text-brand-gold font-medium">Categorías: A1, A2</p>
                     </div>
-                    <div class="bg-slate-950 border border-amber-500/40 px-3 py-1.5 rounded-xl text-center">
-                        <span id="st-code-display" class="text-xs font-mono font-bold text-amber-400 tracking-wider">ALU-0000</span>
+                    <div class="bg-brand-bg border border-brand-gold/40 px-3 py-1.5 rounded-xl text-center shadow-inner">
+                        <span id="st-code-display" class="text-xs font-mono font-bold text-brand-gold tracking-wider">ALU-0000</span>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-2 pt-1">
-                    <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-2.5 text-center">
-                        <span class="text-[10px] uppercase font-bold text-slate-400 block">Horas Aprobadas</span>
-                        <span id="st-total-hours" class="text-lg font-black text-amber-400 mt-0.5 block">0 h</span>
+                    <div class="bg-brand-bg/70 border border-brand-card/50 rounded-xl p-2.5 text-center">
+                        <span class="text-[10px] uppercase font-bold text-brand-textLight/60 block">Horas Aprobadas</span>
+                        <span id="st-total-hours" class="text-lg font-black text-brand-gold mt-0.5 block">0 h</span>
                     </div>
-                    <div class="bg-slate-800/50 border border-slate-700/50 rounded-xl p-2.5 text-center">
-                        <span class="text-[10px] uppercase font-bold text-slate-400 block">Clases Totales</span>
+                    <div class="bg-brand-bg/70 border border-brand-card/50 rounded-xl p-2.5 text-center">
+                        <span class="text-[10px] uppercase font-bold text-brand-textLight/60 block">Clases Totales</span>
                         <span id="st-total-classes" class="text-lg font-black text-white mt-0.5 block">0</span>
                     </div>
                 </div>
 
-                <button onclick="App.openNewClassModal()" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition text-xs flex items-center justify-center gap-2 shadow-md">
+                <button onclick="App.openNewClassModal()" class="w-full py-3 bg-brand-gold hover:bg-brand-goldHover text-slate-950 font-black uppercase tracking-wider rounded-xl transition text-xs flex items-center justify-center gap-2 shadow-lg">
                     <i class="fa-solid fa-plus text-sm"></i> Registrar Nueva Clase
                 </button>
             </div>
 
             <div class="space-y-2">
-                <h3 class="font-bold text-slate-200 text-xs uppercase tracking-wider px-1">Historial de Mis Clases</h3>
+                <h3 class="font-bold text-brand-gold text-xs uppercase tracking-wider px-1">Historial de Mis Clases</h3>
                 <div id="st-classes-list" class="space-y-2">
-                    <p class="text-slate-500 text-xs italic text-center py-6">Cargando clases...</p>
+                    <p class="text-brand-textLight/50 text-xs italic text-center py-6">Cargando clases...</p>
                 </div>
             </div>
         </section>
 
         <!-- ================= VISTA: PROFESOR ================= -->
         <section id="view-instructor" class="space-y-4 hidden">
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-2">
-                <h3 class="font-bold text-white text-xs flex items-center gap-1.5">
-                    <i class="fa-solid fa-magnifying-glass text-amber-400"></i> Consultar Libreta de Alumno
+            <div class="bg-brand-surface border border-brand-card/60 rounded-2xl p-4 shadow-xl space-y-2">
+                <h3 class="font-bold text-brand-gold text-xs flex items-center gap-1.5 uppercase tracking-wider">
+                    <i class="fa-solid fa-magnifying-glass"></i> Consultar Libreta de Alumno
                 </h3>
                 <div class="flex gap-2">
-                    <input type="text" id="ins-search-code" placeholder="Ingrese Código (ej. ALU-4821)" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white uppercase font-mono">
-                    <button onclick="App.instructorSearchStudent()" class="px-3.5 py-2 bg-amber-500 text-slate-950 font-bold rounded-xl text-xs">Buscar</button>
+                    <input type="text" id="ins-search-code" placeholder="Ingrese Código (ej. ALU-4821)" class="flex-1 bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white uppercase font-mono focus:outline-none focus:border-brand-gold">
+                    <button onclick="App.instructorSearchStudent()" class="px-3.5 py-2 bg-brand-gold text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow">Buscar</button>
                 </div>
                 <div id="ins-search-result" class="pt-2 hidden space-y-2"></div>
             </div>
 
             <div class="space-y-2">
-                <h3 class="font-bold text-slate-200 text-xs uppercase tracking-wider px-1">Clases Pendientes de Mis Alumnos</h3>
+                <h3 class="font-bold text-brand-gold text-xs uppercase tracking-wider px-1">Clases Pendientes de Mis Alumnos</h3>
                 <div id="ins-pending-list" class="space-y-2">
-                    <p class="text-slate-500 text-xs italic text-center py-6">Cargando solicitudes...</p>
+                    <p class="text-brand-textLight/50 text-xs italic text-center py-6">Cargando solicitudes...</p>
                 </div>
             </div>
         </section>
@@ -198,87 +230,87 @@
         <!-- ================= VISTA: ESCUELA (ADMINISTRACIÓN GLOBAL) ================= -->
         <section id="view-school" class="space-y-4 hidden">
             <!-- Pestañas Internas para la Escuela -->
-            <div class="grid grid-cols-2 gap-1 bg-slate-900 p-1 rounded-xl text-xs font-bold text-center border border-slate-800">
-                <button onclick="App.switchSchoolSubTab('manage')" id="sch-tab-manage" class="py-2 rounded-lg bg-blue-600 text-white transition">Gestión de Cuentas</button>
-                <button onclick="App.switchSchoolSubTab('register')" id="sch-tab-register" class="py-2 rounded-lg text-slate-400 transition">Registrar Profesor</button>
+            <div class="grid grid-cols-2 gap-1 bg-brand-surface p-1 rounded-xl text-xs font-bold text-center border border-brand-card/60">
+                <button onclick="App.switchSchoolSubTab('manage')" id="sch-tab-manage" class="py-2 rounded-lg bg-brand-gold text-slate-950 font-black transition">Gestión de Cuentas</button>
+                <button onclick="App.switchSchoolSubTab('register')" id="sch-tab-register" class="py-2 rounded-lg text-brand-textLight/70 transition">Registrar Profesor</button>
             </div>
 
             <!-- SUB-TAB 1: GESTIÓN CON APERTURA DIRECTA DE LIBRETA -->
             <div id="sch-subtab-manage" class="space-y-4">
                 <!-- Buscador Manual por Código -->
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-2">
-                    <h3 class="font-bold text-white text-xs flex items-center gap-1.5">
-                        <i class="fa-solid fa-magnifying-glass text-blue-400"></i> Auditar Alumno por Código
+                <div class="bg-brand-surface border border-brand-card/60 rounded-2xl p-4 shadow-xl space-y-2">
+                    <h3 class="font-bold text-brand-gold text-xs flex items-center gap-1.5 uppercase tracking-wider">
+                        <i class="fa-solid fa-magnifying-glass"></i> Auditar Alumno por Código
                     </h3>
                     <div class="flex gap-2">
-                        <input type="text" id="sch-search-code" placeholder="Ej. ALU-4821" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white uppercase font-mono">
-                        <button onclick="App.schoolSearchStudent()" class="px-3.5 py-2 bg-blue-600 text-white font-bold rounded-xl text-xs">Auditar</button>
+                        <input type="text" id="sch-search-code" placeholder="Ej. ALU-4821" class="flex-1 bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white uppercase font-mono focus:outline-none focus:border-brand-gold">
+                        <button onclick="App.schoolSearchStudent()" class="px-3.5 py-2 bg-brand-gold text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow">Auditar</button>
                     </div>
                     <div id="sch-search-result" class="pt-2 hidden space-y-2"></div>
                 </div>
 
                 <!-- Lista de Profesores Registrados -->
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+                <div class="bg-brand-surface border border-brand-card/60 rounded-2xl p-4 shadow-xl space-y-3">
                     <h3 class="font-bold text-white text-xs flex items-center justify-between">
-                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-chalkboard-user text-amber-400"></i> Profesores Registrados</span>
-                        <span id="sch-prof-count" class="text-[10px] bg-slate-800 px-2 py-0.5 rounded-full text-slate-400">0</span>
+                        <span class="flex items-center gap-1.5 text-brand-gold uppercase tracking-wider"><i class="fa-solid fa-chalkboard-user"></i> Profesores Registrados</span>
+                        <span id="sch-prof-count" class="text-[10px] bg-brand-bg px-2.5 py-0.5 rounded-full text-brand-gold font-bold border border-brand-card/40">0</span>
                     </h3>
                     <div id="sch-professors-list" class="space-y-2">
-                        <p class="text-slate-500 text-xs italic text-center py-4">Cargando profesores...</p>
+                        <p class="text-brand-textLight/50 text-xs italic text-center py-4">Cargando profesores...</p>
                     </div>
                 </div>
 
-                <!-- Lista de Alumnos (Hacer clic abre el historial académico al instante) -->
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+                <!-- Lista de Alumnos -->
+                <div class="bg-brand-surface border border-brand-card/60 rounded-2xl p-4 shadow-xl space-y-3">
                     <div class="flex items-center justify-between">
-                        <h3 class="font-bold text-white text-xs flex items-center gap-1.5">
-                            <i class="fa-solid fa-user-graduate text-blue-400"></i> Alumnos Registrados
+                        <h3 class="font-bold text-brand-gold text-xs flex items-center gap-1.5 uppercase tracking-wider">
+                            <i class="fa-solid fa-user-graduate"></i> Alumnos Registrados
                         </h3>
-                        <span id="sch-stud-count" class="text-[10px] bg-slate-800 px-2 py-0.5 rounded-full text-slate-400">0</span>
+                        <span id="sch-stud-count" class="text-[10px] bg-brand-bg px-2.5 py-0.5 rounded-full text-brand-gold font-bold border border-brand-card/40">0</span>
                     </div>
                     <div>
-                        <input type="text" id="sch-student-filter" oninput="App.filterSchoolStudentsList()" placeholder="Filtrar por nombre o código..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                        <input type="text" id="sch-student-filter" oninput="App.filterSchoolStudentsList()" placeholder="Filtrar por nombre o código..." class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-gold">
                     </div>
-                    <div id="sch-students-list" class="space-y-2 max-h-60 overflow-y-auto">
-                        <p class="text-slate-500 text-xs italic text-center py-4">Cargando alumnos...</p>
+                    <div id="sch-students-list" class="space-y-2 max-h-60 overflow-y-auto custom-scroll">
+                        <p class="text-brand-textLight/50 text-xs italic text-center py-4">Cargando alumnos...</p>
                     </div>
                 </div>
             </div>
 
             <!-- SUB-TAB 2: FORMULARIO REGISTRAR PROFESOR -->
-            <div id="sch-subtab-register" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3 hidden">
-                <h3 class="font-bold text-white text-sm flex items-center gap-2">
-                    <i class="fa-solid fa-user-plus text-blue-400"></i> Registrar Nuevo Profesor
+            <div id="sch-subtab-register" class="bg-brand-surface border border-brand-card/60 rounded-2xl p-4 shadow-xl space-y-3 hidden">
+                <h3 class="font-bold text-brand-gold text-sm flex items-center gap-2 uppercase tracking-wider">
+                    <i class="fa-solid fa-user-plus"></i> Registrar Nuevo Profesor
                 </h3>
                 <form onsubmit="App.saveNewInstructor(event)" class="space-y-2.5">
                     <div>
-                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Nombre Completo *</label>
-                        <input type="text" id="sch-ins-name" required placeholder="Ej. Carlos Gómez" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                        <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Nombre Completo *</label>
+                        <input type="text" id="sch-ins-name" required placeholder="Ej. Carlos Gómez" class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-gold">
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Usuario *</label>
-                            <input type="text" id="sch-ins-user" required placeholder="carlos.g" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                            <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Usuario *</label>
+                            <input type="text" id="sch-ins-user" required placeholder="carlos.g" class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-gold">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Contraseña *</label>
-                            <input type="text" id="sch-ins-pass" required placeholder="clave123" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                            <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Contraseña *</label>
+                            <input type="text" id="sch-ins-pass" required placeholder="clave123" class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-gold">
                         </div>
                     </div>
                     <div>
-                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Categorías Autorizadas (A1 a C3) *</label>
-                        <div class="grid grid-cols-4 gap-1.5 bg-slate-800/50 border border-slate-700/50 rounded-xl p-2.5 text-[11px]">
-                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sch-cat" value="A1" class="text-amber-500"> A1</label>
-                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sch-cat" value="A2" class="text-amber-500"> A2</label>
-                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sch-cat" value="B1" class="text-amber-500"> B1</label>
-                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sch-cat" value="B2" class="text-amber-500"> B2</label>
-                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sch-cat" value="B3" class="text-amber-500"> B3</label>
-                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sch-cat" value="C1" class="text-amber-500"> C1</label>
-                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sch-cat" value="C2" class="text-amber-500"> C2</label>
-                            <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="sch-cat" value="C3" class="text-amber-500"> C3</label>
+                        <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Categorías Autorizadas (A1 a C3) *</label>
+                        <div class="grid grid-cols-4 gap-1.5 bg-brand-bg/80 border border-brand-card/60 rounded-xl p-2.5 text-[11px]">
+                            <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="sch-cat" value="A1" class="accent-brand-gold"> A1</label>
+                            <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="sch-cat" value="A2" class="accent-brand-gold"> A2</label>
+                            <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="sch-cat" value="B1" class="accent-brand-gold"> B1</label>
+                            <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="sch-cat" value="B2" class="accent-brand-gold"> B2</label>
+                            <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="sch-cat" value="B3" class="accent-brand-gold"> B3</label>
+                            <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="sch-cat" value="C1" class="accent-brand-gold"> C1</label>
+                            <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="sch-cat" value="C2" class="accent-brand-gold"> C2</label>
+                            <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="sch-cat" value="C3" class="accent-brand-gold"> C3</label>
                         </div>
                     </div>
-                    <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition text-xs shadow-md">
+                    <button type="submit" class="w-full py-2.5 bg-brand-gold hover:bg-brand-goldHover text-slate-950 font-black uppercase tracking-wider rounded-xl transition text-xs shadow-lg mt-2">
                         Guardar Profesor
                     </button>
                 </form>
@@ -288,18 +320,18 @@
     </main>
 
     <!-- MODAL: RECUPERAR CÓDIGO DE ALUMNO -->
-    <div id="modal-recovery" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-3 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                <h3 class="font-bold text-white text-sm">Recuperar Código de Alumno</h3>
-                <button onclick="App.closeRecoveryModal()" class="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
+    <div id="modal-recovery" class="fixed inset-0 z-50 bg-brand-bg/95 backdrop-blur-sm flex items-center justify-center p-3 hidden">
+        <div class="bg-brand-surface border border-brand-card/60 rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-brand-card/60 pb-2">
+                <h3 class="font-bold text-brand-gold text-sm uppercase tracking-wider">Recuperar Código de Alumno</h3>
+                <button onclick="App.closeRecoveryModal()" class="w-7 h-7 rounded-full bg-brand-bg flex items-center justify-center text-brand-textLight/70">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             <div class="space-y-3">
-                <p class="text-xs text-slate-300">Ingresa tu Nombre Completo registrado para buscar tu código:</p>
-                <input type="text" id="rec-name-input" placeholder="Tu nombre completo" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
-                <button onclick="App.searchStudentCodeByName()" class="w-full py-2.5 bg-amber-500 text-slate-950 font-bold rounded-xl text-xs shadow-md">
+                <p class="text-xs text-brand-textLight/80">Ingresa tu Nombre Completo registrado para buscar tu código:</p>
+                <input type="text" id="rec-name-input" placeholder="Tu nombre completo" class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-gold">
+                <button onclick="App.searchStudentCodeByName()" class="w-full py-2.5 bg-brand-gold text-slate-950 font-black uppercase tracking-wider rounded-xl text-xs shadow-md">
                     Buscar mi Código
                 </button>
                 <div id="rec-result-area" class="pt-2 hidden"></div>
@@ -308,27 +340,27 @@
     </div>
 
     <!-- MODAL: REGISTRAR CLASE (ALUMNO) -->
-    <div id="modal-new-class" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-3 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
-            <div class="p-3 border-b border-slate-800 flex items-center justify-between">
-                <h3 class="font-bold text-white text-sm">Registrar Informe de Clase</h3>
-                <button onclick="App.closeNewClassModal()" class="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
+    <div id="modal-new-class" class="fixed inset-0 z-50 bg-brand-bg/95 backdrop-blur-sm flex items-center justify-center p-3 hidden">
+        <div class="bg-brand-surface border border-brand-card/60 rounded-3xl max-w-sm w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-3 border-b border-brand-card/60 flex items-center justify-between">
+                <h3 class="font-bold text-brand-gold text-sm uppercase tracking-wider">Registrar Informe de Clase</h3>
+                <button onclick="App.closeNewClassModal()" class="w-7 h-7 rounded-full bg-brand-bg flex items-center justify-center text-brand-textLight/70">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
-            <div class="p-4 overflow-y-auto space-y-3 flex-1">
+            <div class="p-4 overflow-y-auto space-y-3 flex-1 custom-scroll">
                 <form id="form-new-class" onsubmit="App.submitNewClass(event)" class="space-y-2.5">
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Tipo</label>
-                            <select id="nc-type" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white">
+                            <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Tipo</label>
+                            <select id="nc-type" class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-2.5 py-2 text-xs text-white">
                                 <option value="Práctica">Práctica</option>
                                 <option value="Evaluación">Evaluación</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Duración</label>
-                            <select id="nc-duration" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white">
+                            <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Duración</label>
+                            <select id="nc-duration" class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-2.5 py-2 text-xs text-white">
                                 <option value="90">2 Horas</option>
                                 <option value="45">1 Hora</option>
                             </select>
@@ -336,25 +368,25 @@
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Categoría de la Clase *</label>
-                        <select id="nc-category" onchange="App.filterProfessorsByCategory()" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
-                            <!-- Opciones cargadas dinámicamente según lo que tiene registrado el alumno -->
+                        <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Categoría de la Clase *</label>
+                        <select id="nc-category" onchange="App.filterProfessorsByCategory()" class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white">
+                            <!-- Opciones dinámicas -->
                         </select>
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Seleccionar Profesor (Filtrado) *</label>
-                        <select id="nc-instructor" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                        <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Seleccionar Profesor (Filtrado) *</label>
+                        <select id="nc-instructor" required class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white">
                             <option value="">Seleccione categoría primero...</option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Observaciones / Vía practicada</label>
-                        <textarea id="nc-notes" rows="2" placeholder="¿Qué practicó hoy?" class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white"></textarea>
+                        <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Observaciones / Vía practicada</label>
+                        <textarea id="nc-notes" rows="2" placeholder="¿Qué practicó hoy?" class="w-full bg-brand-bg border border-brand-card/60 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-brand-gold"></textarea>
                     </div>
 
-                    <button type="submit" class="w-full py-3 bg-amber-500 text-slate-950 font-bold rounded-xl transition text-xs shadow-md">
+                    <button type="submit" class="w-full py-3 bg-brand-gold text-slate-950 font-black uppercase tracking-wider rounded-xl transition text-xs shadow-md">
                         Enviar para Firma del Profesor
                     </button>
                 </form>
@@ -363,38 +395,38 @@
     </div>
 
     <!-- MODAL DE EDICIÓN: EDITAR PROFESOR -->
-    <div id="modal-edit-prof" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-3 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-3">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                <h3 class="font-bold text-white text-sm">Editar Profesor</h3>
-                <button onclick="App.closeEditProfModal()" class="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
+    <div id="modal-edit-prof" class="fixed inset-0 z-50 bg-brand-bg/95 backdrop-blur-sm flex items-center justify-center p-3 hidden">
+        <div class="bg-brand-surface border border-brand-card/60 rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-3">
+            <div class="flex items-center justify-between border-b border-brand-card/60 pb-2">
+                <h3 class="font-bold text-brand-gold text-sm uppercase tracking-wider">Editar Profesor</h3>
+                <button onclick="App.closeEditProfModal()" class="w-7 h-7 rounded-full bg-brand-bg flex items-center justify-center text-brand-textLight/70">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             <form onsubmit="App.saveEditedProf(event)" class="space-y-2.5">
                 <input type="hidden" id="edit-prof-id">
                 <div>
-                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Nombre Completo *</label>
-                    <input type="text" id="edit-prof-name" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                    <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Nombre Completo *</label>
+                    <input type="text" id="edit-prof-name" required class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Contraseña *</label>
-                    <input type="text" id="edit-prof-pass" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                    <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Contraseña *</label>
+                    <input type="text" id="edit-prof-pass" required class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Categorías Autorizadas *</label>
-                    <div class="grid grid-cols-4 gap-1.5 bg-slate-800/50 border border-slate-700/50 rounded-xl p-2.5 text-[11px]">
-                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-prof-cat" value="A1" class="text-amber-500"> A1</label>
-                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-prof-cat" value="A2" class="text-amber-500"> A2</label>
-                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-prof-cat" value="B1" class="text-amber-500"> B1</label>
-                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-prof-cat" value="B2" class="text-amber-500"> B2</label>
-                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-prof-cat" value="B3" class="text-amber-500"> B3</label>
-                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-prof-cat" value="C1" class="text-amber-500"> C1</label>
-                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-prof-cat" value="C2" class="text-amber-500"> C2</label>
-                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-prof-cat" value="C3" class="text-amber-500"> C3</label>
+                    <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Categorías Autorizadas *</label>
+                    <div class="grid grid-cols-4 gap-1.5 bg-brand-bg/80 border border-brand-card/60 rounded-xl p-2.5 text-[11px]">
+                        <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="edit-prof-cat" value="A1" class="accent-brand-gold"> A1</label>
+                        <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="edit-prof-cat" value="A2" class="accent-brand-gold"> A2</label>
+                        <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="edit-prof-cat" value="B1" class="accent-brand-gold"> B1</label>
+                        <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="edit-prof-cat" value="B2" class="accent-brand-gold"> B2</label>
+                        <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="edit-prof-cat" value="B3" class="accent-brand-gold"> B3</label>
+                        <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="edit-prof-cat" value="C1" class="accent-brand-gold"> C1</label>
+                        <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="edit-prof-cat" value="C2" class="accent-brand-gold"> C2</label>
+                        <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="edit-prof-cat" value="C3" class="accent-brand-gold"> C3</label>
                     </div>
                 </div>
-                <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition text-xs shadow-md">
+                <button type="submit" class="w-full py-2.5 bg-brand-gold text-slate-950 font-black uppercase tracking-wider rounded-xl transition text-xs shadow-md">
                     Actualizar Profesor
                 </button>
             </form>
@@ -402,38 +434,38 @@
     </div>
 
     <!-- MODAL DE EDICIÓN: EDITAR ALUMNO -->
-    <div id="modal-edit-stud" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-3 hidden">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-3">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                <h3 class="font-bold text-white text-sm">Editar Alumno</h3>
-                <button onclick="App.closeEditStudModal()" class="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
+    <div id="modal-edit-stud" class="fixed inset-0 z-50 bg-brand-bg/95 backdrop-blur-sm flex items-center justify-center p-3 hidden">
+        <div class="bg-brand-surface border border-brand-card/60 rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-3">
+            <div class="flex items-center justify-between border-b border-brand-card/60 pb-2">
+                <h3 class="font-bold text-brand-gold text-sm uppercase tracking-wider">Editar Alumno</h3>
+                <button onclick="App.closeEditStudModal()" class="w-7 h-7 rounded-full bg-brand-bg flex items-center justify-center text-brand-textLight/70">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             <form onsubmit="App.saveEditedStud(event)" class="space-y-2.5">
                 <input type="hidden" id="edit-stud-code">
                 <div>
-                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Código Alumno</label>
-                    <input type="text" id="edit-stud-code-disp" disabled class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-amber-400 font-mono font-bold">
+                    <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Código Alumno</label>
+                    <input type="text" id="edit-stud-code-disp" disabled class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-brand-gold font-mono font-bold">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Nombre Completo *</label>
-                    <input type="text" id="edit-stud-name" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                    <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Nombre Completo *</label>
+                    <input type="text" id="edit-stud-name" required class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Categorías Registradas *</label>
-                    <div class="grid grid-cols-4 gap-1.5 bg-slate-800/50 border border-slate-700/50 rounded-xl p-2.5 text-[11px]">
-                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-stud-cat" value="A1" class="text-amber-500"> A1</label>
-                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-stud-cat" value="A2" class="text-amber-500"> A2</label>
-                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-stud-cat" value="B1" class="text-amber-500"> B1</label>
-                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-stud-cat" value="B2" class="text-amber-500"> B2</label>
-                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-stud-cat" value="B3" class="text-amber-500"> B3</label>
-                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-stud-cat" value="C1" class="text-amber-500"> C1</label>
-                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-stud-cat" value="C2" class="text-amber-500"> C2</label>
-                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-stud-cat" value="C3" class="text-amber-500"> C3</label>
+                    <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Categorías Registradas *</label>
+                    <div class="grid grid-cols-4 gap-1.5 bg-brand-bg/80 border border-brand-card/60 rounded-xl p-2.5 text-[11px]">
+                        <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="edit-stud-cat" value="A1" class="accent-brand-gold"> A1</label>
+                        <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="edit-stud-cat" value="A2" class="accent-brand-gold"> A2</label>
+                        <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="edit-stud-cat" value="B1" class="accent-brand-gold"> B1</label>
+                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-stud-cat" value="B2" class="accent-brand-gold"> B2</label>
+                        <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="edit-stud-cat" value="B3" class="accent-brand-gold"> B3</label>
+                        <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="edit-stud-cat" value="C1" class="accent-brand-gold"> C1</label>
+                        <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="edit-stud-cat" value="C2" class="accent-brand-gold"> C2</label>
+                        <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="edit-stud-cat" value="C3" class="accent-brand-gold"> C3</label>
                     </div>
                 </div>
-                <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition text-xs shadow-md">
+                <button type="submit" class="w-full py-2.5 bg-brand-gold text-slate-950 font-black uppercase tracking-wider rounded-xl transition text-xs shadow-md">
                     Guardar Cambios
                 </button>
             </form>
@@ -487,23 +519,23 @@
             switchAuthTab(role) {
                 ['student', 'instructor', 'school'].forEach(r => {
                     document.getElementById(`form-auth-${r}`).classList.add('hidden');
-                    document.getElementById(`tab-${r}`).className = "py-2 rounded-lg text-slate-400 transition";
+                    document.getElementById(`tab-${r}`).className = "py-2 rounded-lg text-brand-textLight/70 transition";
                 });
                 document.getElementById(`form-auth-${role}`).classList.remove('hidden');
-                document.getElementById(`tab-${role}`).className = "py-2 rounded-lg bg-amber-500 text-slate-950 font-bold transition";
+                document.getElementById(`tab-${role}`).className = "py-2 rounded-lg bg-brand-gold text-slate-950 font-black transition";
             }
 
             switchStudentMode(mode) {
                 if (mode === 'login') {
                     document.getElementById('student-login-fields').classList.remove('hidden');
                     document.getElementById('student-register-fields').classList.add('hidden');
-                    document.getElementById('sm-login').className = "flex-1 py-1.5 rounded-lg bg-slate-700 text-white font-bold transition";
-                    document.getElementById('sm-register').className = "flex-1 py-1.5 rounded-lg text-slate-400 font-bold transition";
+                    document.getElementById('sm-login').className = "flex-1 py-1.5 rounded-lg bg-brand-card text-white font-bold transition";
+                    document.getElementById('sm-register').className = "flex-1 py-1.5 rounded-lg text-brand-textLight/60 font-bold transition";
                 } else {
                     document.getElementById('student-login-fields').classList.add('hidden');
                     document.getElementById('student-register-fields').classList.remove('hidden');
-                    document.getElementById('sm-login').className = "flex-1 py-1.5 rounded-lg text-slate-400 font-bold transition";
-                    document.getElementById('sm-register').className = "flex-1 py-1.5 rounded-lg bg-slate-700 text-white font-bold transition";
+                    document.getElementById('sm-login').className = "flex-1 py-1.5 rounded-lg text-brand-textLight/60 font-bold transition";
+                    document.getElementById('sm-register').className = "flex-1 py-1.5 rounded-lg bg-brand-card text-white font-bold transition";
                 }
             }
 
@@ -511,14 +543,14 @@
                 if (tab === 'manage') {
                     document.getElementById('sch-subtab-manage').classList.remove('hidden');
                     document.getElementById('sch-subtab-register').classList.add('hidden');
-                    document.getElementById('sch-tab-manage').className = "py-2 rounded-lg bg-blue-600 text-white transition";
-                    document.getElementById('sch-tab-register').className = "py-2 rounded-lg text-slate-400 transition";
+                    document.getElementById('sch-tab-manage').className = "py-2 rounded-lg bg-brand-gold text-slate-950 font-black transition";
+                    document.getElementById('sch-tab-register').className = "py-2 rounded-lg text-brand-textLight/70 transition";
                     this.loadSchoolManagementData();
                 } else {
                     document.getElementById('sch-subtab-manage').classList.add('hidden');
                     document.getElementById('sch-subtab-register').classList.remove('hidden');
-                    document.getElementById('sch-tab-manage').className = "py-2 rounded-lg text-slate-400 transition";
-                    document.getElementById('sch-tab-register').className = "py-2 rounded-lg bg-blue-600 text-white transition";
+                    document.getElementById('sch-tab-manage').className = "py-2 rounded-lg text-brand-textLight/70 transition";
+                    document.getElementById('sch-tab-register').className = "py-2 rounded-lg bg-brand-gold text-slate-950 font-black transition";
                 }
             }
 
@@ -552,15 +584,15 @@
                     resultArea.innerHTML = `<p class="text-rose-400 text-xs italic">No se encontró ningún alumno con ese nombre.</p>`;
                 } else {
                     resultArea.innerHTML = `
-                        <div class="bg-slate-800 p-2.5 rounded-xl space-y-1 text-xs">
-                            <p class="text-slate-300 font-bold">Coincidencias encontradas:</p>
+                        <div class="bg-brand-bg/90 p-2.5 rounded-xl space-y-1 text-xs border border-brand-card/60">
+                            <p class="text-brand-gold font-bold">Coincidencias encontradas:</p>
                             ${found.map(s => `
-                                <div class="bg-slate-900 p-2 rounded-lg flex justify-between items-center">
+                                <div class="bg-brand-surface p-2 rounded-lg flex justify-between items-center border border-brand-card/40">
                                     <div>
                                         <p class="text-white font-bold">${s.name}</p>
-                                        <p class="text-[10px] text-slate-400">Cats: ${Array.isArray(s.categories) ? s.categories.join(', ') : (s.category || 'N/A')}</p>
+                                        <p class="text-[10px] text-brand-textLight/70">Cats: ${Array.isArray(s.categories) ? s.categories.join(', ') : (s.category || 'N/A')}</p>
                                     </div>
-                                    <span class="text-amber-400 font-mono font-bold">${s.code}</span>
+                                    <span class="text-brand-gold font-mono font-bold">${s.code}</span>
                                 </div>
                             `).join('')}
                         </div>
@@ -686,19 +718,19 @@
 
                     const container = document.getElementById('st-classes-list');
                     if (myClasses.length === 0) {
-                        container.innerHTML = `<p class="text-slate-500 text-xs italic text-center py-6">No has registrado clases todavía.</p>`;
+                        container.innerHTML = `<p class="text-brand-textLight/50 text-xs italic text-center py-6">No has registrado clases todavía.</p>`;
                     } else {
                         container.innerHTML = myClasses.reverse().map(c => `
-                            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-1.5 text-xs">
+                            <div class="bg-brand-surface border border-brand-card/60 rounded-2xl p-3 space-y-1.5 text-xs shadow-md">
                                 <div class="flex items-center justify-between font-bold text-white">
                                     <span>${c.type} (${c.duration == 90 ? '2 horas' : '1 hora'}) [Cat: ${c.category}]</span>
                                     ${c.status === 'Aprobada' 
-                                        ? `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] px-2 py-0.5 rounded-md font-bold">✅ Firmada por ${c.signedBy}</span>` 
-                                        : `<span class="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] px-2 py-0.5 rounded-md font-bold">⏳ Pendiente de Firma</span>`}
+                                        ? `<span class="bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-[10px] px-2 py-0.5 rounded-md font-bold">✅ Firmada por ${c.signedBy}</span>` 
+                                        : `<span class="bg-brand-gold/10 text-brand-gold border border-brand-gold/30 text-[10px] px-2 py-0.5 rounded-md font-bold">⏳ Pendiente de Firma</span>`}
                                 </div>
-                                <p class="text-slate-300">Profesor asignado: <strong>${c.instructorName}</strong></p>
-                                <p class="text-slate-400">${c.notes || 'Sin observaciones'}</p>
-                                <span class="text-[10px] text-slate-500 block text-right">${new Date(c.date).toLocaleDateString()}</span>
+                                <p class="text-brand-textLight">Profesor asignado: <strong class="text-brand-gold">${c.instructorName}</strong></p>
+                                <p class="text-brand-textLight/70">${c.notes || 'Sin observaciones'}</p>
+                                <span class="text-[10px] text-brand-textLight/50 block text-right">${new Date(c.date).toLocaleDateString()}</span>
                             </div>
                         `).join('');
                     }
@@ -772,17 +804,17 @@
 
                     const container = document.getElementById('ins-pending-list');
                     if (pending.length === 0) {
-                        container.innerHTML = `<p class="text-slate-500 text-xs italic text-center py-6">No hay solicitudes pendientes.</p>`;
+                        container.innerHTML = `<p class="text-brand-textLight/50 text-xs italic text-center py-6">No hay solicitudes pendientes.</p>`;
                     } else {
                         container.innerHTML = pending.map(c => `
-                            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2 text-xs">
+                            <div class="bg-brand-surface border border-brand-card/60 rounded-2xl p-3 space-y-2 text-xs shadow-md">
                                 <div class="flex justify-between font-bold text-white">
                                     <span>Alumno: ${c.studentName} (${c.studentCode})</span>
-                                    <span class="text-amber-400">⏳ Pendiente</span>
+                                    <span class="text-brand-gold">⏳ Pendiente</span>
                                 </div>
-                                <p class="text-slate-300">Clase: ${c.type} (${c.duration == 90 ? '2h' : '1h'}) • Cat: ${c.category}</p>
-                                <p class="text-slate-400">${c.notes || 'Sin notas'}</p>
-                                <button onclick="App.approveClass('${c.id}')" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-md transition">
+                                <p class="text-brand-textLight">Clase: ${c.type} (${c.duration == 90 ? '2h' : '1h'}) • Cat: ${c.category}</p>
+                                <p class="text-brand-textLight/70">${c.notes || 'Sin notas'}</p>
+                                <button onclick="App.approveClass('${c.id}')" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold uppercase tracking-wider rounded-xl shadow transition">
                                     Aprobar y Firmar Clase
                                 </button>
                             </div>
@@ -822,16 +854,16 @@
 
                     const container = document.getElementById('sch-professors-list');
                     if (profList.length === 0) {
-                        container.innerHTML = `<p class="text-slate-500 text-xs italic text-center py-4">No hay profesores registrados.</p>`;
+                        container.innerHTML = `<p class="text-brand-textLight/50 text-xs italic text-center py-4">No hay profesores registrados.</p>`;
                     } else {
                         container.innerHTML = profList.map(([id, p]) => `
-                            <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between text-xs">
+                            <div class="bg-brand-bg/80 border border-brand-card/60 rounded-xl p-2.5 flex items-center justify-between text-xs">
                                 <div>
                                     <h4 class="font-bold text-white">${p.name}</h4>
-                                    <p class="text-[10px] text-slate-400">Usuario: ${p.user} • Cats: ${(p.categories || []).join(', ')}</p>
+                                    <p class="text-[10px] text-brand-textLight/70">Usuario: ${p.user} • Cats: ${(p.categories || []).join(', ')}</p>
                                 </div>
                                 <div class="flex gap-1">
-                                    <button onclick="App.openEditProfModal('${id}', '${p.name}', '${p.pass}', '${(p.categories || []).join(',')}')" class="p-1.5 bg-blue-600/20 text-blue-400 rounded-lg text-[10px] hover:bg-blue-600/40 transition">
+                                    <button onclick="App.openEditProfModal('${id}', '${p.name}', '${p.pass}', '${(p.categories || []).join(',')}')" class="p-1.5 bg-brand-gold/20 text-brand-gold rounded-lg text-[10px] hover:bg-brand-gold/40 transition">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
                                     <button onclick="App.deleteProf('${id}')" class="p-1.5 bg-rose-600/20 text-rose-400 rounded-lg text-[10px] hover:bg-rose-600/40 transition">
@@ -843,7 +875,7 @@
                     }
                 });
 
-                // Escuchar Alumnos (Con tarjeta clickeable)
+                // Escuchar Alumnos
                 db.ref('alumnos').on('value', snapshot => {
                     this.cachedStudents = snapshot.val() || {};
                     this.renderSchoolStudentsList(this.cachedStudents);
@@ -856,18 +888,18 @@
 
                 const container = document.getElementById('sch-students-list');
                 if (studList.length === 0) {
-                    container.innerHTML = `<p class="text-slate-500 text-xs italic text-center py-4">No hay alumnos registrados.</p>`;
+                    container.innerHTML = `<p class="text-brand-textLight/50 text-xs italic text-center py-4">No hay alumnos registrados.</p>`;
                 } else {
                     container.innerHTML = studList.map(([code, s]) => {
                         const catsStr = Array.isArray(s.categories) ? s.categories.join(', ') : (s.category || 'A1');
                         return `
-                            <div class="bg-slate-950 hover:bg-slate-800/80 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between text-xs cursor-pointer transition" onclick="App.quickAuditStudent('${s.code}')">
+                            <div class="bg-brand-bg/80 hover:bg-brand-card/60 border border-brand-card/60 rounded-xl p-2.5 flex items-center justify-between text-xs cursor-pointer transition" onclick="App.quickAuditStudent('${s.code}')">
                                 <div>
-                                    <h4 class="font-bold text-white hover:text-amber-400 transition">${s.name}</h4>
-                                    <span class="text-[10px] text-amber-400 font-mono">Código: ${s.code} • Cats: ${catsStr}</span>
+                                    <h4 class="font-bold text-white hover:text-brand-gold transition">${s.name}</h4>
+                                    <span class="text-[10px] text-brand-gold font-mono">Código: ${s.code} • Cats: ${catsStr}</span>
                                 </div>
                                 <div class="flex gap-1" onclick="event.stopPropagation()">
-                                    <button onclick="App.openEditStudModal('${s.code}', '${s.name}', '${catsStr}')" class="p-1.5 bg-blue-600/20 text-blue-400 rounded-lg text-[10px] hover:bg-blue-600/40 transition">
+                                    <button onclick="App.openEditStudModal('${s.code}', '${s.name}', '${catsStr}')" class="p-1.5 bg-brand-gold/20 text-brand-gold rounded-lg text-[10px] hover:bg-brand-gold/40 transition">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
                                     <button onclick="App.deleteStud('${s.code}')" class="p-1.5 bg-rose-600/20 text-rose-400 rounded-lg text-[10px] hover:bg-rose-600/40 transition">
@@ -1034,27 +1066,27 @@
                 const catsStr = Array.isArray(student.categories) ? student.categories.join(', ') : (student.category || 'A1');
 
                 container.innerHTML = `
-                    <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-3 space-y-2 text-xs">
-                        <div class="border-b border-slate-700 pb-1.5 flex justify-between items-center">
+                    <div class="bg-brand-bg/90 border border-brand-card/60 rounded-2xl p-3 space-y-2 text-xs shadow-lg">
+                        <div class="border-b border-brand-card/60 pb-1.5 flex justify-between items-center">
                             <div>
                                 <h4 class="font-bold text-white text-sm">${student.name}</h4>
-                                <span class="text-amber-400 font-mono">Código: ${student.code} • Cats: ${catsStr}</span>
+                                <span class="text-brand-gold font-mono">Código: ${student.code} • Cats: ${catsStr}</span>
                             </div>
                             <div class="text-right">
-                                <span class="text-amber-400 font-black text-sm">${totalHours} Horas</span>
-                                <span class="text-[10px] text-slate-400 block">${approved.length} clases aprobadas</span>
+                                <span class="text-brand-gold font-black text-sm">${totalHours} Horas</span>
+                                <span class="text-[10px] text-brand-textLight/60 block">${approved.length} clases aprobadas</span>
                             </div>
                         </div>
-                        <div class="space-y-1.5 max-h-48 overflow-y-auto pt-1">
-                            ${studentClasses.length === 0 ? '<p class="text-slate-500 italic text-center">Sin clases registradas aún.</p>' : 
+                        <div class="space-y-1.5 max-h-48 overflow-y-auto pt-1 custom-scroll">
+                            ${studentClasses.length === 0 ? '<p class="text-brand-textLight/50 italic text-center">Sin clases registradas aún.</p>' : 
                                 studentClasses.map(c => `
-                                    <div class="bg-slate-900 p-2 rounded-xl space-y-0.5">
+                                    <div class="bg-brand-surface p-2 rounded-xl space-y-0.5 border border-brand-card/40">
                                         <div class="flex justify-between font-bold text-white">
                                             <span>${c.type} (${c.duration == 90 ? '2h' : '1h'}) [Cat: ${c.category}]</span>
                                             <span>${c.status === 'Aprobada' ? '✅ ' + c.signedBy : '⏳ Pendiente'}</span>
                                         </div>
-                                        <p class="text-slate-300">Prof: ${c.instructorName}</p>
-                                        <p class="text-slate-400">${c.notes || 'Sin notas'}</p>
+                                        <p class="text-brand-textLight">Prof: ${c.instructorName}</p>
+                                        <p class="text-brand-textLight/70">${c.notes || 'Sin notas'}</p>
                                     </div>
                                 `).join('')}
                         </div>
