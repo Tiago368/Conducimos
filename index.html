@@ -174,11 +174,55 @@
             </div>
         </section>
 
-        <!-- ================= VISTA: ESCUELA (ADMIN) ================= -->
+        <!-- ================= VISTA: ESCUELA (ADMINISTRACIÓN GLOBAL) ================= -->
         <section id="view-school" class="space-y-4 hidden">
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+            <!-- Pestañas Internas para la Escuela -->
+            <div class="grid grid-cols-2 gap-1 bg-slate-900 p-1 rounded-xl text-xs font-bold text-center border border-slate-800">
+                <button onclick="App.switchSchoolSubTab('manage')" id="sch-tab-manage" class="py-2 rounded-lg bg-blue-600 text-white transition">Gestión de Cuentas</button>
+                <button onclick="App.switchSchoolSubTab('register')" id="sch-tab-register" class="py-2 rounded-lg text-slate-400 transition">Registrar Profesor</button>
+            </div>
+
+            <!-- SUB-TAB 1: GESTIÓN Y EDICIÓN DE PROFESORES Y ALUMNO -->
+            <div id="sch-subtab-manage" class="space-y-4">
+                <!-- Buscador / Auditoría General -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-2">
+                    <h3 class="font-bold text-white text-xs flex items-center gap-1.5">
+                        <i class="fa-solid fa-magnifying-glass text-blue-400"></i> Buscar / Auditar Alumno por Código
+                    </h3>
+                    <div class="flex gap-2">
+                        <input type="text" id="sch-search-code" placeholder="Código (ej. ALU-4821)" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white uppercase font-mono">
+                        <button onclick="App.schoolSearchStudent()" class="px-3.5 py-2 bg-blue-600 text-white font-bold rounded-xl text-xs">Auditar</button>
+                    </div>
+                    <div id="sch-search-result" class="pt-2 hidden space-y-2"></div>
+                </div>
+
+                <!-- Lista de Profesores Registrados -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+                    <h3 class="font-bold text-white text-xs flex items-center justify-between">
+                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-chalkboard-user text-amber-400"></i> Profesores Registrados</span>
+                        <span id="sch-prof-count" class="text-[10px] bg-slate-800 px-2 py-0.5 rounded-full text-slate-400">0</span>
+                    </h3>
+                    <div id="sch-professors-list" class="space-y-2">
+                        <p class="text-slate-500 text-xs italic text-center py-4">Cargando profesores...</p>
+                    </div>
+                </div>
+
+                <!-- Lista de Alumnos Registrados -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+                    <h3 class="font-bold text-white text-xs flex items-center justify-between">
+                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-user-graduate text-blue-400"></i> Alumnos Registrados</span>
+                        <span id="sch-stud-count" class="text-[10px] bg-slate-800 px-2 py-0.5 rounded-full text-slate-400">0</span>
+                    </h3>
+                    <div id="sch-students-list" class="space-y-2 max-h-60 overflow-y-auto">
+                        <p class="text-slate-500 text-xs italic text-center py-4">Cargando alumnos...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-TAB 2: FORMULARIO REGISTRAR PROFESOR -->
+            <div id="sch-subtab-register" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3 hidden">
                 <h3 class="font-bold text-white text-sm flex items-center gap-2">
-                    <i class="fa-solid fa-user-plus text-blue-400"></i> Registrar Profesor
+                    <i class="fa-solid fa-user-plus text-blue-400"></i> Registrar Nuevo Profesor
                 </h3>
                 <form onsubmit="App.saveNewInstructor(event)" class="space-y-2.5">
                     <div>
@@ -210,17 +254,6 @@
                         Guardar Profesor
                     </button>
                 </form>
-            </div>
-
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-2">
-                <h3 class="font-bold text-white text-xs flex items-center gap-1.5">
-                    <i class="fa-solid fa-shield-halved text-blue-400"></i> Auditoría General de Alumnos
-                </h3>
-                <div class="flex gap-2">
-                    <input type="text" id="sch-search-code" placeholder="Código de Alumno (ej. ALU-4821)" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white uppercase font-mono">
-                    <button onclick="App.schoolSearchStudent()" class="px-3.5 py-2 bg-blue-600 text-white font-bold rounded-xl text-xs">Auditar</button>
-                </div>
-                <div id="sch-search-result" class="pt-2 hidden space-y-2"></div>
             </div>
         </section>
 
@@ -286,19 +319,82 @@
         </div>
     </div>
 
+    <!-- MODAL DE EDICIÓN: EDITAR PROFESOR -->
+    <div id="modal-edit-prof" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-3 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <h3 class="font-bold text-white text-sm">Editar Profesor</h3>
+                <button onclick="App.closeEditProfModal()" class="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form onsubmit="App.saveEditedProf(event)" class="space-y-2.5">
+                <input type="hidden" id="edit-prof-id">
+                <div>
+                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Nombre Completo *</label>
+                    <input type="text" id="edit-prof-name" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Contraseña *</label>
+                    <input type="text" id="edit-prof-pass" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Categorías Autorizadas *</label>
+                    <div class="grid grid-cols-3 gap-1.5 bg-slate-800/50 border border-slate-700/50 rounded-xl p-2.5 text-[11px]">
+                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-prof-cat" value="A1" class="text-amber-500"> A1</label>
+                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-prof-cat" value="A2" class="text-amber-500"> A2</label>
+                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-prof-cat" value="B1" class="text-amber-500"> B1</label>
+                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-prof-cat" value="B2" class="text-amber-500"> B2</label>
+                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-prof-cat" value="C1" class="text-amber-500"> C1</label>
+                        <label class="flex items-center gap-1 text-slate-300"><input type="checkbox" name="edit-prof-cat" value="C2" class="text-amber-500"> C2</label>
+                    </div>
+                </div>
+                <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition text-xs shadow-md">
+                    Actualizar Profesor
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE EDICIÓN: EDITAR ALUMNO -->
+    <div id="modal-edit-stud" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-3 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <h3 class="font-bold text-white text-sm">Editar Alumno</h3>
+                <button onclick="App.closeEditStudModal()" class="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <form onsubmit="App.saveEditedStud(event)" class="space-y-2.5">
+                <input type="hidden" id="edit-stud-code">
+                <div>
+                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Código Alumno (Único)</label>
+                    <input type="text" id="edit-stud-code-disp" disabled class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-amber-400 font-mono font-bold">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Nombre Completo *</label>
+                    <input type="text" id="edit-stud-name" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                </div>
+                <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition text-xs shadow-md">
+                    Guardar Cambios
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- Script de Lógica e Integración con Firebase -->
     <script>
         // =========================================================================
         // 1. CONFIGURACIÓN DE FIREBASE (PEGA AQUÍ TUS CREDENCIALES)
         // =========================================================================
         const firebaseConfig = {
-            apiKey: "AIzaSyCEQ9Ec1d-PfpAXg88Xner-mOVCr3k4HFM",
-            authDomain: "conducimos-7660b.firebaseapp.com",
-            databaseURL: "https://conducimos-7660b-default-rtdb.firebaseio.com",
-            projectId: "conducimos-7660b",
-            storageBucket: "conducimos-7660b.firebasestorage.app",
-            messagingSenderId: "718716977434",
-            appId: "1:718716977434:web:99c43e1c5a1ad37af1aca3"
+            apiKey: "PEGA_AQUI_TU_API_KEY",
+            authDomain: "PEGA_AQUI_TU_AUTH_DOMAIN",
+            databaseURL: "PEGA_AQUI_TU_DATABASE_URL",
+            projectId: "PEGA_AQUI_TU_PROJECT_ID",
+            storageBucket: "PEGA_AQUI_TU_STORAGE_BUCKET",
+            messagingSenderId: "PEGA_AQUI_TU_MESSAGING_SENDER_ID",
+            appId: "PEGA_AQUI_TU_APP_ID"
         };
 
         // Inicializar Firebase
@@ -347,6 +443,22 @@
                     document.getElementById('student-register-fields').classList.remove('hidden');
                     document.getElementById('sm-login').className = "flex-1 py-1.5 rounded-lg text-slate-400 font-bold transition";
                     document.getElementById('sm-register').className = "flex-1 py-1.5 rounded-lg bg-slate-700 text-white font-bold transition";
+                }
+            }
+
+            // PESTAÑAS ESCUELA
+            switchSchoolSubTab(tab) {
+                if (tab === 'manage') {
+                    document.getElementById('sch-subtab-manage').classList.remove('hidden');
+                    document.getElementById('sch-subtab-register').classList.add('hidden');
+                    document.getElementById('sch-tab-manage').className = "py-2 rounded-lg bg-blue-600 text-white transition";
+                    document.getElementById('sch-tab-register').className = "py-2 rounded-lg text-slate-400 transition";
+                    this.loadSchoolManagementData();
+                } else {
+                    document.getElementById('sch-subtab-manage').classList.add('hidden');
+                    document.getElementById('sch-subtab-register').classList.remove('hidden');
+                    document.getElementById('sch-tab-manage').className = "py-2 rounded-lg text-slate-400 transition";
+                    document.getElementById('sch-tab-register').className = "py-2 rounded-lg bg-blue-600 text-white transition";
                 }
             }
 
@@ -449,6 +561,7 @@
                     this.listenInstructorPendingClasses();
                 } else if (role === 'school') {
                     badge.innerText = `Rol: Escuela (Administración)`;
+                    this.loadSchoolManagementData();
                 }
             }
 
@@ -580,7 +693,70 @@
                 this.renderStudentAuditCard(code, 'ins-search-result');
             }
 
-            // FUNCIONES DE LA ESCUELA
+            // GESTIÓN Y EDICIÓN EN LA ESCUELA
+            loadSchoolManagementData() {
+                if (!db) return;
+
+                // Escuchar Profesores
+                db.ref('profesores').on('value', snapshot => {
+                    const instructors = snapshot.val() || {};
+                    const profList = Object.entries(instructors);
+                    document.getElementById('sch-prof-count').innerText = profList.length;
+
+                    const container = document.getElementById('sch-professors-list');
+                    if (profList.length === 0) {
+                        container.innerHTML = `<p class="text-slate-500 text-xs italic text-center py-4">No hay profesores registrados.</p>`;
+                    } else {
+                        container.innerHTML = profList.map(([id, p]) => `
+                            <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between text-xs">
+                                <div>
+                                    <h4 class="font-bold text-white">${p.name}</h4>
+                                    <p class="text-[10px] text-slate-400">Usuario: ${p.user} • Cats: ${(p.categories || []).join(', ')}</p>
+                                </div>
+                                <div class="flex gap-1">
+                                    <button onclick="App.openEditProfModal('${id}', '${p.name}', '${p.pass}', '${(p.categories || []).join(',')}')" class="p-1.5 bg-blue-600/20 text-blue-400 rounded-lg text-[10px] hover:bg-blue-600/40 transition">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button onclick="App.deleteProf('${id}')" class="p-1.5 bg-rose-600/20 text-rose-400 rounded-lg text-[10px] hover:bg-rose-600/40 transition">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                });
+
+                // Escuchar Alumnos
+                db.ref('alumnos').on('value', snapshot => {
+                    const students = snapshot.val() || {};
+                    const studList = Object.entries(students);
+                    document.getElementById('sch-stud-count').innerText = studList.length;
+
+                    const container = document.getElementById('sch-students-list');
+                    if (studList.length === 0) {
+                        container.innerHTML = `<p class="text-slate-500 text-xs italic text-center py-4">No hay alumnos registrados.</p>`;
+                    } else {
+                        container.innerHTML = studList.map(([code, s]) => `
+                            <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between text-xs">
+                                <div>
+                                    <h4 class="font-bold text-white">${s.name}</h4>
+                                    <span class="text-[10px] text-amber-400 font-mono">Código: ${s.code}</span>
+                                </div>
+                                <div class="flex gap-1">
+                                    <button onclick="App.openEditStudModal('${s.code}', '${s.name}')" class="p-1.5 bg-blue-600/20 text-blue-400 rounded-lg text-[10px] hover:bg-blue-600/40 transition">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button onclick="App.deleteStud('${s.code}')" class="p-1.5 bg-rose-600/20 text-rose-400 rounded-lg text-[10px] hover:bg-rose-600/40 transition">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                });
+            }
+
+            // REGISTRAR PROFESOR NUEVO
             async saveNewInstructor(event) {
                 event.preventDefault();
                 const name = document.getElementById('sch-ins-name').value.trim();
@@ -600,7 +776,86 @@
                 }
 
                 event.target.reset();
-                alert(`Profesor ${name} registrado con éxito en la base de datos.`);
+                alert(`Profesor ${name} registrado con éxito.`);
+                this.switchSchoolSubTab('manage');
+            }
+
+            // MODALES Y EDICIÓN PROFESOR
+            openEditProfModal(id, name, pass, catsStr) {
+                document.getElementById('edit-prof-id').value = id;
+                document.getElementById('edit-prof-name').value = name;
+                document.getElementById('edit-prof-pass').value = pass;
+
+                const catsList = catsStr ? catsStr.split(',') : [];
+                document.querySelectorAll('input[name="edit-prof-cat"]').forEach(cb => {
+                    cb.checked = catsList.includes(cb.value);
+                });
+
+                document.getElementById('modal-edit-prof').classList.remove('hidden');
+            }
+
+            closeEditProfModal() {
+                document.getElementById('modal-edit-prof').classList.add('hidden');
+            }
+
+            async saveEditedProf(event) {
+                event.preventDefault();
+                const id = document.getElementById('edit-prof-id').value;
+                const name = document.getElementById('edit-prof-name').value.trim();
+                const pass = document.getElementById('edit-prof-pass').value.trim();
+
+                const cats = [];
+                document.querySelectorAll('input[name="edit-prof-cat"]:checked').forEach(cb => cats.push(cb.value));
+
+                if (cats.length === 0) return alert('Seleccione al menos una categoría.');
+
+                if (db) {
+                    await db.ref('profesores/' + id).update({ name, pass, categories: cats });
+                    alert('Datos de profesor actualizados.');
+                    this.closeEditProfModal();
+                }
+            }
+
+            async deleteProf(id) {
+                if (confirm('¿Está seguro de eliminar este profesor? El usuario ya no podrá ingresar.')) {
+                    if (db) {
+                        await db.ref('profesores/' + id).remove();
+                        alert('Profesor eliminado.');
+                    }
+                }
+            }
+
+            // MODALES Y EDICIÓN ALUMNO
+            openEditStudModal(code, name) {
+                document.getElementById('edit-stud-code').value = code;
+                document.getElementById('edit-stud-code-disp').value = code;
+                document.getElementById('edit-stud-name').value = name;
+                document.getElementById('modal-edit-stud').classList.remove('hidden');
+            }
+
+            closeEditStudModal() {
+                document.getElementById('modal-edit-stud').classList.add('hidden');
+            }
+
+            async saveEditedStud(event) {
+                event.preventDefault();
+                const code = document.getElementById('edit-stud-code').value;
+                const name = document.getElementById('edit-stud-name').value.trim();
+
+                if (db) {
+                    await db.ref('alumnos/' + code).update({ name: name });
+                    alert('Nombre del alumno actualizado.');
+                    this.closeEditStudModal();
+                }
+            }
+
+            async deleteStud(code) {
+                if (confirm(`¿Está seguro de eliminar la cuenta ${code}? Esta acción eliminará al alumno de la base de datos.`)) {
+                    if (db) {
+                        await db.ref('alumnos/' + code).remove();
+                        alert('Alumno eliminado.');
+                    }
+                }
             }
 
             schoolSearchStudent() {
