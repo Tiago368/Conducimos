@@ -281,6 +281,7 @@
                         </h3>
                         <span id="sch-stud-count" class="text-[10px] bg-brand-bg px-2.5 py-0.5 rounded-full text-brand-gold font-bold border border-brand-card/40">0</span>
                     </div>
+                    <p class="text-[10px] text-brand-textLight/70 italic">💡 Haz clic sobre cualquier alumno para abrir su historial completo.</p>
                     <div>
                         <input type="text" id="sch-student-filter" oninput="App.filterSchoolStudentsList()" placeholder="Filtrar por nombre o usuario..." class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-gold">
                     </div>
@@ -332,7 +333,7 @@
 
     </main>
 
-    <!-- MODAL: RECUPERAR / CAMBIAR CONTRASEÑA CON CÓDIGO ALU-XXXX -->
+    <!-- MODAL: RECUPERAR / CAMBIAR CONTRASEÑA CON CÓDIGO + NOMBRE COMPLETO -->
     <div id="modal-recovery" class="fixed inset-0 z-50 bg-brand-bg/95 backdrop-blur-sm flex items-center justify-center p-3 hidden">
         <div class="bg-brand-surface border border-brand-card/60 rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-4">
             <div class="flex items-center justify-between border-b border-brand-card/60 pb-2">
@@ -342,14 +343,21 @@
                 </button>
             </div>
             <div class="space-y-3">
-                <p class="text-xs text-brand-textLight/80">Ingresa tu <strong>Código Único</strong> (ej. ALU-4821) para restablecer tu contraseña:</p>
-                <input type="text" id="rec-code-input" placeholder="Ej. ALU-4821" class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white uppercase font-mono focus:outline-none focus:border-brand-gold">
+                <p class="text-xs text-brand-textLight/80">Por seguridad, ingresa tu <strong>Código Único</strong> y tu <strong>Nombre Completo</strong> tal como te registraste:</p>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Código Único *</label>
+                    <input type="text" id="rec-code-input" placeholder="Ej. ALU-4821" class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white uppercase font-mono focus:outline-none focus:border-brand-gold">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Nombre Completo *</label>
+                    <input type="text" id="rec-name-input" placeholder="Ej. Juan Pérez" class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-gold">
+                </div>
                 <div>
                     <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Nueva Contraseña *</label>
                     <input type="password" id="rec-new-pass" placeholder="••••••••" class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-gold">
                 </div>
                 <button onclick="App.resetStudentPassword()" class="w-full py-2.5 bg-brand-gold text-slate-950 font-black uppercase tracking-wider rounded-xl text-xs shadow-md">
-                    Cambiar Contraseña
+                    Validar y Cambiar Contraseña
                 </button>
             </div>
         </div>
@@ -491,7 +499,7 @@
                         <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="edit-stud-cat" value="C3" class="accent-brand-gold"> C3</label>
                     </div>
                 </div>
-                <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-wider rounded-xl transition text-xs shadow-md">
+                <button type="submit" class="w-full py-2.5 bg-brand-gold hover:bg-brand-goldHover text-slate-950 font-black uppercase tracking-wider rounded-xl transition text-xs shadow-md">
                     Guardar Cambios
                 </button>
             </form>
@@ -504,13 +512,13 @@
         // 1. CONFIGURACIÓN DE FIREBASE (PEGA AQUÍ TUS CREDENCIALES)
         // =========================================================================
         const firebaseConfig = {
-            apiKey: "AIzaSyCEQ9Ec1d-PfpAXg88Xner-mOVCr3k4HFM",
-            authDomain: "conducimos-7660b.firebaseapp.com",
-            databaseURL: "https://conducimos-7660b-default-rtdb.firebaseio.com",
-            projectId: "conducimos-7660b",
-            storageBucket: "conducimos-7660b.firebasestorage.app",
-            messagingSenderId: "718716977434",
-            appId: "1:718716977434:web:99c43e1c5a1ad37af1aca3"
+            apiKey: "PEGA_AQUI_TU_API_KEY",
+            authDomain: "PEGA_AQUI_TU_AUTH_DOMAIN",
+            databaseURL: "PEGA_AQUI_TU_DATABASE_URL",
+            projectId: "PEGA_AQUI_TU_PROJECT_ID",
+            storageBucket: "PEGA_AQUI_TU_STORAGE_BUCKET",
+            messagingSenderId: "PEGA_AQUI_TU_MESSAGING_SENDER_ID",
+            appId: "PEGA_AQUI_TU_APP_ID"
         };
 
         let db = null;
@@ -580,9 +588,10 @@
                 }
             }
 
-            // RECUPERACIÓN / CAMBIO DE CONTRASEÑA USANDO CÓDIGO ALU-XXXX
+            // RECUPERACIÓN DE CONTRASEÑA VALIDANDO CÓDIGO + NOMBRE COMPLETO
             openRecoveryModal() {
                 document.getElementById('rec-code-input').value = '';
+                document.getElementById('rec-name-input').value = '';
                 document.getElementById('rec-new-pass').value = '';
                 document.getElementById('modal-recovery').classList.remove('hidden');
             }
@@ -593,19 +602,31 @@
 
             async resetStudentPassword() {
                 if (!db) return alert('⚠️ Firebase no configurado.');
+                
                 const codeInput = document.getElementById('rec-code-input').value.trim().toUpperCase();
                 const code = codeInput.startsWith('ALU-') ? codeInput : 'ALU-' + codeInput;
+                const nameInput = document.getElementById('rec-name-input').value.trim().toLowerCase();
                 const newPass = document.getElementById('rec-new-pass').value.trim();
 
-                if (!code || !newPass) return alert('Por favor ingrese su código y la nueva contraseña.');
+                if (!codeInput || !nameInput || !newPass) {
+                    return alert('Por favor complete todos los campos: Código, Nombre Completo y Nueva Contraseña.');
+                }
 
                 const studentRef = db.ref('alumnos/' + code);
                 const snapshot = await studentRef.once('value');
 
                 if (!snapshot.exists()) {
-                    return alert('⚠️ El código ingresado no existe en la base de datos.');
+                    return alert('⚠️ Los datos ingresados son incorrectos. Verifique el Código y el Nombre.');
                 }
 
+                const studentData = snapshot.val();
+                
+                // Validar que el nombre coincida (ignorando mayúsculas/minúsculas)
+                if (studentData.name.trim().toLowerCase() !== nameInput) {
+                    return alert('⚠️ Los datos ingresados son incorrectos. Verifique el Código y el Nombre.');
+                }
+
+                // Si ambos coinciden, se actualiza la contraseña
                 await studentRef.update({ password: newPass });
                 alert('¡Contraseña actualizada con éxito! Ya puedes iniciar sesión con tu usuario y tu nueva contraseña.');
                 this.closeRecoveryModal();
@@ -652,7 +673,7 @@
 
                     this.currentUser = studentData;
                     localStorage.setItem('em_current_user', JSON.stringify(studentData));
-                    alert(`¡Cuenta creada con éxito!\n\nTu Código Único de Rescate es: ${randomCode}\n(Guárdalo bien, te servirá para recuperar tu contraseña si la olvidas).`);
+                    alert(`¡Cuenta creada con éxito!\n\nTu Código Único de Rescate es: ${randomCode}\n(Anótalo junto a tu Nombre Completo, los necesitarás si alguna vez olvidas tu contraseña).`);
                     this.initApp();
                 } else {
                     const username = document.getElementById('sa-login-user').value.trim().toLowerCase();
