@@ -10,9 +10,9 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Firebase SDK (v9 Compat) - Descomenta cuando configures tu BD -->
-    <!-- <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script> -->
-    <!-- <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script> -->
+    <!-- Firebase SDK (v9 Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
     <meta name="theme-color" content="#0f172a">
     
@@ -43,7 +43,7 @@
                 <p class="text-slate-400 text-xs">Inicie sesión para acceder a su panel</p>
             </div>
 
-            <!-- Pestañas de Selector de Rol en Login -->
+            <!-- Selector de Rol en Login -->
             <div class="grid grid-cols-3 gap-1 bg-slate-950 p-1 rounded-xl text-[11px] font-bold text-center">
                 <button type="button" onclick="App.switchAuthTab('student')" id="tab-student" class="py-2 rounded-lg bg-amber-500 text-slate-950 transition">Alumno</button>
                 <button type="button" onclick="App.switchAuthTab('instructor')" id="tab-instructor" class="py-2 rounded-lg text-slate-400 transition">Profesor</button>
@@ -102,7 +102,7 @@
         </div>
     </div>
 
-    <!-- Header Principal (Adaptativo) -->
+    <!-- Header Principal -->
     <header class="bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center justify-between shrink-0">
         <div>
             <h1 id="app-title-header" class="font-bold text-white text-sm leading-tight">Escuela Moderna</h1>
@@ -148,14 +148,13 @@
             <div class="space-y-2">
                 <h3 class="font-bold text-slate-200 text-xs uppercase tracking-wider px-1">Historial de Mis Clases</h3>
                 <div id="st-classes-list" class="space-y-2">
-                    <p class="text-slate-500 text-xs italic text-center py-6">No hay clases registradas.</p>
+                    <p class="text-slate-500 text-xs italic text-center py-6">Cargando clases...</p>
                 </div>
             </div>
         </section>
 
         <!-- ================= VISTA: PROFESOR ================= -->
         <section id="view-instructor" class="space-y-4 hidden">
-            <!-- Barra de búsqueda rápida para consultar alumno en cualquier momento -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-2">
                 <h3 class="font-bold text-white text-xs flex items-center gap-1.5">
                     <i class="fa-solid fa-magnifying-glass text-amber-400"></i> Consultar Libreta de Alumno
@@ -167,11 +166,10 @@
                 <div id="ins-search-result" class="pt-2 hidden space-y-2"></div>
             </div>
 
-            <!-- Bandeja de solicitudes pendientes de firmar -->
             <div class="space-y-2">
                 <h3 class="font-bold text-slate-200 text-xs uppercase tracking-wider px-1">Clases Pendientes de Mis Alumnos</h3>
                 <div id="ins-pending-list" class="space-y-2">
-                    <p class="text-slate-500 text-xs italic text-center py-6">No hay solicitudes pendientes.</p>
+                    <p class="text-slate-500 text-xs italic text-center py-6">Cargando solicitudes...</p>
                 </div>
             </div>
         </section>
@@ -214,7 +212,6 @@
                 </form>
             </div>
 
-            <!-- Auditoría General de Alumnos para la Escuela -->
             <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-2">
                 <h3 class="font-bold text-white text-xs flex items-center gap-1.5">
                     <i class="fa-solid fa-shield-halved text-blue-400"></i> Auditoría General de Alumnos
@@ -289,11 +286,33 @@
         </div>
     </div>
 
-    <!-- Lógica de la Aplicación (JavaScript) -->
+    <!-- Script de Lógica e Integración con Firebase -->
     <script>
+        // =========================================================================
+        // 1. CONFIGURACIÓN DE FIREBASE (PEGA AQUÍ TUS CREDENCIALES)
+        // =========================================================================
+        const firebaseConfig = {
+            apiKey: "PEGA_AQUI_TU_API_KEY",
+            authDomain: "PEGA_AQUI_TU_AUTH_DOMAIN",
+            databaseURL: "PEGA_AQUI_TU_DATABASE_URL",
+            projectId: "PEGA_AQUI_TU_PROJECT_ID",
+            storageBucket: "PEGA_AQUI_TU_STORAGE_BUCKET",
+            messagingSenderId: "PEGA_AQUI_TU_MESSAGING_SENDER_ID",
+            appId: "PEGA_AQUI_TU_APP_ID"
+        };
+
+        // Inicializar Firebase
+        let db = null;
+        if (typeof firebase !== 'undefined' && firebaseConfig.apiKey !== "PEGA_AQUI_TU_API_KEY") {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+        }
+
+        // =========================================================================
+        // 2. LÓGICA DE LA APLICACIÓN WEB
+        // =========================================================================
         class DrivingApp {
             constructor() {
-                // Estado inicial utilizando LocalStorage (Simulando la BD en la nube mientras configuras Firebase)
                 this.currentUser = JSON.parse(localStorage.getItem('em_current_user')) || null;
                 this.initApp();
             }
@@ -307,7 +326,7 @@
                 this.renderRoleView();
             }
 
-            // ================= GESTIÓN DE AUTENTICACIÓN =================
+            // GESTIÓN DE PESTAÑAS LOGIN
             switchAuthTab(role) {
                 ['student', 'instructor', 'school'].forEach(r => {
                     document.getElementById(`form-auth-${r}`).classList.add('hidden');
@@ -331,7 +350,8 @@
                 }
             }
 
-            loginStudent(event) {
+            // AUTENTICACIÓN
+            async loginStudent(event) {
                 event.preventDefault();
                 const isRegister = !document.getElementById('student-register-fields').classList.contains('hidden');
 
@@ -339,54 +359,61 @@
                     const name = document.getElementById('sa-name').value.trim();
                     if (!name) return alert('Ingrese su nombre.');
 
-                    // Generar código aleatorio automático y único, ej: ALU-4821
                     const randomCode = 'ALU-' + Math.floor(1000 + Math.random() * 9000);
-                    const student = { role: 'student', code: randomCode, name: name };
+                    const studentData = { role: 'student', code: randomCode, name: name };
 
-                    // Guardar perfil en la base de datos simulada
-                    let students = JSON.parse(localStorage.getItem('em_db_students')) || {};
-                    students[randomCode] = student;
-                    localStorage.setItem('em_db_students', JSON.stringify(students));
+                    if (db) {
+                        await db.ref('alumnos/' + randomCode).set(studentData);
+                    }
 
-                    this.currentUser = student;
-                    localStorage.setItem('em_current_user', JSON.stringify(student));
-                    alert(`¡Cuenta creada con éxito!\nSu código único es: ${randomCode}\nGuárdelo para iniciar sesión.`);
+                    this.currentUser = studentData;
+                    localStorage.setItem('em_current_user', JSON.stringify(studentData));
+                    alert(`¡Cuenta creada!\nTu Código Único es: ${randomCode}\nGuárdalo para iniciar sesión.`);
                     this.initApp();
                 } else {
                     const code = document.getElementById('sa-code').value.trim().toUpperCase();
-                    let students = JSON.parse(localStorage.getItem('em_db_students')) || {};
                     
-                    if (students[code]) {
-                        this.currentUser = students[code];
-                        localStorage.setItem('em_current_user', JSON.stringify(this.currentUser));
-                        this.initApp();
+                    if (db) {
+                        const snapshot = await db.ref('alumnos/' + code).once('value');
+                        if (snapshot.exists()) {
+                            this.currentUser = snapshot.val();
+                            localStorage.setItem('em_current_user', JSON.stringify(this.currentUser));
+                            this.initApp();
+                        } else {
+                            alert('Código de alumno no encontrado.');
+                        }
                     } else {
-                        alert('Código de alumno no encontrado. Verifique o cree una cuenta.');
+                        alert('Por favor configure las credenciales de Firebase.');
                     }
                 }
             }
 
-            loginInstructor(event) {
+            async loginInstructor(event) {
                 event.preventDefault();
                 const user = document.getElementById('ins-user').value.trim();
                 const pass = document.getElementById('ins-pass').value.trim();
 
-                let instructors = JSON.parse(localStorage.getItem('em_db_instructors')) || [];
-                const found = instructors.find(i => i.user === user && i.pass === pass);
+                if (db) {
+                    const snapshot = await db.ref('profesores').once('value');
+                    const instructors = snapshot.val() || {};
+                    const found = Object.values(instructors).find(i => i.user === user && i.pass === pass);
 
-                if (found) {
-                    this.currentUser = { role: 'instructor', ...found };
-                    localStorage.setItem('em_current_user', JSON.stringify(this.currentUser));
-                    this.initApp();
+                    if (found) {
+                        this.currentUser = { role: 'instructor', ...found };
+                        localStorage.setItem('em_current_user', JSON.stringify(this.currentUser));
+                        this.initApp();
+                    } else {
+                        alert('Usuario o contraseña de profesor incorrectos.');
+                    }
                 } else {
-                    alert('Usuario o contraseña de profesor incorrectos.');
+                    alert('Por favor configure las credenciales de Firebase.');
                 }
             }
 
             loginSchool(event) {
                 event.preventDefault();
                 const pass = document.getElementById('sch-pass').value.trim();
-                if (pass === 'ADMIN2026') { // Clave maestra de la escuela
+                if (pass === 'ADMIN2026') {
                     this.currentUser = { role: 'school', name: 'Escuela Principal' };
                     localStorage.setItem('em_current_user', JSON.stringify(this.currentUser));
                     this.initApp();
@@ -401,7 +428,7 @@
                 window.location.reload();
             }
 
-            // ================= RENDERIZADO DE VISTAS ADAPTATIVAS =================
+            // VISTAS SEGÚN ROL
             renderRoleView() {
                 ['student', 'instructor', 'school'].forEach(r => {
                     document.getElementById(`view-${r}`).classList.add('hidden');
@@ -416,48 +443,51 @@
                     badge.innerText = `Rol: Alumno (${this.currentUser.name})`;
                     document.getElementById('st-name-display').innerText = this.currentUser.name;
                     document.getElementById('st-code-display').innerText = this.currentUser.code;
-                    this.loadStudentClasses();
+                    this.listenStudentClasses();
                 } else if (role === 'instructor') {
                     badge.innerText = `Rol: Profesor (${this.currentUser.name})`;
-                    this.loadInstructorPendingClasses();
+                    this.listenInstructorPendingClasses();
                 } else if (role === 'school') {
                     badge.innerText = `Rol: Escuela (Administración)`;
                 }
             }
 
-            // ================= FUNCIONES DEL ALUMNO =================
-            loadStudentClasses() {
-                const classes = JSON.parse(localStorage.getItem('em_db_classes')) || [];
-                const myClasses = classes.filter(c => c.studentCode === this.currentUser.code);
-                const approved = myClasses.filter(c => c.status === 'Aprobada');
+            // ESCUCHA EN TIEMPO REAL - ALUMNO
+            listenStudentClasses() {
+                if (!db) return;
+                db.ref('clases').orderByChild('studentCode').equalTo(this.currentUser.code).on('value', snapshot => {
+                    const classesData = snapshot.val() || {};
+                    const myClasses = Object.values(classesData);
+                    const approved = myClasses.filter(c => c.status === 'Aprobada');
 
-                const totalHours = approved.reduce((acc, c) => acc + (Number(c.duration) === 90 ? 2 : 1), 0);
-                document.getElementById('st-total-hours').innerText = `${totalHours} h`;
-                document.getElementById('st-total-classes').innerText = myClasses.length;
+                    const totalHours = approved.reduce((acc, c) => acc + (Number(c.duration) === 90 ? 2 : 1), 0);
+                    document.getElementById('st-total-hours').innerText = `${totalHours} h`;
+                    document.getElementById('st-total-classes').innerText = myClasses.length;
 
-                const container = document.getElementById('st-classes-list');
-                if (myClasses.length === 0) {
-                    container.innerHTML = `<p class="text-slate-500 text-xs italic text-center py-6">No has registrado clases todavía.</p>`;
-                } else {
-                    container.innerHTML = myClasses.reverse().map(c => `
-                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-1.5 text-xs">
-                            <div class="flex items-center justify-between font-bold text-white">
-                                <span>${c.type} (${c.duration == 90 ? '2 horas' : '1 hora'}) [Cat: ${c.category}]</span>
-                                ${c.status === 'Aprobada' 
-                                    ? `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] px-2 py-0.5 rounded-md font-bold">✅ Firmada por ${c.signedBy}</span>` 
-                                    : `<span class="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] px-2 py-0.5 rounded-md font-bold">⏳ Pendiente de Firma</span>`}
+                    const container = document.getElementById('st-classes-list');
+                    if (myClasses.length === 0) {
+                        container.innerHTML = `<p class="text-slate-500 text-xs italic text-center py-6">No has registrado clases todavía.</p>`;
+                    } else {
+                        container.innerHTML = myClasses.reverse().map(c => `
+                            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-1.5 text-xs">
+                                <div class="flex items-center justify-between font-bold text-white">
+                                    <span>${c.type} (${c.duration == 90 ? '2 horas' : '1 hora'}) [Cat: ${c.category}]</span>
+                                    ${c.status === 'Aprobada' 
+                                        ? `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] px-2 py-0.5 rounded-md font-bold">✅ Firmada por ${c.signedBy}</span>` 
+                                        : `<span class="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] px-2 py-0.5 rounded-md font-bold">⏳ Pendiente de Firma</span>`}
+                                </div>
+                                <p class="text-slate-300">Profesor asignado: <strong>${c.instructorName}</strong></p>
+                                <p class="text-slate-400">${c.notes || 'Sin observaciones'}</p>
+                                <span class="text-[10px] text-slate-500 block text-right">${new Date(c.date).toLocaleDateString()}</span>
                             </div>
-                            <p class="text-slate-300">Profesor asignado: <strong>${c.instructorName}</strong></p>
-                            <p class="text-slate-400">${c.notes || 'Sin observaciones'}</p>
-                            <span class="text-[10px] text-slate-500 block text-right">${new Date(c.date).toLocaleDateString()}</span>
-                        </div>
-                    `).join('');
-                }
+                        `).join('');
+                    }
+                });
             }
 
             openNewClassModal() {
                 document.getElementById('form-new-class').reset();
-                this.filterProfessorsByCategory(); // Cargar profes iniciales según categoría por defecto
+                this.filterProfessorsByCategory();
                 document.getElementById('modal-new-class').classList.remove('hidden');
             }
 
@@ -465,25 +495,28 @@
                 document.getElementById('modal-new-class').classList.add('hidden');
             }
 
-            filterProfessorsByCategory() {
+            async filterProfessorsByCategory() {
                 const selectedCat = document.getElementById('nc-category').value;
-                const instructors = JSON.parse(localStorage.getItem('em_db_instructors')) || [];
                 const select = document.getElementById('nc-instructor');
 
-                // Filtrar profesores que tengan autorizada la categoría seleccionada
-                const filtered = instructors.filter(i => (i.categories || []).includes(selectedCat));
+                if (db) {
+                    const snapshot = await db.ref('profesores').once('value');
+                    const instructors = snapshot.val() || {};
+                    const filtered = Object.values(instructors).filter(i => (i.categories || []).includes(selectedCat));
 
-                if (filtered.length === 0) {
-                    select.innerHTML = `<option value="">No hay profesores disponibles para ${selectedCat}</option>`;
-                } else {
-                    select.innerHTML = filtered.map(i => `<option value="${i.name}">${i.name} (Cat: ${i.categories.join(', ')})</option>`).join('');
+                    if (filtered.length === 0) {
+                        select.innerHTML = `<option value="">No hay profesores disponibles para ${selectedCat}</option>`;
+                    } else {
+                        select.innerHTML = filtered.map(i => `<option value="${i.name}">${i.name} (Cat: ${i.categories.join(', ')})</option>`).join('');
+                    }
                 }
             }
 
-            submitNewClass(event) {
+            async submitNewClass(event) {
                 event.preventDefault();
+                const classId = Date.now().toString();
                 const newClass = {
-                    id: Date.now(),
+                    id: classId,
                     studentCode: this.currentUser.code,
                     studentName: this.currentUser.name,
                     type: document.getElementById('nc-type').value,
@@ -496,50 +529,49 @@
                     signedBy: null
                 };
 
-                let classes = JSON.parse(localStorage.getItem('em_db_classes')) || [];
-                classes.push(newClass);
-                localStorage.setItem('em_db_classes', JSON.stringify(classes));
+                if (db) {
+                    await db.ref('clases/' + classId).set(newClass);
+                }
 
                 this.closeNewClassModal();
-                this.loadStudentClasses();
-                alert('¡Clase enviada al profesor correctamente!');
+                alert('¡Clase enviada en tiempo real al profesor!');
             }
 
-            // ================= FUNCIONES DEL PROFESOR =================
-            loadInstructorPendingClasses() {
-                const classes = JSON.parse(localStorage.getItem('em_db_classes')) || [];
-                // Filtrar pendientes asignadas a este profesor
-                const pending = classes.filter(c => c.instructorName === this.currentUser.name && c.status === 'Pendiente');
+            // ESCUCHA EN TIEMPO REAL - PROFESOR
+            listenInstructorPendingClasses() {
+                if (!db) return;
+                db.ref('clases').orderByChild('instructorName').equalTo(this.currentUser.name).on('value', snapshot => {
+                    const classesData = snapshot.val() || {};
+                    const pending = Object.values(classesData).filter(c => c.status === 'Pendiente');
 
-                const container = document.getElementById('ins-pending-list');
-                if (pending.length === 0) {
-                    container.innerHTML = `<p class="text-slate-500 text-xs italic text-center py-6">No hay solicitudes pendientes.</p>`;
-                } else {
-                    container.innerHTML = pending.map(c => `
-                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2 text-xs">
-                            <div class="flex justify-between font-bold text-white">
-                                <span>Alumno: ${c.studentName} (${c.studentCode})</span>
-                                <span class="text-amber-400">⏳ Pendiente</span>
+                    const container = document.getElementById('ins-pending-list');
+                    if (pending.length === 0) {
+                        container.innerHTML = `<p class="text-slate-500 text-xs italic text-center py-6">No hay solicitudes pendientes.</p>`;
+                    } else {
+                        container.innerHTML = pending.map(c => `
+                            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 space-y-2 text-xs">
+                                <div class="flex justify-between font-bold text-white">
+                                    <span>Alumno: ${c.studentName} (${c.studentCode})</span>
+                                    <span class="text-amber-400">⏳ Pendiente</span>
+                                </div>
+                                <p class="text-slate-300">Clase: ${c.type} (${c.duration == 90 ? '2h' : '1h'}) • Cat: ${c.category}</p>
+                                <p class="text-slate-400">${c.notes || 'Sin notas'}</p>
+                                <button onclick="App.approveClass('${c.id}')" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-md transition">
+                                    Aprobar y Firmar Clase
+                                </button>
                             </div>
-                            <p class="text-slate-300">Clase: ${c.type} (${c.duration == 90 ? '2h' : '1h'}) • Cat: ${c.category}</p>
-                            <p class="text-slate-400">${c.notes || 'Sin notas'}</p>
-                            <button onclick="App.approveClass(${c.id})" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-md transition">
-                                Aprobar y Firmar Clase
-                            </button>
-                        </div>
-                    `).join('');
-                }
+                        `).join('');
+                    }
+                });
             }
 
-            approveClass(classId) {
-                let classes = JSON.parse(localStorage.getItem('em_db_classes')) || [];
-                const idx = classes.findIndex(c => c.id === classId);
-                if (idx !== -1) {
-                    classes[idx].status = 'Aprobada';
-                    classes[idx].signedBy = this.currentUser.name;
-                    localStorage.setItem('em_db_classes', JSON.stringify(classes));
+            async approveClass(classId) {
+                if (db) {
+                    await db.ref('clases/' + classId).update({
+                        status: 'Aprobada',
+                        signedBy: this.currentUser.name
+                    });
                     alert('¡Clase firmada con éxito!');
-                    this.loadInstructorPendingClasses();
                 }
             }
 
@@ -548,8 +580,8 @@
                 this.renderStudentAuditCard(code, 'ins-search-result');
             }
 
-            // ================= FUNCIONES DE LA ESCUELA =================
-            saveNewInstructor(event) {
+            // FUNCIONES DE LA ESCUELA
+            async saveNewInstructor(event) {
                 event.preventDefault();
                 const name = document.getElementById('sch-ins-name').value.trim();
                 const user = document.getElementById('sch-ins-user').value.trim();
@@ -558,14 +590,17 @@
                 const cats = [];
                 document.querySelectorAll('input[name="sch-cat"]:checked').forEach(cb => cats.push(cb.value));
 
-                if (cats.length === 0) return alert('Seleccione al menos una categoría autorizada para el profesor.');
+                if (cats.length === 0) return alert('Seleccione al menos una categoría autorizada.');
 
-                let instructors = JSON.parse(localStorage.getItem('em_db_instructors')) || [];
-                instructors.push({ name, user, pass, categories: cats });
-                localStorage.setItem('em_db_instructors', JSON.stringify(instructors));
+                const instructorId = user.replace(/[^a-zA-Z0-9]/g, '_');
+                const instructorData = { name, user, pass, categories: cats };
+
+                if (db) {
+                    await db.ref('profesores/' + instructorId).set(instructorData);
+                }
 
                 event.target.reset();
-                alert(`Profesor ${name} registrado correctamente.`);
+                alert(`Profesor ${name} registrado con éxito en la base de datos.`);
             }
 
             schoolSearchStudent() {
@@ -573,21 +608,22 @@
                 this.renderStudentAuditCard(code, 'sch-search-result');
             }
 
-            // ================= COMPONENTE COMPARTIDO: AUDITORÍA DE LIBRETA =================
-            renderStudentAuditCard(studentCode, containerId) {
+            // AUDITORÍA GENERAL DE LIBRETA
+            async renderStudentAuditCard(studentCode, containerId) {
                 const container = document.getElementById(containerId);
                 container.classList.remove('hidden');
 
-                const students = JSON.parse(localStorage.getItem('em_db_students')) || {};
-                const student = students[studentCode];
+                if (!db) return;
 
-                if (!student) {
+                const studentSnap = await db.ref('alumnos/' + studentCode).once('value');
+                if (!studentSnap.exists()) {
                     container.innerHTML = `<p class="text-rose-400 text-xs italic text-center py-3">No se encontró ningún alumno con el código ${studentCode}.</p>`;
                     return;
                 }
 
-                const classes = JSON.parse(localStorage.getItem('em_db_classes')) || [];
-                const studentClasses = classes.filter(c => c.studentCode === studentCode);
+                const student = studentSnap.val();
+                const classesSnap = await db.ref('clases').orderByChild('studentCode').equalTo(studentCode).once('value');
+                const studentClasses = Object.values(classesSnap.val() || {});
                 const approved = studentClasses.filter(c => c.status === 'Aprobada');
                 const totalHours = approved.reduce((acc, c) => acc + (Number(c.duration) === 90 ? 2 : 1), 0);
 
