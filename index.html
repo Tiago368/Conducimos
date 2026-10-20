@@ -57,15 +57,36 @@
                     <button type="button" onclick="App.switchStudentMode('register')" id="sm-register" class="flex-1 py-1.5 rounded-lg text-slate-400 font-bold transition">Crear Cuenta</button>
                 </div>
                 
-                <div id="student-login-fields">
-                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Tu Código Alumno *</label>
-                    <input type="text" id="sa-code" placeholder="Ej. ALU-4821" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-white uppercase font-mono tracking-wider">
+                <!-- Modo Ingreso (Solo número, prefijo ALU- automático) -->
+                <div id="student-login-fields" class="space-y-2">
+                    <label class="block text-[10px] font-semibold uppercase text-slate-400">Tu Código Alumno *</label>
+                    <div class="flex">
+                        <span class="bg-slate-800 border border-r-0 border-slate-700 rounded-l-xl px-3 py-2.5 text-xs text-amber-400 font-mono font-bold flex items-center">ALU-</span>
+                        <input type="text" id="sa-num-code" placeholder="4821" inputmode="numeric" class="w-full bg-slate-800 border border-slate-700 rounded-r-xl px-3 py-2.5 text-xs text-white font-mono tracking-wider">
+                    </div>
+                    <div class="text-right">
+                        <button type="button" onclick="App.openRecoveryModal()" class="text-[11px] text-amber-400 hover:underline">¿Olvidaste tu código?</button>
+                    </div>
                 </div>
 
-                <div id="student-register-fields" class="hidden space-y-3">
+                <!-- Modo Registro (Nombre + Categoría) -->
+                <div id="student-register-fields" class="hidden space-y-2.5">
                     <div>
                         <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Nombre Completo *</label>
-                        <input type="text" id="sa-name" placeholder="Tu nombre" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                        <input type="text" id="sa-name" placeholder="Ej. Juan Pérez" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Categoría a la que aplica *</label>
+                        <select id="sa-category" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                            <option value="A1">A1</option>
+                            <option value="A2">A2</option>
+                            <option value="B1">B1</option>
+                            <option value="B2">B2</option>
+                            <option value="B3">B3</option>
+                            <option value="C1">C1</option>
+                            <option value="C2">C2</option>
+                            <option value="C3">C3</option>
+                        </select>
                     </div>
                 </div>
 
@@ -122,7 +143,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h2 id="st-name-display" class="text-base font-bold text-white">Estudiante</h2>
-                        <p class="text-[11px] text-slate-400">Tu Código Único:</p>
+                        <p id="st-category-display" class="text-[11px] text-amber-400 font-medium">Categoría: A1</p>
                     </div>
                     <div class="bg-slate-950 border border-amber-500/40 px-3 py-1.5 rounded-xl text-center">
                         <span id="st-code-display" class="text-xs font-mono font-bold text-amber-400 tracking-wider">ALU-0000</span>
@@ -182,15 +203,15 @@
                 <button onclick="App.switchSchoolSubTab('register')" id="sch-tab-register" class="py-2 rounded-lg text-slate-400 transition">Registrar Profesor</button>
             </div>
 
-            <!-- SUB-TAB 1: GESTIÓN Y EDICIÓN DE PROFESORES Y ALUMNOS -->
+            <!-- SUB-TAB 1: GESTIÓN CON FILTROS PARA MUCHOS ALUMNOS -->
             <div id="sch-subtab-manage" class="space-y-4">
                 <!-- Buscador / Auditoría General -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-2">
                     <h3 class="font-bold text-white text-xs flex items-center gap-1.5">
-                        <i class="fa-solid fa-magnifying-glass text-blue-400"></i> Buscar / Auditar Alumno por Código
+                        <i class="fa-solid fa-magnifying-glass text-blue-400"></i> Auditar Alumno por Código
                     </h3>
                     <div class="flex gap-2">
-                        <input type="text" id="sch-search-code" placeholder="Código (ej. ALU-4821)" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white uppercase font-mono">
+                        <input type="text" id="sch-search-code" placeholder="Ej. ALU-4821" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white uppercase font-mono">
                         <button onclick="App.schoolSearchStudent()" class="px-3.5 py-2 bg-blue-600 text-white font-bold rounded-xl text-xs">Auditar</button>
                     </div>
                     <div id="sch-search-result" class="pt-2 hidden space-y-2"></div>
@@ -207,12 +228,18 @@
                     </div>
                 </div>
 
-                <!-- Lista de Alumnos Registrados -->
+                <!-- Lista de Alumnos con Filtro en Vivo -->
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
-                    <h3 class="font-bold text-white text-xs flex items-center justify-between">
-                        <span class="flex items-center gap-1.5"><i class="fa-solid fa-user-graduate text-blue-400"></i> Alumnos Registrados</span>
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-bold text-white text-xs flex items-center gap-1.5">
+                            <i class="fa-solid fa-user-graduate text-blue-400"></i> Alumnos Registrados
+                        </h3>
                         <span id="sch-stud-count" class="text-[10px] bg-slate-800 px-2 py-0.5 rounded-full text-slate-400">0</span>
-                    </h3>
+                    </div>
+                    <!-- Filtro rápido para encontrar alumnos fácilmente -->
+                    <div>
+                        <input type="text" id="sch-student-filter" oninput="App.filterSchoolStudentsList()" placeholder="Filtrar por nombre o código..." class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                    </div>
                     <div id="sch-students-list" class="space-y-2 max-h-60 overflow-y-auto">
                         <p class="text-slate-500 text-xs italic text-center py-4">Cargando alumnos...</p>
                     </div>
@@ -261,6 +288,26 @@
 
     </main>
 
+    <!-- MODAL: RECUPERAR CÓDIGO DE ALUMNO -->
+    <div id="modal-recovery" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-3 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                <h3 class="font-bold text-white text-sm">Recuperar Código de Alumno</h3>
+                <button onclick="App.closeRecoveryModal()" class="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="space-y-3">
+                <p class="text-xs text-slate-300">Ingresa tu Nombre Completo registrado para buscar tu código:</p>
+                <input type="text" id="rec-name-input" placeholder="Tu nombre completo" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                <button onclick="App.searchStudentCodeByName()" class="w-full py-2.5 bg-amber-500 text-slate-950 font-bold rounded-xl text-xs shadow-md">
+                    Buscar mi Código
+                </button>
+                <div id="rec-result-area" class="pt-2 hidden"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL: REGISTRAR CLASE (ALUMNO) -->
     <div id="modal-new-class" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-3 hidden">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
@@ -299,7 +346,7 @@
                             <option value="B3">B3</option>
                             <option value="C1">C1</option>
                             <option value="C2">C2</option>
-                            <option value="C3">C3</option>
+                            <option value="C3"</option>
                         </select>
                     </div>
 
@@ -374,12 +421,20 @@
             <form onsubmit="App.saveEditedStud(event)" class="space-y-2.5">
                 <input type="hidden" id="edit-stud-code">
                 <div>
-                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Código Alumno (Único)</label>
+                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Código Alumno</label>
                     <input type="text" id="edit-stud-code-disp" disabled class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-amber-400 font-mono font-bold">
                 </div>
                 <div>
                     <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Nombre Completo *</label>
                     <input type="text" id="edit-stud-name" required class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-semibold uppercase text-slate-400 mb-1">Categoría *</label>
+                    <select id="edit-stud-category" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
+                        <option value="A1">A1</option><option value="A2">A2</option>
+                        <option value="B1">B1</option><option value="B2">B2</option><option value="B3">B3</option>
+                        <option value="C1">C1</option><option value="C2">C2</option><option value="C3">C3</option>
+                    </select>
                 </div>
                 <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition text-xs shadow-md">
                     Guardar Cambios
@@ -395,23 +450,19 @@
         // =========================================================================
         const firebaseConfig = {
             apiKey: "AIzaSyCEQ9Ec1d-PfpAXg88Xner-mOVCr3k4HFM",
-            authDomain: "conducimos-7660b.firebaseapp.com",
-            databaseURL: "https://conducimos-7660b-default-rtdb.firebaseio.com",
-            projectId: "conducimos-7660b",
-            storageBucket: "conducimos-7660b.firebasestorage.app",
-            messagingSenderId: "718716977434",
-            appId: "1:718716977434:web:99c43e1c5a1ad37af1aca3"
+  authDomain: "conducimos-7660b.firebaseapp.com",
+  databaseURL: "https://conducimos-7660b-default-rtdb.firebaseio.com",
+  projectId: "conducimos-7660b",
+  storageBucket: "conducimos-7660b.firebasestorage.app",
+  messagingSenderId: "718716977434",
+  appId: "1:718716977434:web:99c43e1c5a1ad37af1aca3"
         };
 
-        // Inicializar Firebase de forma segura
         let db = null;
         try {
             if (typeof firebase !== 'undefined' && firebaseConfig.apiKey !== "PEGA_AQUI_TU_API_KEY") {
                 firebase.initializeApp(firebaseConfig);
                 db = firebase.database();
-                console.log("Firebase conectado exitosamente.");
-            } else {
-                console.warn("Firebase no está configurado. Las credenciales siguen con los valores por defecto.");
             }
         } catch (error) {
             console.error("Error al inicializar Firebase:", error);
@@ -423,6 +474,7 @@
         class DrivingApp {
             constructor() {
                 this.currentUser = JSON.parse(localStorage.getItem('em_current_user')) || null;
+                this.cachedStudents = {}; // Almacena alumnos para el filtro de la escuela
                 this.initApp();
             }
 
@@ -435,7 +487,6 @@
                 this.renderRoleView();
             }
 
-            // GESTIÓN DE PESTAÑAS LOGIN
             switchAuthTab(role) {
                 ['student', 'instructor', 'school'].forEach(r => {
                     document.getElementById(`form-auth-${r}`).classList.add('hidden');
@@ -459,7 +510,6 @@
                 }
             }
 
-            // PESTAÑAS ESCUELA
             switchSchoolSubTab(tab) {
                 if (tab === 'manage') {
                     document.getElementById('sch-subtab-manage').classList.remove('hidden');
@@ -475,6 +525,52 @@
                 }
             }
 
+            // RECUPERACIÓN DE CÓDIGO
+            openRecoveryModal() {
+                document.getElementById('rec-name-input').value = '';
+                document.getElementById('rec-result-area').classList.add('hidden');
+                document.getElementById('modal-recovery').classList.remove('hidden');
+            }
+
+            closeRecoveryModal() {
+                document.getElementById('modal-recovery').classList.add('hidden');
+            }
+
+            async searchStudentCodeByName() {
+                if (!db) return alert('⚠️ Firebase no configurado.');
+                const searchName = document.getElementById('rec-name-input').value.trim().toLowerCase();
+                const resultArea = document.getElementById('rec-result-area');
+                resultArea.classList.remove('hidden');
+
+                if (!searchName) {
+                    resultArea.innerHTML = `<p class="text-rose-400 text-xs italic">Ingrese un nombre.</p>`;
+                    return;
+                }
+
+                const snapshot = await db.ref('alumnos').once('value');
+                const students = snapshot.val() || {};
+                const found = Object.values(students).filter(s => s.name.toLowerCase().includes(searchName));
+
+                if (found.length === 0) {
+                    resultArea.innerHTML = `<p class="text-rose-400 text-xs italic">No se encontró ningún alumno con ese nombre.</p>`;
+                } else {
+                    resultArea.innerHTML = `
+                        <div class="bg-slate-800 p-2.5 rounded-xl space-y-1 text-xs">
+                            <p class="text-slate-300 font-bold">Coincidencias encontradas:</p>
+                            ${found.map(s => `
+                                <div class="bg-slate-900 p-2 rounded-lg flex justify-between items-center">
+                                    <div>
+                                        <p class="text-white font-bold">${s.name}</p>
+                                        <p class="text-[10px] text-slate-400">Cat: ${s.category || 'N/A'}</p>
+                                    </div>
+                                    <span class="text-amber-400 font-mono font-bold">${s.code}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+            }
+
             // AUTENTICACIÓN
             async loginStudent(event) {
                 event.preventDefault();
@@ -484,19 +580,22 @@
 
                 if (isRegister) {
                     const name = document.getElementById('sa-name').value.trim();
-                    if (!name) return alert('Ingrese su nombre.');
+                    const category = document.getElementById('sa-category').value;
+                    if (!name) return alert('Ingrese su nombre completo.');
 
-                    const randomCode = 'ALU-' + Math.floor(1000 + Math.random() * 9000);
-                    const studentData = { role: 'student', code: randomCode, name: name };
+                    const randomNum = Math.floor(1000 + Math.random() * 9000);
+                    const randomCode = 'ALU-' + randomNum;
+                    const studentData = { role: 'student', code: randomCode, name: name, category: category };
 
                     await db.ref('alumnos/' + randomCode).set(studentData);
 
                     this.currentUser = studentData;
                     localStorage.setItem('em_current_user', JSON.stringify(studentData));
-                    alert(`¡Cuenta creada!\nTu Código Único es: ${randomCode}\nGuárdalo para iniciar sesión.`);
+                    alert(`¡Cuenta creada con éxito!\nTu Código Único es: ${randomCode}\n(Anótalo bien, lo necesitarás para entrar)`);
                     this.initApp();
                 } else {
-                    const code = document.getElementById('sa-code').value.trim().toUpperCase();
+                    const numInput = document.getElementById('sa-num-code').value.trim();
+                    const code = 'ALU-' + numInput.toUpperCase();
                     const snapshot = await db.ref('alumnos/' + code).once('value');
                     
                     if (snapshot.exists()) {
@@ -504,7 +603,7 @@
                         localStorage.setItem('em_current_user', JSON.stringify(this.currentUser));
                         this.initApp();
                     } else {
-                        alert('Código de alumno no encontrado.');
+                        alert('Código de alumno no encontrado. Verifique el número o cree una cuenta.');
                     }
                 }
             }
@@ -547,7 +646,6 @@
                 window.location.reload();
             }
 
-            // VISTAS SEGÚN ROL
             renderRoleView() {
                 ['student', 'instructor', 'school'].forEach(r => {
                     document.getElementById(`view-${r}`).classList.add('hidden');
@@ -561,6 +659,7 @@
                 if (role === 'student') {
                     badge.innerText = `Rol: Alumno (${this.currentUser.name})`;
                     document.getElementById('st-name-display').innerText = this.currentUser.name;
+                    document.getElementById('st-category-display').innerText = `Categoría: ${this.currentUser.category || 'A1'}`;
                     document.getElementById('st-code-display').innerText = this.currentUser.code;
                     this.listenStudentClasses();
                 } else if (role === 'instructor') {
@@ -572,7 +671,6 @@
                 }
             }
 
-            // ESCUCHA EN TIEMPO REAL - ALUMNO
             listenStudentClasses() {
                 if (!db) return;
                 db.ref('clases').orderByChild('studentCode').equalTo(this.currentUser.code).on('value', snapshot => {
@@ -607,6 +705,7 @@
 
             openNewClassModal() {
                 document.getElementById('form-new-class').reset();
+                document.getElementById('nc-category').value = this.currentUser.category || 'A1';
                 this.filterProfessorsByCategory();
                 document.getElementById('modal-new-class').classList.remove('hidden');
             }
@@ -659,7 +758,6 @@
                 alert('¡Clase enviada en tiempo real al profesor!');
             }
 
-            // ESCUCHA EN TIEMPO REAL - PROFESOR
             listenInstructorPendingClasses() {
                 if (!db) return;
                 db.ref('clases').orderByChild('instructorName').equalTo(this.currentUser.name).on('value', snapshot => {
@@ -697,15 +795,16 @@
             }
 
             instructorSearchStudent() {
-                const code = document.getElementById('ins-search-code').value.trim().toUpperCase();
+                const codeNum = document.getElementById('ins-search-code').value.trim().toUpperCase();
+                const code = codeNum.startsWith('ALU-') ? codeNum : 'ALU-' + codeNum;
                 this.renderStudentAuditCard(code, 'ins-search-result');
             }
 
-            // GESTIÓN Y EDICIÓN EN LA ESCUELA
+            // GESTIÓN Y FILTRADO EN LA ESCUELA
             loadSchoolManagementData() {
                 if (!db) {
-                    document.getElementById('sch-professors-list').innerHTML = `<p class="text-rose-400 text-xs italic text-center py-4">⚠️ Firebase no configurado o sin conexión.</p>`;
-                    document.getElementById('sch-students-list').innerHTML = `<p class="text-rose-400 text-xs italic text-center py-4">⚠️ Firebase no configurado o sin conexión.</p>`;
+                    document.getElementById('sch-professors-list').innerHTML = `<p class="text-rose-400 text-xs italic text-center py-4">⚠️ Firebase no configurado.</p>`;
+                    document.getElementById('sch-students-list').innerHTML = `<p class="text-rose-400 text-xs italic text-center py-4">⚠️ Firebase no configurado.</p>`;
                     return;
                 }
 
@@ -738,37 +837,53 @@
                     }
                 });
 
-                // Escuchar Alumnos
+                // Escuchar Alumnos (con caché para filtro rápido)
                 db.ref('alumnos').on('value', snapshot => {
-                    const students = snapshot.val() || {};
-                    const studList = Object.entries(students);
-                    document.getElementById('sch-stud-count').innerText = studList.length;
-
-                    const container = document.getElementById('sch-students-list');
-                    if (studList.length === 0) {
-                        container.innerHTML = `<p class="text-slate-500 text-xs italic text-center py-4">No hay alumnos registrados.</p>`;
-                    } else {
-                        container.innerHTML = studList.map(([code, s]) => `
-                            <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between text-xs">
-                                <div>
-                                    <h4 class="font-bold text-white">${s.name}</h4>
-                                    <span class="text-[10px] text-amber-400 font-mono">Código: ${s.code}</span>
-                                </div>
-                                <div class="flex gap-1">
-                                    <button onclick="App.openEditStudModal('${s.code}', '${s.name}')" class="p-1.5 bg-blue-600/20 text-blue-400 rounded-lg text-[10px] hover:bg-blue-600/40 transition">
-                                        <i class="fa-solid fa-pen"></i>
-                                    </button>
-                                    <button onclick="App.deleteStud('${s.code}')" class="p-1.5 bg-rose-600/20 text-rose-400 rounded-lg text-[10px] hover:bg-rose-600/40 transition">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        `).join('');
-                    }
+                    this.cachedStudents = snapshot.val() || {};
+                    this.renderSchoolStudentsList(this.cachedStudents);
                 });
             }
 
-            // REGISTRAR PROFESOR NUEVO
+            renderSchoolStudentsList(studentsObj) {
+                const studList = Object.entries(studentsObj);
+                document.getElementById('sch-stud-count').innerText = studList.length;
+
+                const container = document.getElementById('sch-students-list');
+                if (studList.length === 0) {
+                    container.innerHTML = `<p class="text-slate-500 text-xs italic text-center py-4">No hay alumnos registrados.</p>`;
+                } else {
+                    container.innerHTML = studList.map(([code, s]) => `
+                        <div class="bg-slate-950 border border-slate-800 rounded-xl p-2.5 flex items-center justify-between text-xs">
+                            <div>
+                                <h4 class="font-bold text-white">${s.name}</h4>
+                                <span class="text-[10px] text-amber-400 font-mono">Código: ${s.code} • Cat: ${s.category || 'A1'}</span>
+                            </div>
+                            <div class="flex gap-1">
+                                <button onclick="App.openEditStudModal('${s.code}', '${s.name}', '${s.category || 'A1'}')" class="p-1.5 bg-blue-600/20 text-blue-400 rounded-lg text-[10px] hover:bg-blue-600/40 transition">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button onclick="App.deleteStud('${s.code}')" class="p-1.5 bg-rose-600/20 text-rose-400 rounded-lg text-[10px] hover:bg-rose-600/40 transition">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            // FILTRO EN VIVO DE ALUMNOS (Para cuando hay muchos)
+            filterSchoolStudentsList() {
+                const query = document.getElementById('sch-student-filter').value.trim().toLowerCase();
+                const filtered = {};
+                
+                for (const [code, student] of Object.entries(this.cachedStudents)) {
+                    if (student.name.toLowerCase().includes(query) || student.code.toLowerCase().includes(query)) {
+                        filtered[code] = student;
+                    }
+                }
+                this.renderSchoolStudentsList(filtered);
+            }
+
             async saveNewInstructor(event) {
                 event.preventDefault();
                 if (!db) return alert('⚠️ Firebase no configurado.');
@@ -792,7 +907,6 @@
                 this.switchSchoolSubTab('manage');
             }
 
-            // MODALES Y EDICIÓN PROFESOR
             openEditProfModal(id, name, pass, catsStr) {
                 document.getElementById('edit-prof-id').value = id;
                 document.getElementById('edit-prof-name').value = name;
@@ -836,11 +950,11 @@
                 }
             }
 
-            // MODALES Y EDICIÓN ALUMNO
-            openEditStudModal(code, name) {
+            openEditStudModal(code, name, category) {
                 document.getElementById('edit-stud-code').value = code;
                 document.getElementById('edit-stud-code-disp').value = code;
                 document.getElementById('edit-stud-name').value = name;
+                document.getElementById('edit-stud-category').value = category || 'A1';
                 document.getElementById('modal-edit-stud').classList.remove('hidden');
             }
 
@@ -854,9 +968,10 @@
 
                 const code = document.getElementById('edit-stud-code').value;
                 const name = document.getElementById('edit-stud-name').value.trim();
+                const category = document.getElementById('edit-stud-category').value;
 
-                await db.ref('alumnos/' + code).update({ name: name });
-                alert('Nombre del alumno actualizado.');
+                await db.ref('alumnos/' + code).update({ name: name, category: category });
+                alert('Datos del alumno actualizados.');
                 this.closeEditStudModal();
             }
 
@@ -869,11 +984,11 @@
             }
 
             schoolSearchStudent() {
-                const code = document.getElementById('sch-search-code').value.trim().toUpperCase();
+                const codeNum = document.getElementById('sch-search-code').value.trim().toUpperCase();
+                const code = codeNum.startsWith('ALU-') ? codeNum : 'ALU-' + codeNum;
                 this.renderStudentAuditCard(code, 'sch-search-result');
             }
 
-            // AUDITORÍA GENERAL DE LIBRETA
             async renderStudentAuditCard(studentCode, containerId) {
                 const container = document.getElementById(containerId);
                 container.classList.remove('hidden');
@@ -897,7 +1012,7 @@
                         <div class="border-b border-slate-700 pb-1.5 flex justify-between items-center">
                             <div>
                                 <h4 class="font-bold text-white text-sm">${student.name}</h4>
-                                <span class="text-amber-400 font-mono">Código: ${student.code}</span>
+                                <span class="text-amber-400 font-mono">Código: ${student.code} • Cat: ${student.category || 'A1'}</span>
                             </div>
                             <div class="text-right">
                                 <span class="text-amber-400 font-black text-sm">${totalHours} Horas</span>
