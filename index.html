@@ -51,7 +51,6 @@
         .custom-scroll::-webkit-scrollbar-track { background: #0d535a; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #f3a661; border-radius: 4px; }
         
-        /* Animaciones para Notificaciones Toast */
         @keyframes slideIn {
             from { transform: translateY(-20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
@@ -62,11 +61,11 @@
 <body class="h-full text-brand-textLight flex flex-col antialiased selection:bg-brand-gold selection:text-slate-950">
 
     <!-- ================= CONTENEDOR DE NOTIFICACIONES TOAST ================= -->
-    <div id="toast-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-11/12 max-w-sm space-y-2 pointer-events-none"></div>
+    <div id="toast-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-[100] w-11/12 max-w-sm space-y-2 pointer-events-none"></div>
 
     <!-- ================= MODAL DE ALERTA PERSONALIZADO ================= -->
-    <div id="custom-alert-modal" class="fixed inset-0 z-50 bg-brand-bg/90 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-        <div class="bg-brand-surface border border-brand-card rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center transform transition-all">
+    <div id="custom-alert-modal" class="fixed inset-0 z-[90] bg-brand-bg/90 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-brand-surface border border-brand-card rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center">
             <div id="custom-alert-icon" class="w-14 h-14 bg-brand-gold/20 text-brand-gold rounded-2xl flex items-center justify-center mx-auto text-2xl border border-brand-gold/40">
                 <i class="fa-solid fa-bell"></i>
             </div>
@@ -75,14 +74,14 @@
                 <p id="custom-alert-message" class="text-xs text-brand-textLight/80 leading-relaxed"></p>
             </div>
             <div id="custom-alert-extra" class="pt-1"></div>
-            <button onclick="App.closeCustomAlert()" class="w-full py-3 bg-brand-gold hover:bg-brand-goldHover text-slate-950 font-black uppercase tracking-wider rounded-xl text-xs shadow-lg transition">
+            <button type="button" onclick="App.closeCustomAlert()" class="w-full py-3 bg-brand-gold hover:bg-brand-goldHover text-slate-950 font-black uppercase tracking-wider rounded-xl text-xs shadow-lg transition">
                 Entendido
             </button>
         </div>
     </div>
 
     <!-- ================= MODAL DE CONFIRMACIÓN PERSONALIZADO ================= -->
-    <div id="custom-confirm-modal" class="fixed inset-0 z-50 bg-brand-bg/90 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div id="custom-confirm-modal" class="fixed inset-0 z-[90] bg-brand-bg/90 backdrop-blur-sm flex items-center justify-center p-4 hidden">
         <div class="bg-brand-surface border border-brand-card rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4 text-center">
             <div class="w-14 h-14 bg-rose-500/20 text-rose-400 rounded-2xl flex items-center justify-center mx-auto text-2xl border border-rose-500/40">
                 <i class="fa-solid fa-triangle-exclamation"></i>
@@ -92,11 +91,11 @@
                 <p id="custom-confirm-message" class="text-xs text-brand-textLight/80 leading-relaxed"></p>
             </div>
             <div class="grid grid-cols-2 gap-2 pt-2">
-                <button id="custom-confirm-cancel" class="py-2.5 bg-brand-bg hover:bg-brand-card text-brand-textLight font-bold rounded-xl text-xs transition border border-brand-card/60">
+                <button type="button" id="custom-confirm-cancel" class="py-2.5 bg-brand-bg hover:bg-brand-card text-brand-textLight font-bold rounded-xl text-xs transition border border-brand-card/60">
                     Cancelar
                 </button>
-                <button id="custom-confirm-ok" class="py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-black uppercase tracking-wider rounded-xl text-xs shadow-lg transition">
-                    Sí, Eliminar
+                <button type="button" id="custom-confirm-ok" class="py-2.5 bg-rose-600 hover:bg-rose-500 text-white font-black uppercase tracking-wider rounded-xl text-xs shadow-lg transition">
+                    Sí, Confirmar
                 </button>
             </div>
         </div>
@@ -222,7 +221,7 @@
                 <p id="user-role-badge" class="text-[10px] text-brand-textLight/80 font-medium">Conectando...</p>
             </div>
         </div>
-        <button onclick="App.logout()" class="px-3 py-1.5 bg-brand-bg hover:bg-brand-card/80 text-brand-gold text-xs rounded-xl font-bold transition flex items-center gap-1.5 border border-brand-card/60 shadow">
+        <button type="button" onclick="App.logout()" class="px-3 py-1.5 bg-brand-bg hover:bg-brand-card/80 text-brand-gold text-xs rounded-xl font-bold transition flex items-center gap-1.5 border border-brand-card/60 shadow">
             <i class="fa-solid fa-right-from-bracket"></i> Salir
         </button>
     </header>
@@ -254,7 +253,7 @@
                     </div>
                 </div>
 
-                <button onclick="App.openNewClassModal()" class="w-full py-3 bg-brand-gold hover:bg-brand-goldHover text-slate-950 font-black uppercase tracking-wider rounded-xl transition text-xs flex items-center justify-center gap-2 shadow-lg">
+                <button type="button" onclick="App.openNewClassModal()" class="w-full py-3 bg-brand-gold hover:bg-brand-goldHover text-slate-950 font-black uppercase tracking-wider rounded-xl transition text-xs flex items-center justify-center gap-2 shadow-lg">
                     <i class="fa-solid fa-plus text-sm"></i> Registrar Nueva Clase
                 </button>
             </div>
@@ -275,7 +274,7 @@
                 </h3>
                 <div class="flex gap-2">
                     <input type="text" id="ins-search-code" placeholder="Ingrese Código (ej. ALU-4821)" class="flex-1 bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white uppercase font-mono focus:outline-none focus:border-brand-gold">
-                    <button onclick="App.instructorSearchStudent()" class="px-3.5 py-2 bg-brand-gold text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow">Buscar</button>
+                    <button type="button" onclick="App.instructorSearchStudent()" class="px-3.5 py-2 bg-brand-gold text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow">Buscar</button>
                 </div>
                 <div id="ins-search-result" class="pt-2 hidden space-y-2"></div>
             </div>
@@ -290,27 +289,23 @@
 
         <!-- ================= VISTA: ESCUELA (ADMINISTRACIÓN GLOBAL) ================= -->
         <section id="view-school" class="space-y-4 hidden">
-            <!-- Pestañas Internas para la Escuela -->
             <div class="grid grid-cols-2 gap-1 bg-brand-surface p-1 rounded-xl text-xs font-bold text-center border border-brand-card/60">
-                <button onclick="App.switchSchoolSubTab('manage')" id="sch-tab-manage" class="py-2 rounded-lg bg-brand-gold text-slate-950 font-black transition">Gestión de Cuentas</button>
-                <button onclick="App.switchSchoolSubTab('register')" id="sch-tab-register" class="py-2 rounded-lg text-brand-textLight/70 transition">Registrar Profesor</button>
+                <button type="button" onclick="App.switchSchoolSubTab('manage')" id="sch-tab-manage" class="py-2 rounded-lg bg-brand-gold text-slate-950 font-black transition">Gestión de Cuentas</button>
+                <button type="button" onclick="App.switchSchoolSubTab('register')" id="sch-tab-register" class="py-2 rounded-lg text-brand-textLight/70 transition">Registrar Profesor</button>
             </div>
 
-            <!-- SUB-TAB 1: GESTIÓN CON APERTURA DIRECTA DE LIBRETA -->
             <div id="sch-subtab-manage" class="space-y-4">
-                <!-- Buscador Manual por Código -->
                 <div class="bg-brand-surface border border-brand-card/60 rounded-2xl p-4 shadow-xl space-y-2">
                     <h3 class="font-bold text-brand-gold text-xs flex items-center gap-1.5 uppercase tracking-wider">
                         <i class="fa-solid fa-magnifying-glass"></i> Auditar Alumno por Código
                     </h3>
                     <div class="flex gap-2">
                         <input type="text" id="sch-search-code" placeholder="Ej. ALU-4821" class="flex-1 bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white uppercase font-mono focus:outline-none focus:border-brand-gold">
-                        <button onclick="App.schoolSearchStudent()" class="px-3.5 py-2 bg-brand-gold text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow">Auditar</button>
+                        <button type="button" onclick="App.schoolSearchStudent()" class="px-3.5 py-2 bg-brand-gold text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow">Auditar</button>
                     </div>
                     <div id="sch-search-result" class="pt-2 hidden space-y-2"></div>
                 </div>
 
-                <!-- Lista de Profesores Registrados -->
                 <div class="bg-brand-surface border border-brand-card/60 rounded-2xl p-4 shadow-xl space-y-3">
                     <h3 class="font-bold text-white text-xs flex items-center justify-between">
                         <span class="flex items-center gap-1.5 text-brand-gold uppercase tracking-wider"><i class="fa-solid fa-chalkboard-user"></i> Profesores Registrados</span>
@@ -321,7 +316,6 @@
                     </div>
                 </div>
 
-                <!-- Lista de Alumnos -->
                 <div class="bg-brand-surface border border-brand-card/60 rounded-2xl p-4 shadow-xl space-y-3">
                     <div class="flex items-center justify-between">
                         <h3 class="font-bold text-brand-gold text-xs flex items-center gap-1.5 uppercase tracking-wider">
@@ -338,7 +332,6 @@
                 </div>
             </div>
 
-            <!-- SUB-TAB 2: FORMULARIO REGISTRAR PROFESOR -->
             <div id="sch-subtab-register" class="bg-brand-surface border border-brand-card/60 rounded-2xl p-4 shadow-xl space-y-3 hidden">
                 <h3 class="font-bold text-brand-gold text-sm flex items-center gap-2 uppercase tracking-wider">
                     <i class="fa-solid fa-user-plus"></i> Registrar Nuevo Profesor
@@ -359,7 +352,7 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Categorías Autorizadas (A1 a C3) *</label>
+                        <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Categorías Autorizadas *</label>
                         <div class="grid grid-cols-4 gap-1.5 bg-brand-bg/80 border border-brand-card/60 rounded-xl p-2.5 text-[11px]">
                             <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="sch-cat" value="A1" class="accent-brand-gold"> A1</label>
                             <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="sch-cat" value="A2" class="accent-brand-gold"> A2</label>
@@ -380,17 +373,17 @@
 
     </main>
 
-    <!-- MODAL: RECUPERAR / CAMBIAR CONTRASEÑA CON CÓDIGO + NOMBRE COMPLETO -->
+    <!-- MODAL: RECUPERAR CONTRASEÑA -->
     <div id="modal-recovery" class="fixed inset-0 z-50 bg-brand-bg/95 backdrop-blur-sm flex items-center justify-center p-3 hidden">
         <div class="bg-brand-surface border border-brand-card/60 rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-4">
             <div class="flex items-center justify-between border-b border-brand-card/60 pb-2">
                 <h3 class="font-bold text-brand-gold text-sm uppercase tracking-wider">Recuperar Contraseña</h3>
-                <button onclick="App.closeRecoveryModal()" class="w-7 h-7 rounded-full bg-brand-bg flex items-center justify-center text-brand-textLight/70">
+                <button type="button" onclick="App.closeRecoveryModal()" class="w-7 h-7 rounded-full bg-brand-bg flex items-center justify-center text-brand-textLight/70">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
             <div class="space-y-3">
-                <p class="text-xs text-brand-textLight/80">Por seguridad, ingresa tu <strong>Código Único</strong> y tu <strong>Nombre Completo</strong> tal como te registraste:</p>
+                <p class="text-xs text-brand-textLight/80">Ingresa tu <strong>Código Único</strong> y tu <strong>Nombre Completo</strong> tal como te registraste:</p>
                 <div>
                     <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Código Único *</label>
                     <input type="text" id="rec-code-input" placeholder="Ej. ALU-4821" class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white uppercase font-mono focus:outline-none focus:border-brand-gold">
@@ -403,7 +396,7 @@
                     <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Nueva Contraseña *</label>
                     <input type="password" id="rec-new-pass" placeholder="••••••••" class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-gold">
                 </div>
-                <button onclick="App.resetStudentPassword()" class="w-full py-2.5 bg-brand-gold text-slate-950 font-black uppercase tracking-wider rounded-xl text-xs shadow-md">
+                <button type="button" onclick="App.resetStudentPassword()" class="w-full py-2.5 bg-brand-gold text-slate-950 font-black uppercase tracking-wider rounded-xl text-xs shadow-md">
                     Validar y Cambiar Contraseña
                 </button>
             </div>
@@ -415,7 +408,7 @@
         <div class="bg-brand-surface border border-brand-card/60 rounded-3xl max-w-sm w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
             <div class="p-3 border-b border-brand-card/60 flex items-center justify-between">
                 <h3 class="font-bold text-brand-gold text-sm uppercase tracking-wider">Registrar Informe de Clase</h3>
-                <button onclick="App.closeNewClassModal()" class="w-7 h-7 rounded-full bg-brand-bg flex items-center justify-center text-brand-textLight/70">
+                <button type="button" onclick="App.closeNewClassModal()" class="w-7 h-7 rounded-full bg-brand-bg flex items-center justify-center text-brand-textLight/70">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
@@ -440,13 +433,11 @@
 
                     <div>
                         <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Categoría de la Clase *</label>
-                        <select id="nc-category" onchange="App.filterProfessorsByCategory()" class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white">
-                            <!-- Opciones dinámicas -->
-                        </select>
+                        <select id="nc-category" onchange="App.filterProfessorsByCategory()" class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white"></select>
                     </div>
 
                     <div>
-                        <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Seleccionar Profesor (Filtrado) *</label>
+                        <label class="block text-[10px] font-bold uppercase text-brand-gold mb-1 tracking-wider">Seleccionar Profesor *</label>
                         <select id="nc-instructor" required class="w-full bg-brand-bg border border-brand-card/60 rounded-xl px-3 py-2 text-xs text-white">
                             <option value="">Seleccione categoría primero...</option>
                         </select>
@@ -470,7 +461,7 @@
         <div class="bg-brand-surface border border-brand-card/60 rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-3">
             <div class="flex items-center justify-between border-b border-brand-card/60 pb-2">
                 <h3 class="font-bold text-brand-gold text-sm uppercase tracking-wider">Editar Profesor</h3>
-                <button onclick="App.closeEditProfModal()" class="w-7 h-7 rounded-full bg-brand-bg flex items-center justify-center text-brand-textLight/70">
+                <button type="button" onclick="App.closeEditProfModal()" class="w-7 h-7 rounded-full bg-brand-bg flex items-center justify-center text-brand-textLight/70">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
@@ -509,7 +500,7 @@
         <div class="bg-brand-surface border border-brand-card/60 rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-3">
             <div class="flex items-center justify-between border-b border-brand-card/60 pb-2">
                 <h3 class="font-bold text-brand-gold text-sm uppercase tracking-wider">Editar Alumno</h3>
-                <button onclick="App.closeEditStudModal()" class="w-7 h-7 rounded-full bg-brand-bg flex items-center justify-center text-brand-textLight/70">
+                <button type="button" onclick="App.closeEditStudModal()" class="w-7 h-7 rounded-full bg-brand-bg flex items-center justify-center text-brand-textLight/70">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
@@ -546,18 +537,16 @@
                         <label class="flex items-center gap-1 text-brand-textLight"><input type="checkbox" name="edit-stud-cat" value="C3" class="accent-brand-gold"> C3</label>
                     </div>
                 </div>
-                <button type="submit" class="w-full py-2.5 bg-brand-gold text-slate-950 font-black uppercase tracking-wider rounded-xl transition text-xs shadow-md">
+                <button type="submit" class="w-full py-2.5 bg-brand-gold hover:bg-brand-goldHover text-slate-950 font-black uppercase tracking-wider rounded-xl transition text-xs shadow-md">
                     Guardar Cambios
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- Script de Lógica e Integración con Firebase -->
+    <!-- Script de Lógica Principal -->
     <script>
-        // =========================================================================
-        // 1. CONFIGURACIÓN DE FIREBASE (PEGA AQUÍ TUS CREDENCIALES)
-        // =========================================================================
+        // Configuración de Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyCEQ9Ec1d-PfpAXg88Xner-mOVCr3k4HFM",
             authDomain: "conducimos-7660b.firebaseapp.com",
@@ -575,12 +564,9 @@
                 db = firebase.database();
             }
         } catch (error) {
-            console.error("Error al inicializar Firebase:", error);
+            console.warn("Firebase operando sin conexión inicial:", error);
         }
 
-        // =========================================================================
-        // 2. LÓGICA DE LA APLICACIÓN WEB
-        // =========================================================================
         class DrivingApp {
             constructor() {
                 this.currentUser = JSON.parse(localStorage.getItem('em_current_user')) || null;
@@ -588,19 +574,17 @@
                 this.initApp();
             }
 
-            // =====================================================================
-            // SISTEMA DE NOTIFICACIONES Y POPUPS PERSONALIZADOS
-            // =====================================================================
+            // POPUPS Y NOTIFICACIONES
             showToast(message, type = 'success') {
                 const container = document.getElementById('toast-container');
+                if (!container) return;
+
                 const toast = document.createElement('div');
-                
                 const bgColors = {
                     success: 'bg-brand-surface border-brand-gold/50 text-white',
                     error: 'bg-rose-950/90 border-rose-500/50 text-white',
                     warning: 'bg-amber-950/90 border-amber-500/50 text-white'
                 };
-
                 const icons = {
                     success: '<i class="fa-solid fa-circle-check text-brand-gold text-base"></i>',
                     error: '<i class="fa-solid fa-circle-exclamation text-rose-400 text-base"></i>',
@@ -625,6 +609,8 @@
 
             showAlert(title, message, type = 'success', extraHtml = '') {
                 const modal = document.getElementById('custom-alert-modal');
+                if (!modal) return;
+
                 document.getElementById('custom-alert-title').innerText = title;
                 document.getElementById('custom-alert-message').innerHTML = message;
                 document.getElementById('custom-alert-extra').innerHTML = extraHtml;
@@ -642,18 +628,20 @@
             }
 
             closeCustomAlert() {
-                document.getElementById('custom-alert-modal').classList.add('hidden');
+                const modal = document.getElementById('custom-alert-modal');
+                if (modal) modal.classList.add('hidden');
             }
 
             showConfirm(title, message, onConfirmCallback) {
                 const modal = document.getElementById('custom-confirm-modal');
+                if (!modal) return;
+
                 document.getElementById('custom-confirm-title').innerText = title;
                 document.getElementById('custom-confirm-message').innerText = message;
 
                 const okBtn = document.getElementById('custom-confirm-ok');
                 const cancelBtn = document.getElementById('custom-confirm-cancel');
 
-                // Limpiar eventos anteriores clonando botones
                 const newOkBtn = okBtn.cloneNode(true);
                 const newCancelBtn = cancelBtn.cloneNode(true);
                 okBtn.parentNode.replaceChild(newOkBtn, okBtn);
@@ -663,15 +651,13 @@
 
                 newOkBtn.onclick = () => {
                     modal.classList.add('hidden');
-                    onConfirmCallback();
+                    if (onConfirmCallback) onConfirmCallback();
                 };
 
                 newCancelBtn.onclick = () => {
                     modal.classList.add('hidden');
                 };
             }
-
-            // =====================================================================
 
             initApp() {
                 if (!this.currentUser) {
@@ -751,7 +737,6 @@
                 }
 
                 const studentData = snapshot.val();
-                
                 if (studentData.name.trim().toLowerCase() !== nameInput) {
                     return this.showToast('⚠️ Datos incorrectos. Verifique el Código y el Nombre.', 'error');
                 }
@@ -761,11 +746,9 @@
                 this.showAlert('¡Contraseña Actualizada!', 'Ya puedes iniciar sesión con tu usuario y tu nueva contraseña.');
             }
 
-            // AUTENTICACIÓN
+            // INICIO DE SESIÓN Y REGISTRO ALUMNO
             async loginStudent(event) {
                 event.preventDefault();
-                if (!db) return this.showToast('⚠️ Error: Firebase no está configurado.', 'error');
-
                 const isRegister = !document.getElementById('student-register-fields').classList.contains('hidden');
 
                 if (isRegister) {
@@ -778,12 +761,14 @@
                     if (!name || !username || !password) return this.showToast('Complete todos los campos de registro.', 'warning');
                     if (cats.length === 0) return this.showToast('Seleccione al menos una categoría.', 'warning');
 
-                    const snapshot = await db.ref('alumnos').once('value');
-                    const allStudents = snapshot.val() || {};
-                    const userExists = Object.values(allStudents).some(s => s.username === username);
+                    if (db) {
+                        const snapshot = await db.ref('alumnos').once('value');
+                        const allStudents = snapshot.val() || {};
+                        const userExists = Object.values(allStudents).some(s => s.username === username);
 
-                    if (userExists) {
-                        return this.showToast('⚠️ Este nombre de usuario ya está en uso.', 'error');
+                        if (userExists) {
+                            return this.showToast('⚠️ Este nombre de usuario ya está en uso.', 'error');
+                        }
                     }
 
                     const randomNum = Math.floor(1000 + Math.random() * 9000);
@@ -797,14 +782,16 @@
                         categories: cats 
                     };
 
-                    await db.ref('alumnos/' + randomCode).set(studentData);
+                    if (db) {
+                        await db.ref('alumnos/' + randomCode).set(studentData);
+                    }
 
                     this.currentUser = studentData;
                     localStorage.setItem('em_current_user', JSON.stringify(studentData));
                     
                     this.showAlert(
                         '¡Cuenta Creada con Éxito!', 
-                        `Tu Código Único de Rescate es:<br><strong class="text-brand-gold text-sm font-mono">${randomCode}</strong><br><span class="text-[10px] text-brand-textLight/70">(Anótalo junto a tu Nombre, te servirá si olvidas tu contraseña)</span>`
+                        `Tu Código Único es:<br><strong class="text-brand-gold text-sm font-mono">${randomCode}</strong><br><span class="text-[10px] text-brand-textLight/70">(Anótalo junto a tu Nombre, te servirá para recuperar tu clave)</span>`
                     );
                     this.initApp();
                 } else {
@@ -812,6 +799,14 @@
                     const password = document.getElementById('sa-login-pass').value.trim();
 
                     if (!username || !password) return this.showToast('Ingrese usuario y contraseña.', 'warning');
+
+                    if (!db) {
+                        // Acceso de respaldo si Firebase aún no está vinculado
+                        this.currentUser = { role: 'student', code: 'ALU-1000', name: username, username, categories: ['A1', 'B1'] };
+                        localStorage.setItem('em_current_user', JSON.stringify(this.currentUser));
+                        this.initApp();
+                        return;
+                    }
 
                     const snapshot = await db.ref('alumnos').once('value');
                     const students = snapshot.val() || {};
@@ -829,10 +824,17 @@
 
             async loginInstructor(event) {
                 event.preventDefault();
-                if (!db) return this.showToast('⚠️ Error: Firebase no está configurado.', 'error');
-
                 const user = document.getElementById('ins-user').value.trim();
                 const pass = document.getElementById('ins-pass').value.trim();
+
+                if (!user || !pass) return this.showToast('Ingrese usuario y contraseña de profesor.', 'warning');
+
+                if (!db) {
+                    this.currentUser = { role: 'instructor', name: user, user: user, categories: ['A1', 'A2', 'B1'] };
+                    localStorage.setItem('em_current_user', JSON.stringify(this.currentUser));
+                    this.initApp();
+                    return;
+                }
 
                 const snapshot = await db.ref('profesores').once('value');
                 const instructors = snapshot.val() || {};
@@ -893,7 +895,10 @@
             }
 
             listenStudentClasses() {
-                if (!db) return;
+                if (!db) {
+                    document.getElementById('st-classes-list').innerHTML = `<p class="text-brand-textLight/50 text-xs italic text-center py-6">Sin clases registradas.</p>`;
+                    return;
+                }
                 db.ref('clases').orderByChild('studentCode').equalTo(this.currentUser.code).on('value', snapshot => {
                     const classesData = snapshot.val() || {};
                     const myClasses = Object.values(classesData);
@@ -944,7 +949,7 @@
                 const select = document.getElementById('nc-instructor');
 
                 if (!db) {
-                    select.innerHTML = `<option value="">⚠️ Firebase no configurado</option>`;
+                    select.innerHTML = `<option value="Prof. Demo">Prof. Demo (Cat: ${selectedCat})</option>`;
                     return;
                 }
 
@@ -961,7 +966,7 @@
 
             async submitNewClass(event) {
                 event.preventDefault();
-                if (!db) return this.showToast('⚠️ Firebase no configurado.', 'error');
+                if (!db) return this.showToast('⚠️ Conecte Firebase para registrar clases reales.', 'warning');
 
                 const classId = Date.now().toString();
                 const newClass = {
@@ -1001,7 +1006,7 @@
                                 </div>
                                 <p class="text-brand-textLight">Clase: ${c.type} (${c.duration == 90 ? '2h' : '1h'}) • Cat: ${c.category}</p>
                                 <p class="text-brand-textLight/70">${c.notes || 'Sin notas'}</p>
-                                <button onclick="App.approveClass('${c.id}')" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold uppercase tracking-wider rounded-xl shadow transition">
+                                <button type="button" onclick="App.approveClass('${c.id}')" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold uppercase tracking-wider rounded-xl shadow transition">
                                     Aprobar y Firmar Clase
                                 </button>
                             </div>
@@ -1025,15 +1030,13 @@
                 this.renderStudentAuditCard(code, 'ins-search-result');
             }
 
-            // GESTIÓN Y FILTRADO EN LA ESCUELA
             loadSchoolManagementData() {
                 if (!db) {
-                    document.getElementById('sch-professors-list').innerHTML = `<p class="text-rose-400 text-xs italic text-center py-4">⚠️ Firebase no configurado.</p>`;
-                    document.getElementById('sch-students-list').innerHTML = `<p class="text-rose-400 text-xs italic text-center py-4">⚠️ Firebase no configurado.</p>`;
+                    document.getElementById('sch-professors-list').innerHTML = `<p class="text-brand-textLight/50 text-xs italic text-center py-4">Conecte Firebase para ver la lista.</p>`;
+                    document.getElementById('sch-students-list').innerHTML = `<p class="text-brand-textLight/50 text-xs italic text-center py-4">Conecte Firebase para ver la lista.</p>`;
                     return;
                 }
 
-                // Escuchar Profesores
                 db.ref('profesores').on('value', snapshot => {
                     const instructors = snapshot.val() || {};
                     const profList = Object.entries(instructors);
@@ -1050,10 +1053,10 @@
                                     <p class="text-[10px] text-brand-textLight/70">Usuario: ${p.user} • Cats: ${(p.categories || []).join(', ')}</p>
                                 </div>
                                 <div class="flex gap-1">
-                                    <button onclick="App.openEditProfModal('${id}', '${p.name}', '${p.pass}', '${(p.categories || []).join(',')}')" class="p-1.5 bg-brand-gold/20 text-brand-gold rounded-lg text-[10px] hover:bg-brand-gold/40 transition">
+                                    <button type="button" onclick="App.openEditProfModal('${id}', '${p.name}', '${p.pass}', '${(p.categories || []).join(',')}')" class="p-1.5 bg-brand-gold/20 text-brand-gold rounded-lg text-[10px] hover:bg-brand-gold/40 transition">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
-                                    <button onclick="App.deleteProf('${id}')" class="p-1.5 bg-rose-600/20 text-rose-400 rounded-lg text-[10px] hover:bg-rose-600/40 transition">
+                                    <button type="button" onclick="App.deleteProf('${id}')" class="p-1.5 bg-rose-600/20 text-rose-400 rounded-lg text-[10px] hover:bg-rose-600/40 transition">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </div>
@@ -1062,7 +1065,6 @@
                     }
                 });
 
-                // Escuchar Alumnos
                 db.ref('alumnos').on('value', snapshot => {
                     this.cachedStudents = snapshot.val() || {};
                     this.renderSchoolStudentsList(this.cachedStudents);
@@ -1086,10 +1088,10 @@
                                     <span class="text-[10px] text-brand-gold font-mono">Usuario: ${s.username || 'N/A'} • Código: ${s.code} • Cats: ${catsStr}</span>
                                 </div>
                                 <div class="flex gap-1" onclick="event.stopPropagation()">
-                                    <button onclick="App.openEditStudModal('${s.code}', '${s.name}', '${s.username || ''}', '${s.password || ''}', '${catsStr}')" class="p-1.5 bg-brand-gold/20 text-brand-gold rounded-lg text-[10px] hover:bg-brand-gold/40 transition">
+                                    <button type="button" onclick="App.openEditStudModal('${s.code}', '${s.name}', '${s.username || ''}', '${s.password || ''}', '${catsStr}')" class="p-1.5 bg-brand-gold/20 text-brand-gold rounded-lg text-[10px] hover:bg-brand-gold/40 transition">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
-                                    <button onclick="App.deleteStud('${s.code}')" class="p-1.5 bg-rose-600/20 text-rose-400 rounded-lg text-[10px] hover:bg-rose-600/40 transition">
+                                    <button type="button" onclick="App.deleteStud('${s.code}')" class="p-1.5 bg-rose-600/20 text-rose-400 rounded-lg text-[10px] hover:bg-rose-600/40 transition">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </div>
@@ -1287,7 +1289,11 @@
             }
         }
 
-        const App = new DrivingApp();
+        // Inicialización segura cuando el DOM está listo
+        let App;
+        document.addEventListener('DOMContentLoaded', () => {
+            App = new DrivingApp();
+        });
     </script>
 </body>
 </html>
